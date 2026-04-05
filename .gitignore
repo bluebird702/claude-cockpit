@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# 백업 (install.sh가 생성)
+backups/
+
+# 로컬 비밀값 (파일 폴백 사용 시)
+secrets.env
+mcp.env
+mcp.public.env
+.env
+.env.local
+
+# 에디터
+.idea/
+.vscode/
+*.swp

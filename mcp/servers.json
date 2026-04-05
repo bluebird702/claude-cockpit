@@ -1,0 +1,91 @@
+{
+  "$schema": "./servers.schema.json",
+  "_comment": "cockpit이 관리하는 MCP 서버 템플릿. setup.sh가 이 파일의 inputs를 읽어 Phase 2에서 사용자 입력을 받은 뒤, env에 채워 ~/.claude/settings.json 에 머지합니다.",
+  "servers": {
+    "github": {
+      "label": "GitHub",
+      "description": "GitHub Issues / PR / Code 검색",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "inputs": [
+        {
+          "name": "GITHUB_TOKEN",
+          "prompt": "GitHub Personal Access Token",
+          "secret": true,
+          "validate": "token"
+        }
+      ]
+    },
+    "jira": {
+      "label": "Jira",
+      "description": "Atlassian Jira 이슈·프로젝트",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-atlassian-jira"],
+      "env": {
+        "JIRA_URL": "${JIRA_URL}",
+        "JIRA_EMAIL": "${JIRA_EMAIL}",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+      },
+      "inputs": [
+        {
+          "name": "JIRA_URL",
+          "prompt": "Jira URL",
+          "default": "https://your.atlassian.net",
+          "validate": "url"
+        },
+        {
+          "name": "JIRA_EMAIL",
+          "prompt": "Jira 로그인 이메일",
+          "validate": "email"
+        },
+        {
+          "name": "JIRA_API_TOKEN",
+          "prompt": "Jira API Token",
+          "secret": true,
+          "validate": "token"
+        }
+      ]
+    },
+    "confluence": {
+      "label": "Confluence",
+      "description": "Atlassian Confluence 페이지/위키",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-atlassian-confluence"],
+      "env": {
+        "CONFLUENCE_URL": "${CONFLUENCE_URL}",
+        "CONFLUENCE_EMAIL": "${CONFLUENCE_EMAIL}",
+        "CONFLUENCE_API_TOKEN": "${CONFLUENCE_API_TOKEN}"
+      },
+      "inputs": [
+        {
+          "name": "CONFLUENCE_URL",
+          "prompt": "Confluence URL",
+          "default": "https://your.atlassian.net/wiki",
+          "validate": "url"
+        },
+        {
+          "name": "CONFLUENCE_EMAIL",
+          "prompt": "Confluence 로그인 이메일",
+          "validate": "email"
+        },
+        {
+          "name": "CONFLUENCE_API_TOKEN",
+          "prompt": "Confluence API Token",
+          "secret": true,
+          "validate": "token"
+        }
+      ]
+    },
+    "playwright": {
+      "label": "Playwright",
+      "description": "Playwright 브라우저 자동화",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "env": {},
+      "inputs": []
+    }
+  }
+}
