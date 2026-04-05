@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+
+# 백업 (install.sh가 생성)
+backups/
+
+# 로컬 비밀값 (파일 폴백 사용 시)
+secrets/
+secrets/*.local*
+secrets.env
+mcp.env
+mcp.public.env
+.env
+.env.local
+
+# 로컬 설정 (장비·사용자별 오버라이드, 절대 공유 금지)
+.claude/settings.local.json
+
+# 템플릿 렌더 결과물 (global-install.sh Phase 1.5 생성)
+.cockpit-local/
+
+# 에디터
+.idea/
+.vscode/
+*.swp
+
+# Python / Poetry (platform/runtime)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+dist/
+*.egg-info/
+# poetry.lock 은 커밋 (재현성 위해)
+
+# 스캐폴드 임시 결과물
+workers/test-*/

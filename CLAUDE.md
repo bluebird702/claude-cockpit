@@ -1,0 +1,95 @@
+# claude-cockpit (프로젝트 전용 지침)
+
+> 이 파일은 **cockpit 레포 자체를 편집할 때** Claude 가 따라야 할 지침입니다.
+> 전역 지침(`core/CLAUDE.md`)은 `~/.claude/CLAUDE.md` 로 심링크되어 별도로 자동 로드됩니다 — 여기서 중복하지 않습니다.
+
+## 이 레포의 정체성
+
+claude-cockpit 은 **단일 출처(SSOT)** 입니다. `~/.claude/` 하위의 모든 파일(`CLAUDE.md`, `settings.json`, `keybindings.json`, `commands/`, `agents/`)은 이 레포의 심볼릭 링크입니다. 따라서:
+
+- **수정은 반드시 cockpit 레포에서만** 합니다. `~/.claude/*` 를 직접 편집하지 않습니다.
+- 장비별/개인 오버라이드가 필요하면 `~/.claude/settings.local.json` (레포 밖) 을 사용합니다.
+- 출발은 CEO 1인 dotfiles 였지만, 현재는 **에이전트-직원 기반 조직 OS** 로 확장 중입니다. 배경은 `platform/docs/vision.md`, `platform/docs/architecture.md` 참조.
+
+## 레이어 구조
+
+```
+claude-cockpit/
+├── core/                전사 baseline — 모든 사람·에이전트가 상속
+│   ├── CLAUDE.md         전역 지침 (→ ~/.claude/CLAUDE.md 로 링크)
+│   ├── settings.json     권한·훅 baseline
+│   ├── keybindings.json
+│   ├── standards/        coding / testing / api / planning / product / management
+│   ├── hooks/            guard-bash, guard-secrets, format, session-context, session-end
+│   ├── mcp-shared/       공통 MCP (GitHub / Jira / Confluence / Playwright) + setup.sh
+│   └── memory-seed/      초기 메모리 시드 (user_profile, feedback_style, reference_cockpit)
+│
+├── humans/              사람(CEO) 용 대화형 도구
+│   ├── skills/           슬래시 커맨드 — review/ design/ dev/ ci/ docs/ wiki/ plan/ prod/ mgmt/
+│   └── subagents/        Task 툴 서브에이전트 (ceo-briefing, flaky-test-hunter, ...)
+│
+├── platform/            🚧 에이전트 플랫폼 (구축 중)
+│   ├── docs/             vision / architecture / install-flow / roadmap / cheapest-setup
+│   ├── runtime/          Python 워커 런타임 (Claude Agent SDK + Slack Bolt)
+│   └── template/         신규 워커 스캐폴드 (AGENT.md / persona.md / memory-seed / tools.yaml)
+│
+├── docs/                레포 문서
+│   ├── dev/              project-structure, local-environment (Colima), ...
+│   ├── process/          review-exclusions, doc-sync
+│   ├── examples/         실제 프로젝트 CLAUDE.md 샘플
+│   └── writing/          commit / PR / ADR / 한글 톤 가이드
+│
+├── scripts/             설치·링크·진단
+│   ├── global-install.sh    ~/.claude 에 링크 (install.sh 가 래퍼)
+│   ├── global-uninstall.sh
+│   ├── check-deps.sh        환경 진단 (구 phase-doctor)
+│   ├── claude-plugins.sh    플러그인 설치 (구 phase-plugins)
+│   ├── post-install-check.sh
+│   ├── project-link.sh / project-unlink.sh   소비 프로젝트용
+│   └── lib/                 common · tui · jq_merge · secrets
+│
+├── secrets/             1Password 스키마만 (실제 값 X)
+└── install.sh           원클릭 래퍼 → scripts/global-install.sh --with-mcp
+```
+
+## 작업 시 규칙
+
+### 편집 대상 식별
+
+- **슬래시 커맨드 고치기** → `humans/skills/<namespace>/<name>.md`. 네임스페이스는 전역 지침의 4도메인 표 참조.
+- **서브에이전트 고치기** → `humans/subagents/*.md`.
+- **전역 권한·훅 조정** → `core/settings.json` + `core/hooks/*.sh`. 훅 추가/변경 시 `bash -n` 구문 검사와 실행 권한 확인 필수.
+- **공통 표준 변경** → `core/standards/**`. 여기가 원본이고 다른 문서에서 `@standards/...` 로 참조합니다. 복사본 만들지 말 것.
+- **에이전트 플랫폼 작업** → `platform/`. 아직 Sprint 0 단계이므로 `platform/docs/roadmap.md` 의 현재 스프린트 범위 안에서만 변경.
+
+### 하지 말 것
+
+- `~/.claude/` 심링크 대상 직접 편집 (변경사항이 추적되지 않음).
+- `core/standards/` 내용을 다른 파일에 복사. 반드시 `@standards/...` 로 참조.
+- 평문 시크릿 커밋. `core/hooks/guard-secrets.sh` 가 PreToolUse 로 차단하지만, 그 전에 본인이 먼저 체크.
+- `skills/` 의 네임스페이스 규칙(4도메인: 개발 / 기획 / 프로덕트 / 경영) 위반. 새 스킬을 어디 둘지 애매하면 먼저 질문.
+- 과거 네이밍 복원: `skills/jira/` (→ `mgmt/`), `phase-doctor` (→ `check-deps`), `phase-plugins` (→ `claude-plugins`) 는 모두 리네이밍됐습니다.
+
+### 쉘 스크립트 작성
+
+- 모든 스크립트는 `set -euo pipefail` 시작.
+- `scripts/lib/common.sh`, `scripts/lib/tui.sh` 의 공통 함수 재사용. 새 로깅/TUI 유틸리티 중복 작성 금지.
+- macOS(Darwin) / Linux 둘 다 동작해야 함 — `sed -i` 같은 BSD/GNU 차이 주의.
+
+### Claude 호출 런타임
+
+- `platform/runtime/` 은 **Claude Agent SDK only** 입니다. 과거 Anthropic Messages API 직접 호출 코드는 제거됐습니다(커밋 `5aad7c7`). 새 워커 추가 시 SDK 경로만 사용하세요.
+
+## 검증
+
+- 설치·링크 상태: `./scripts/post-install-check.sh`
+- 이 레포 자체 메타 리뷰: `/review:cockpit`
+- 표준 준수: `/review:all` (프로젝트 대상일 때만 — cockpit 자체엔 `/review:cockpit` 가 맞음)
+
+## 참고 문서
+
+- 비전 · 조직도: `platform/docs/vision.md`
+- 레포 구조 · Slack · 런타임: `platform/docs/architecture.md`
+- 설치 흐름: `platform/docs/install-flow.md`
+- 현재 스프린트: `platform/docs/roadmap.md`
+- 표준 인덱스: `core/standards/CLAUDE.md`

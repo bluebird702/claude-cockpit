@@ -1,0 +1,48 @@
+---
+name: cockpit 레포 참조
+description: claude-cockpit 레포 위치와 주요 엔트리 포인트. 모든 Claude 설정의 단일 출처(SSOT).
+type: reference
+---
+
+## 위치
+
+- **레포**: `{{COCKPIT_HOME}}`
+- **링크 대상**: `~/.claude/` (CLAUDE.md, settings.json, keybindings.json, commands/, agents/)
+
+## 레이어
+
+- `core/` — 전사 baseline (CLAUDE.md, settings, standards, hooks, mcp-shared, memory-seed)
+- `humans/` — CEO 및 인간 직원의 대화형 도구 (skills, subagents)
+- `workers/` — 에이전트 직원 정의 (_runtime, _template, 각 봇 디렉토리) · Sprint 0~ 구축 중
+- `slack/` · `deploy/` · `knowledge/` · `secrets/` — 에이전트 플랫폼 지원 레이어
+
+## 주요 엔트리 포인트
+
+| 목적 | 경로 |
+|------|------|
+| 원클릭 설치 | `./install.sh` |
+| 환경 진단 | `./scripts/check-deps.sh` |
+| 설치 후 헬스체크 | `./scripts/post-install-check.sh` |
+| MCP 서버 설정 | `./core/mcp-shared/setup.sh` |
+| MCP 서버 정의 | `./core/mcp-shared/servers.json` |
+| 전역 CLAUDE.md | `./core/CLAUDE.md` |
+| 전역 권한/훅 | `./core/settings.json` |
+| 보안 훅 | `./core/hooks/*.sh` |
+| 스킬 | `./humans/skills/{review,design,dev,ci,docs,wiki,mgmt,plan,prod}/` |
+| 서브에이전트 | `./humans/subagents/*.md` |
+| 공통 표준 | `./core/standards/` |
+| 에이전트 플랫폼 설계 | `./platform/docs/` |
+| 에이전트 런타임 | `./platform/runtime/` (Python 패키지) |
+| 워커 템플릿 | `./platform/template/` |
+
+## 운영 원칙
+
+- `~/.claude/*` 는 모두 cockpit 레포의 심볼릭 링크 — **레포에서만 수정**.
+- 개인/장비별 오버라이드가 필요하면 `~/.claude/settings.local.json` 사용 (레포 밖).
+- 비밀값은 Keychain/libsecret. cockpit 은 **평문 비밀값 일체 금지**.
+
+## 적용
+
+- Claude 설정·스킬·에이전트에 대한 질문이 나오면 먼저 이 레포부터 확인.
+- "왜 이 훅이 동작하지?" → `core/settings.json` 의 `hooks` 와 `core/hooks/*.sh`.
+- "이 명령이 왜 막히지?" → `core/settings.json` 의 `permissions.deny` + `core/hooks/guard-bash.sh`.

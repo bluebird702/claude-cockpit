@@ -1,0 +1,48 @@
+[project]
+name = "cockpit-worker-runtime"
+version = "0.1.0"
+description = "claude-cockpit 에이전트 직원 공통 런타임 — Slack Bolt + Claude Agent SDK 조립기"
+requires-python = ">=3.12"
+authors = [{ name = "claude-cockpit" }]
+license = { text = "MIT" }
+
+dependencies = [
+    "claude-agent-sdk>=0.1.0",
+    "slack-bolt>=1.21.0",
+    "slack-sdk>=3.33.0",
+    "aiohttp>=3.10.0",
+    "pydantic>=2.9.0",
+    "pyyaml>=6.0.2",
+    "structlog>=24.4.0",
+    "python-frontmatter>=1.1.0",
+    "pyjwt[crypto]>=2.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.7.0",
+    "mypy>=1.13.0",
+]
+
+[project.scripts]
+cockpit-worker = "cockpit_worker_runtime.entrypoint:main"
+
+[build-system]
+requires = ["poetry-core>=2.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "cockpit_worker_runtime" }]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "RET"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

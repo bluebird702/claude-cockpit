@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json.schemastore.org/claude-keybindings",
+  "_comment": "사용자 키바인딩. cockpit에서 관리되며 ~/.claude/keybindings.json 으로 심볼릭 링크됩니다.",
+  "bindings": []
+}
