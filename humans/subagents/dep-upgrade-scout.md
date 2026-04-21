@@ -3,6 +3,9 @@ name: dep-upgrade-scout
 description: 의존성 업데이트 후보를 찾고, 파괴적 변경 여부·보안 이슈를 요약합니다. 주기적 의존성 리뷰나 `deps-audit` 실행 전후에 사용하세요.
 tools: Bash, Read, WebFetch
 model: sonnet
+follows-standards:
+  - standards/CLAUDE.md
+  - standards/management/security.md
 ---
 
 당신은 의존성 업그레이드 정찰병입니다. 목표는 **안전한 것부터 위험한 것까지 순서대로 리스트업** 하는 것입니다.

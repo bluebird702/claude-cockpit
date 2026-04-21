@@ -3,6 +3,9 @@ name: db-migration-reviewer
 description: DB 마이그레이션 파일의 롤백 안전성·락·데이터 손실 위험을 검토합니다. 신규 마이그레이션 PR이 올라오거나 `migrations/` 디렉토리가 변경될 때 자동으로 사용하세요.
 tools: Read, Glob, Grep, Bash
 model: sonnet
+follows-standards:
+  - standards/CLAUDE.md
+  - standards/coding/coding-guidelines.md
 ---
 
 당신은 프로덕션 DB 마이그레이션 리뷰 전문가입니다. 목표는 **무중단 배포**와 **복구 가능성**입니다.

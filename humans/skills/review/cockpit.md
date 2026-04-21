@@ -45,7 +45,7 @@ Claude 가 이 문서를 읽고 지정된 섹션을 순서대로 검사한 뒤, 
 claude-cockpit/
 ├── install.sh                       # 단일 진입점
 ├── core/                            # Claude Code 전역 설정 원본
-│   ├── CLAUDE.md  settings.json  keybindings.json
+│   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, session-*
 │   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management)
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh
@@ -55,7 +55,7 @@ claude-cockpit/
 │   └── subagents/                   # 5종 에이전트
 ├── scripts/                         # global-install, project-link, check-deps, post-install-check, lib/
 ├── platform/                           # 에이전트 플랫폼 런타임 (runtime/template/docs)
-├── knowledge/  deploy/  secrets/  slack/  workers/
+├── secrets/                         # 1Password 스키마만 (실제 값 X)
 └── docs/                            # dev/examples/process/writing
 ```
 
@@ -63,7 +63,7 @@ claude-cockpit/
 
 ### §1. 디렉토리 구조 (10점)
 
-- [ ] `core/` — `CLAUDE.md`, `settings.json`, `keybindings.json` 존재
+- [ ] `core/` — `CLAUDE.md`, `settings.json.template`, `keybindings.json` 존재
 - [ ] `core/hooks/` — `format.sh`, `guard-bash.sh`, `guard-secrets.sh`, `session-context.sh`, `session-end.sh` (5종)
 - [ ] `core/standards/` — `CLAUDE.md`, `coding/`, `testing/`, `api/`, `planning/`, `product/`, `management/`, `templates/`
 - [ ] `core/mcp-shared/` — `servers.json`, `setup.sh`, `clean.sh`, `README.md`, `.env.example`
@@ -121,7 +121,7 @@ claude-cockpit/
 
 - [ ] `core/hooks/` 에 5종(format, guard-bash, guard-secrets, session-context, session-end) 모두 존재
 - [ ] 모두 `set -euo pipefail` 시작 + 실행 권한 + `bash -n` 통과
-- [ ] `core/settings.json` 의 hook 등록이 실제 파일 경로와 일치
+- [ ] `core/settings.json.template` 의 hook 등록이 실제 파일 경로와 일치
 - [ ] `guard-secrets.sh` 가 `ghp_`, `xoxb-`, `sk-`, `AKIA`, `glpat-` 등 주요 시크릿 패턴 차단 (§10 과 동일 목록)
 
 ### §7. Subagents (5점)
@@ -161,7 +161,7 @@ claude-cockpit/
 - [ ] 레포에 실제 토큰·비밀값이 커밋되지 않음 (`ghp_`, `xoxb-`, `sk-`, `AKIA`, `glpat-` 등)
 - [ ] `core/mcp-shared/.env.example` 은 예시 값만 포함
 - [ ] `.gitignore` 에 `secrets.env`, `mcp.public.env`, `backups/`, `secrets/*.local*` 포함
-- [ ] `core/settings.json` 에는 `${VAR}` 참조만 있고 실제 값 없음
+- [ ] `core/settings.json.template` 에는 `${VAR}` 참조만 있고 실제 값 없음
 - [ ] `core/memory-seed/`, `knowledge/`, `secrets/` 중 민감정보가 포함된 파일 없음
 
 ### §11. 한글 톤 · 응답 규칙 (5점)
@@ -393,7 +393,7 @@ git grep -nE '(ghp_[A-Za-z0-9]{20,}|xoxb-[A-Za-z0-9-]{20,}|sk-[A-Za-z0-9]{20,}|A
 # ============================================================
 python3 <<'PY'
 import json, os, re
-s = json.load(open('core/settings.json'))
+s = json.load(open('core/settings.json.template'))
 files = {f for f in os.listdir('core/hooks') if f.endswith('.sh')}
 referenced = set()
 def walk(x):

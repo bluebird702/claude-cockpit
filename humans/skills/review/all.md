@@ -38,14 +38,14 @@ $ARGUMENTS
 
 **반드시 하나의 메시지에서 6개 Agent tool을 동시에 호출**합니다. 각 sub-skill의 **Step 2 체크리스트와 Step 4 출력 형식**을 해당 sub-skill 파일에서 그대로 사용합니다 (중복 정의 금지).
 
-| # | 영역 | Sub-skill | 위임 에이전트 |
-|---|------|-----------|--------------|
-| 1 | 아키텍처 | @skills/review/architecture.md | `code-review-ai:architect-review` |
-| 2 | 코드 품질 | @skills/review/code.md | `pr-review-toolkit:code-reviewer` |
-| 3 | 테스트 | @skills/review/test.md | `backend-development:tdd-orchestrator` |
-| 4 | 보안 | @skills/review/security.md | `pr-review-toolkit:silent-failure-hunter` |
-| 5 | 성능·관측성 | @skills/review/performance.md | `backend-development:backend-architect` |
-| 6 | 의존성 | @skills/review/deps.md | `backend-development:backend-architect` |
+| # | 영역 | Sub-skill |
+|---|------|-----------|
+| 1 | 아키텍처 | @skills/review/architecture.md |
+| 2 | 코드 품질 | @skills/review/code.md |
+| 3 | 테스트 | @skills/review/test.md |
+| 4 | 보안 | @skills/review/security.md |
+| 5 | 성능·관측성 | @skills/review/performance.md |
+| 6 | 의존성 | @skills/review/deps.md |
 
 ### 공통 에이전트 지시
 
