@@ -45,7 +45,7 @@ Claude 가 이 문서를 읽고 지정된 섹션을 순서대로 검사한 뒤, 
 claude-cockpit/
 ├── install.sh                       # 단일 진입점
 ├── core/                            # Claude Code 전역 설정 원본
-│   ├── CLAUDE.md  settings.json  keybindings.json
+│   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, session-*
 │   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management)
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh
@@ -63,7 +63,7 @@ claude-cockpit/
 
 ### §1. 디렉토리 구조 (10점)
 
-- [ ] `core/` — `CLAUDE.md`, `settings.json`, `keybindings.json` 존재
+- [ ] `core/` — `CLAUDE.md`, `settings.json.template`, `keybindings.json` 존재
 - [ ] `core/hooks/` — `format.sh`, `guard-bash.sh`, `guard-secrets.sh`, `session-context.sh`, `session-end.sh` (5종)
 - [ ] `core/standards/` — `CLAUDE.md`, `coding/`, `testing/`, `api/`, `planning/`, `product/`, `management/`, `templates/`
 - [ ] `core/mcp-shared/` — `servers.json`, `setup.sh`, `clean.sh`, `README.md`, `.env.example`
