@@ -8,6 +8,10 @@
 
 set -euo pipefail
 
+# Stop 이벤트 payload 캡처 (stdin → JSON: session_id, transcript_path 등)
+# 프로젝트별 확장 스크립트에 전달하기 위해 미리 읽어둠
+_stop_payload=$(timeout 0.5 cat 2>/dev/null || true)
+
 snap_dir="$HOME/.claude/session-snapshots"
 mkdir -p "$snap_dir"
 
@@ -42,5 +46,13 @@ disown 2>/dev/null || true
 # 오래된 스냅샷 정리 (30일 초과)
 find "$snap_dir" -name '*.md' -mtime +30 -delete 2>/dev/null &
 disown 2>/dev/null || true
+
+# 프로젝트별 확장 포인트 — .claude/hooks/post-stop.sh 가 있으면 background 실행
+# payload(session_id, transcript_path)를 stdin으로 전달
+_project_hook="$cwd/.claude/hooks/post-stop.sh"
+if [[ -x "$_project_hook" ]]; then
+  echo "$_stop_payload" | "$_project_hook" &
+  disown 2>/dev/null || true
+fi
 
 exit 0
