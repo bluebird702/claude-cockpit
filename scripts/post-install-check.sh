@@ -155,21 +155,6 @@ else
   log_dim "  · MCP 미설치 (./install.sh 는 기본 포함, 건너뛰었다면 ./core/mcp-shared/setup.sh)"
 fi
 
-log_info "── Platform 레이아웃 (에이전트 프레임워크)"
-if [ -d "$ROOT/platform" ]; then
-  runtime_ok="no"
-  if [ -f "$ROOT/platform/runtime/pyproject.toml" ]; then
-    runtime_ok="yes"
-  fi
-  template_ok="no"
-  if [ -f "$ROOT/platform/template/AGENT.md" ]; then
-    template_ok="yes"
-  fi
-  log_ok "platform/runtime: $runtime_ok · platform/template: $template_ok"
-else
-  log_dim "  · platform/ 없음"
-fi
-
 log_info "── Secrets 백엔드"
 source "$ROOT/scripts/lib/secrets.sh"
 log_ok "백엔드: $(secrets_backend_label)"

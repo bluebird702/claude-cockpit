@@ -1,14 +1,13 @@
 # claude-cockpit
 
-Claude Code 설정·스킬·표준·에이전트 정의를 한 곳에서 관리하는 **단일 출처(SSOT)** 레포입니다. `~/.claude/` 하위 파일은 모두 이 레포의 심볼릭 링크로 연결되어, cockpit 에서의 변경이 즉시 반영됩니다.
+> **어디서든 노트북에 다운받으면 그 머신이 좋은 퀄리티의 Claude Code 환경이 되는 dotfiles + 표준 + 슬래시 커맨드 + 훅 + MCP 부트스트랩.**
 
-출발은 1인 창업자 dotfiles 였으나, 현재는 **에이전트-직원 기반 조직 OS** 로 확장 중입니다. 설계 배경은 [`platform/docs/vision.md`](./platform/docs/vision.md) · [`platform/docs/architecture.md`](./platform/docs/architecture.md) 참조.
+Claude Code 설정·스킬·표준을 한 곳에서 관리하는 **단일 출처(SSOT)** 레포입니다. `~/.claude/` 하위 파일은 모두 이 레포의 심볼릭 링크로 연결되어, cockpit 에서의 변경이 즉시 반영됩니다.
 
 > **📌 공개 레포 안내**
 >
 > - **타겟 독자**: 1인 창업자 ~ 소규모 팀. 대기업 조직에는 그대로 맞지 않을 수 있습니다 — 승인 프로세스·리뷰 게이트는 직접 확장하세요.
 > - **언어**: 모든 문서·스킬·표준이 **한국어** 로 작성돼 있습니다. 응답 톤(한글·존댓말) 은 `core/CLAUDE.md` 에서 변경할 수 있습니다. 영어 번역 PR 환영합니다.
-> - **예시 조직 구성**: `platform/docs/**` 는 특정 전제(제품명 · 6 리더 + 5 서브워커 구조 · Slack 채널명) 를 가진 **설계 초안** 입니다. 일반화된 프레임워크가 아니라 "한 개인이 이렇게 잡아봤다" 는 참고용 샘플이며, 본인 구성에 맞춰 포크 후 교체하는 것이 의도된 사용법입니다.
 > - **로컬 환경 전제**: macOS + Colima 를 권장 기본값으로 합니다. Linux·Docker Desktop·Podman 에서도 동작 가능하지만 일부 스크립트 경로는 검증되지 않았습니다.
 > - **개인 설정 치환**: 설치 시 `scripts/global-install.sh` 가 `$HOME`, GitHub 사용자명, 레포 경로 등을 감지해 `~/.claude/*` 에 반영합니다. 레포에는 템플릿 형태로만 존재합니다.
 
@@ -28,11 +27,6 @@ claude-cockpit/
 ├── humans/                사람(CEO) 용 대화형 도구
 │   ├── skills/             슬래시 커맨드 (4도메인: 개발 / 기획 / 프로덕트 / 경영)
 │   └── subagents/          Task 툴 서브에이전트
-│
-├── platform/              🚧 에이전트 플랫폼 (Sprint 0 진행 중)
-│   ├── docs/               vision · architecture · install-flow · roadmap · cheapest-setup
-│   ├── runtime/            Python 워커 런타임 (Claude Agent SDK + Slack Bolt)
-│   └── template/           신규 워커 스캐폴드
 │
 ├── docs/                  레포 문서 (dev / process / examples / writing)
 ├── scripts/               설치·링크·진단 (lib/ 공통 라이브러리 포함)
@@ -165,18 +159,6 @@ git submodule update --remote .cockpit
 - **표준 원본**: `core/standards/` 가 모든 규칙의 원본. 스킬·프로젝트는 자동 로드만 하고 복사본을 만들지 않음.
 
 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 와 [`core/standards/CLAUDE.md`](./core/standards/CLAUDE.md) 참조.
-
-## 에이전트 플랫폼 (구축 중)
-
-`platform/` 하위는 cockpit 을 "1인 창업자 dotfiles" 에서 **Slack 상주 AI 조직** 으로 확장하는 작업의 설계·런타임·템플릿을 담고 있습니다. 샘플 목표치: 비서 1 + C-suite 리더 6 (CFO / CMO / CPO / CDO / Design / CTO) + CTO 하위 서브워커 5 = 총 12 봇 (본인 상황에 맞춰 조정).
-
-- 비전: [`platform/docs/vision.md`](./platform/docs/vision.md)
-- 아키텍처 · Slack · 런타임: [`platform/docs/architecture.md`](./platform/docs/architecture.md)
-- 최저 비용 셋업: [`platform/docs/cheapest-setup.md`](./platform/docs/cheapest-setup.md)
-- 설치 흐름: [`platform/docs/install-flow.md`](./platform/docs/install-flow.md)
-- 스프린트 계획: [`platform/docs/roadmap.md`](./platform/docs/roadmap.md)
-
-현재 Sprint 0 단계입니다. cockpit 은 조직 인프라와 에이전트 정의만 호스트하며, 실제 제품 코드는 별도 레포에 두는 전제로 설계됐습니다.
 
 ## 라이선스
 
