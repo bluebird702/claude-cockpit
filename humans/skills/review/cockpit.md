@@ -46,7 +46,7 @@ claude-cockpit/
 ├── install.sh                       # 단일 진입점
 ├── core/                            # Claude Code 전역 설정 원본
 │   ├── CLAUDE.md  settings.json.template  keybindings.json
-│   ├── hooks/                       # format, guard-bash, guard-secrets, session-*
+│   ├── hooks/                       # format, guard-bash, guard-secrets, guard-prompt-injection, session-*
 │   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management) + templates/
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
@@ -66,7 +66,7 @@ claude-cockpit/
 ### §1. 디렉토리 구조 (10점)
 
 - [ ] `core/` — `CLAUDE.md`, `settings.json.template`, `keybindings.json` 존재
-- [ ] `core/hooks/` — `format.sh`, `guard-bash.sh`, `guard-secrets.sh`, `session-context.sh`, `session-end.sh` (5종)
+- [ ] `core/hooks/` — `format.sh`, `guard-bash.sh`, `guard-secrets.sh`, `guard-prompt-injection.sh`, `session-context.sh`, `session-end.sh` (6종)
 - [ ] `core/standards/` — `CLAUDE.md`, `coding/`, `testing/`, `api/`, `planning/`, `product/`, `management/`, `templates/`
 - [ ] `core/mcp-shared/` — `servers.json`, `setup.sh`, `clean.sh`, `README.md`, `.env.example`
 - [ ] `humans/skills/` — 9 카테고리 (`ci`, `design`, `dev`, `docs`, `mgmt`, `plan`, `prod`, `review`, `wiki`) + `_template.md`
@@ -121,10 +121,11 @@ claude-cockpit/
 
 ### §6. Hooks (5점)
 
-- [ ] `core/hooks/` 에 5종(format, guard-bash, guard-secrets, session-context, session-end) 모두 존재
+- [ ] `core/hooks/` 에 6종(format, guard-bash, guard-secrets, guard-prompt-injection, session-context, session-end) 모두 존재
 - [ ] 모두 `set -euo pipefail` 시작 + 실행 권한 + `bash -n` 통과
 - [ ] `core/settings.json` 의 hook 등록이 실제 파일 경로와 일치
 - [ ] `guard-secrets.sh` 가 `ghp_`, `xoxb-`, `sk-`, `AKIA`, `glpat-` 등 주요 시크릿 패턴 차단 (§10 과 동일 목록)
+- [ ] `guard-prompt-injection.sh` 가 `WebFetch|WebSearch|Bash` 결과에서 영·한 prompt injection 패턴을 스캔 (§ ai-usage.md 외부 컨텍스트 신뢰 등급)
 
 ### §7. Subagents (5점)
 
