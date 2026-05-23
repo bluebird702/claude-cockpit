@@ -56,7 +56,20 @@ COCKPIT_HOME=$HOME/.cockpit COCKPIT_REF=v1.0 \
   curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash
 ```
 
-> 📌 부트스트랩은 git HTTPS 로 클론 후 `install.sh` 를 위임 실행합니다. 스크립트 길이는 50 줄 미만이라 `curl | bash` 전 직접 검토를 권장합니다 — [`scripts/bootstrap.sh`](./scripts/bootstrap.sh).
+**재실행 / 제거**도 같은 1줄 패턴을 따릅니다:
+
+```bash
+# 재실행: 멱등 (clone → fetch/pull → install.sh, link_idempotent 로 기존 링크 보존)
+curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash
+
+# 제거: ~/.claude 의 cockpit 링크만 해제 (cockpit 레포·유저 메모리는 보존)
+curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash -s -- --clean
+
+# MCP·메모리까지 함께 제거
+curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash -s -- --clean --all
+```
+
+> 📌 부트스트랩은 git HTTPS 로 클론 후 `install.sh` (또는 `--clean` 시 `uninstall.sh`) 를 위임 실행합니다. cockpit 레포 자체는 자동 삭제되지 않습니다 — 완전 초기화는 `rm -rf $COCKPIT_HOME` 으로 명시적으로. 스크립트는 80 줄 미만이라 [`scripts/bootstrap.sh`](./scripts/bootstrap.sh) 직접 검토를 권장합니다.
 
 ### 옵션 B. 수동 (이미 클론한 경우)
 
