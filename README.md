@@ -37,16 +37,32 @@ claude-cockpit/
 
 ## 빠른 시작
 
-### 1. 클론
+### 옵션 A. 새 장비 — 1줄 부트스트랩 (권장)
 
 ```bash
-git clone git@github.com:<YOUR_ORG>/claude-cockpit.git ~/Work/claude-cockpit
-cd ~/Work/claude-cockpit
+curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash
 ```
 
-### 2. 원클릭 설치
+인자 전달이 필요하면 `bash -s --` 패턴:
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash -s -- --no-mcp --no-plugins
+```
+
+환경변수로 위치·브랜치 조정:
+
+```bash
+COCKPIT_HOME=$HOME/.cockpit COCKPIT_REF=v1.0 \
+  curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash
+```
+
+> 📌 부트스트랩은 git HTTPS 로 클론 후 `install.sh` 를 위임 실행합니다. 스크립트 길이는 50 줄 미만이라 `curl | bash` 전 직접 검토를 권장합니다 — [`scripts/bootstrap.sh`](./scripts/bootstrap.sh).
+
+### 옵션 B. 수동 (이미 클론한 경우)
+
+```bash
+git clone git@github.com:bluebird702/claude-cockpit.git ~/Work/claude-cockpit
+cd ~/Work/claude-cockpit
 ./install.sh                    # 전역 링크 + MCP + 플러그인 설치
 ./install.sh --force            # 기존 실제 파일도 백업 후 덮어씀
 ./install.sh --no-mcp           # MCP 단계 건너뜀
