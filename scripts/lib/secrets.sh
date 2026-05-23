@@ -158,7 +158,7 @@ secrets_write_loader() {
     echo "[ -f \"$nonsecret\" ] && source \"$nonsecret\""
     echo ""
     echo "# 비밀 값 ($(secrets_backend_label))"
-    for key in "${keys[@]}"; do
+    for key in ${keys[@]+"${keys[@]}"}; do
       case "$backend" in
         keychain)
           echo "export $key=\"\$(security find-generic-password -a '$key' -s '$SECRETS_SERVICE' -w 2>/dev/null)\""

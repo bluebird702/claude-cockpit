@@ -349,8 +349,12 @@ fi
 mkdir -p "$CONFIG_DIR"
 tmp_pub="$(mktemp)"
 if [ -f "$PUBLIC_ENV" ]; then
-  # 이번에 덮어쓸 키들을 기존 파일에서 제거
-  grep -v -E "^export ($(IFS='|'; echo "${ALL_INPUT_KEYS[*]}"))=" "$PUBLIC_ENV" > "$tmp_pub" 2>/dev/null || true
+  # 이번에 덮어쓸 키들을 기존 파일에서 제거 (입력 없는 서버만 단독 등록 시 ALL_INPUT_KEYS 비어있을 수 있음)
+  if [ "${#ALL_INPUT_KEYS[@]}" -gt 0 ]; then
+    grep -v -E "^export ($(IFS='|'; echo "${ALL_INPUT_KEYS[*]}"))=" "$PUBLIC_ENV" > "$tmp_pub" 2>/dev/null || true
+  else
+    cp "$PUBLIC_ENV" "$tmp_pub"
+  fi
 fi
 {
   echo "# claude-cockpit MCP 공개값 (자동 생성 — $(date '+%Y-%m-%d %H:%M:%S'))"
@@ -367,7 +371,9 @@ chmod 600 "$PUBLIC_ENV"
 log_ok "공개값 파일: $PUBLIC_ENV"
 
 # 4) 로더 스크립트 생성 (쉘 rc 가 이것만 source 하면 끝)
-secrets_write_loader "$LOADER_SH" "$PUBLIC_ENV" "${SECRET_KEYS[@]}"
+#    SECRET_KEYS 가 비어 있어도 안전하도록 ${arr[@]+"${arr[@]}"} 패턴 사용
+#    (시크릿 없는 서버만 단독 등록할 때 unbound variable 방지)
+secrets_write_loader "$LOADER_SH" "$PUBLIC_ENV" ${SECRET_KEYS[@]+"${SECRET_KEYS[@]}"}
 log_ok "로더 스크립트: $LOADER_SH"
 
 # 5) 쉘 rc 에 source 한 줄 추가는 기본 비활성화 (보안)
