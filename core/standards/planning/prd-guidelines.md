@@ -90,7 +90,6 @@ Draft (작성) → Approved (본인 재확인 후) → Shipped → [성공 지�
 ## Claude Code 연동
 
 - **초안 생성**: `/plan:prd-draft <한 줄 아이디어>` — 아이디어 → PRD 뼈대.
-- **스펙 리뷰**: 작성 후 `/plan:spec-review <파일경로>` — 구멍 찾기 (엣지케이스, 누락된 Guardrail).
 - **결정 기록**: PRD 에서 나온 비자명한 선택은 ADR 로 승격 (`@standards/management/decision-log.md`).
 
 ## 체크리스트

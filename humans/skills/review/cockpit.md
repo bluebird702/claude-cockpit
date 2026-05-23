@@ -39,7 +39,7 @@ Claude 가 이 문서를 읽고 지정된 섹션을 순서대로 검사한 뒤, 
 - `N` 또는 `N,M` → 해당 섹션 번호만 부분 재검사 (수정 후 회귀 검증용)
 - `--section N[,M…]` → 위와 동일, 명시 플래그 형태
 
-## 레포 상위 구조 (2026-04 기준)
+## 레포 상위 구조 (2026-05 기준)
 
 ```
 claude-cockpit/
@@ -47,17 +47,19 @@ claude-cockpit/
 ├── core/                            # Claude Code 전역 설정 원본
 │   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, session-*
-│   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management)
-│   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh
+│   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management) + templates/
+│   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
 ├── humans/
 │   ├── skills/                      # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki
 │   └── subagents/                   # 5종 에이전트
 ├── scripts/                         # global-install, project-link, check-deps, post-install-check, lib/
-├── platform/                           # 에이전트 플랫폼 런타임 (runtime/template/docs)
-├── knowledge/  deploy/  secrets/  slack/  workers/
+├── secrets/                         # 1Password 스키마만 (실제 값 X)
 └── docs/                            # dev/examples/process/writing
 ```
+
+> 워커 런타임·페르소나·회사 지식(과거의 `platform/`, `knowledge/`, `deploy/`, `slack/`, `workers/`) 은
+> cockpit 을 submodule 로 가져다 쓰는 **비공개 회사 레포** 에서 운영합니다 (커밋 a231aa1).
 
 ## 검증 절차
 
@@ -72,7 +74,7 @@ claude-cockpit/
 - [ ] `scripts/` — `global-install.sh`, `global-uninstall.sh`, `project-link.sh`, `project-unlink.sh`, `check-deps.sh`, `post-install-check.sh`
 - [ ] `scripts/lib/` — `common.sh`, `tui.sh`, `jq_merge.sh`, `secrets.sh`
 - [ ] `docs/` — `dev/`, `examples/`, `process/`, `writing/`
-- [ ] `platform/` — `runtime/`, `template/`, `docs/`
+- [ ] `secrets/` 가 1Password 스키마 디렉토리로 존재 (실제 시크릿 값 없음)
 - [ ] `install.sh` 가 레포 루트에 존재하고 실행 권한 보유
 
 ### §2. 설치·링크 모델 (10점)
@@ -139,7 +141,8 @@ claude-cockpit/
 
 체크 항목:
 - [ ] (A+B) `set -euo pipefail` 로 시작
-- [ ] (A+B) 실행 권한(`chmod +x`) 부여됨
+- [ ] **(A 한정)** 실행 권한(`chmod +x`) 부여됨 — 라이브러리(`scripts/lib/*.sh`) 는 `source` 전용이므로 실행권한 면제. 훅(`core/hooks/*.sh`) 은 Claude Code 가 직접 실행하므로 실행권한 필수
+- [ ] **(B 훅 한정)** `core/hooks/*.sh` 도 실행 권한 부여됨
 - [ ] (A+B) 전부 `bash -n` 통과
 - [ ] **(A 한정)** `scripts/lib/common.sh` 의 공통 함수 사용 (로그, 백업, `link_idempotent`) — 라이브러리 자신 및 `install.sh` (위임 래퍼, 자체 파일 조작 없음)는 제외
 - [ ] **(A 한정)** `--help` 옵션 제공
