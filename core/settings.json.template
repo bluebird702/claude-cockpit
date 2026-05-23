@@ -365,6 +365,15 @@
             "command": "{{COCKPIT_HOME}}/core/hooks/format.sh"
           }
         ]
+      },
+      {
+        "matcher": "WebFetch|WebSearch|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{COCKPIT_HOME}}/core/hooks/guard-prompt-injection.sh"
+          }
+        ]
       }
     ],
     "SessionStart": [
