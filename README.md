@@ -21,7 +21,7 @@ claude-cockpit/
 │   ├── keybindings.json
 │   ├── standards/          coding / testing / api / planning / product / management
 │   ├── hooks/              guard-bash, guard-secrets, format, session-context, session-end
-│   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright)
+│   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7)
 │   └── memory-seed/        초기 메모리 시드
 │
 ├── humans/                사람(CEO) 용 대화형 도구

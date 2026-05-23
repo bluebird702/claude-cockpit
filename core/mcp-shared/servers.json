@@ -111,6 +111,22 @@
       "inputs": [
         { "name": "FIGMA_API_KEY", "prompt": "Figma Personal Access Token (figd_...)", "secret": true, "validate": "token" }
       ]
+    },
+
+    "context7": {
+      "label": "Context7",
+      "description": "라이브러리 최신·버전 특정 docs (resolve-library-id + query-docs). 익명 사용 가능; API 키 발급 시 rate limit 상향 — context7.com/dashboard 에서 무료 발급 후 inputs 활성화.",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-e", "CONTEXT7_API_KEY",
+        "node:20-alpine",
+        "npx", "-y", "@upstash/context7-mcp@3.0.0"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY:-}"
+      },
+      "inputs": []
     }
   }
 }
