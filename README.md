@@ -92,7 +92,7 @@ cd ~/Work/claude-cockpit
 
 **🏢 경영 (Management)**
 ```
-/mgmt:standup /mgmt:ceo-briefing
+/mgmt:standup /mgmt:ceo-briefing /mgmt:ai-spend
 ```
 
 > Claude Code slash 는 1단계 네임스페이스만 지원하므로 `humans/skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.

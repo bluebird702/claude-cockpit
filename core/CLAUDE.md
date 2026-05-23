@@ -48,18 +48,18 @@ cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/plan/*` | `/plan:prd-draft` (추가 예정: `spec-review`, `user-story`) |
+| `skills/plan/*` | `/plan:prd-draft` |
 
 ### 🎯 프로덕트 (Product)
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/prod/*` | `/prod:metrics-define` (추가 예정: `discovery`, `competitor-scan`) |
+| `skills/prod/*` | `/prod:metrics-define` |
 
 ### 🏢 경영 (Management)
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/mgmt/*` | `/mgmt:standup`, `/mgmt:ceo-briefing` (추가 예정: `weekly-metrics`) |
+| `skills/mgmt/*` | `/mgmt:standup`, `/mgmt:ceo-briefing`, `/mgmt:ai-spend` |
 
 > **참고**: `skills/jira/` 는 `skills/mgmt/` 로 리네임됐습니다. 기존 `/jira:*` 명령어는 더 이상 동작하지 않습니다.
