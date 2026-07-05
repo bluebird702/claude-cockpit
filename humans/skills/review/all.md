@@ -136,14 +136,39 @@ METRICS (측정 스냅샷 — 이 값을 점수의 앵커로 사용, 재측정 �
   severity ∈ {critical, high, medium, low}. 발견 없으면 빈 블록.
 - **1000자 이내** (요약) / **1800자 이내** (심층). sub-skill 파일의 Step 4 출력 형식 준수.
 
-### (선택) 안정화 옵션
-- 점수 분산이 큰 영역(보안·아키텍처)은 저-temperature로 **N=3 재실행 후 중앙값** 사용 가능. 리포트엔 `88±3`처럼 범위 표기.
-- 각 발견에 **적대적 검증**(별도 에이전트가 반증 시도)을 붙이면 plausible-but-wrong 발견이 걸러져 점수가 안정화됨.
+### (선택) 앙상블
+- 점수 분산이 큰 영역(보안·아키텍처)은 저-temperature로 **N=3 재실행 후 중앙값** 사용 가능. 리포트엔 `88±3`처럼 범위 표기. (기본 off — 비용 3배)
 
 ### 분석 깊이 가이드
 - 소규모 (≤30 파일): 전체 분석
 - 중규모 (30~100): 도메인/비즈니스 로직 전체 + 인프라 샘플링
 - 대규모 (>100): 구조 파악 후 모듈별 대표 파일 심층
+
+## Step 2.6: 적대적 검증 (High/Critical 강제) ★
+
+발견의 최대 노이즈원은 **plausible-but-wrong**(그럴듯하지만 틀린) 발견입니다 — 한 실행엔 나오고 다른 실행엔 안 나와 점수를 흔듭니다. 이를 없애기 위해 **검증을 기본 on** 으로 강제합니다.
+
+### 무엇을 검증하나 (confidence 부여 규칙)
+| 발견 종류 | 검증 | confidence |
+|---|---|---|
+| **objective** (측정값 기반) | 검증 안 함 (측정이라 확실) | **1.0** |
+| **evidence + severity ∈ {critical, high}** | **적대적 검증 필수** | 검증 결과(0~1) |
+| **evidence + severity ∈ {medium, low}** | 단일 패스 (비용 절감) | 기본 **0.8** |
+
+### 적대적 검증 방법
+각 high/critical evidence 발견마다 **별도 에이전트에 "이 발견을 반증하라"** 를 지시:
+```
+입력: {file:line, category, 주장(summary), 근거}
+지시: "이 주장을 반증하라. 코드를 다시 읽고 반례·오해·맥락 누락을 찾아라.
+       기본 입장은 '반증'이며, 반증 못 할 때만 confirmed. 재현 시나리오를 1줄로."
+출력: {verdict: confirmed|refuted, confidence: 0~1, reason, repro}
+```
+- **refuted 또는 confidence < 0.6 → 점수에서 제외**(리포트엔 "미확인 발견"으로만 노출).
+- 확정된 것만 findings.json 의 `confidence` 로 들어가 Step 3 점수 스크립트에 투입.
+- **비용 관리**: objective·medium·low 는 검증 안 함 → 검증 대상은 대개 소수(high/critical). 캐시 히트 시 0. 발견이 많으면 severity 상위 N개만 우선.
+- **다수결(옵션)**: 특히 중요한 발견은 서로 다른 렌즈(정확성·보안·재현성)로 3인 검증 후 과반 confirmed.
+
+> 이 단계가 "매번 다른 발견이 튀는" 현상의 핵심 방어선입니다. objective 는 측정이라 안 흔들리고, high/critical evidence 는 검증으로 걸러지고, medium/low 는 가중치가 낮아 영향이 작습니다.
 
 ## 점수 산정 규칙
 
@@ -287,6 +312,7 @@ lint N · type N · test P/F · coverage L% · dep-audit N · secret clean · di
 - ✅ 해결 N건: [요약]
 - 🆕 신규 N건: [요약]
 - ➖ 잔존 N건 (기존 부채 K건 포함)
+- 🔍 미확인 N건 (적대적 검증에서 refuted/저confidence — 점수 제외, 참고용): [요약]
 
 ## Top 5 액션 아이템 (신규·High 우선)
 | # | 영역 | 문제 | 영향도 | 권장 조치 |
