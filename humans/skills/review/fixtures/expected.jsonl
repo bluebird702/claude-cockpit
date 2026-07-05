@@ -1,0 +1,8 @@
+{"file": "cases/performance/concurrency_race.py", "clean": false, "expected": [{"area": "performance", "category": "race-condition", "severity": "high"}]}
+{"file": "cases/security/sql_injection.py", "clean": false, "expected": [{"area": "security", "category": "sql-injection", "severity": "critical"}]}
+{"file": "cases/security/hardcoded_credential.py", "clean": false, "expected": [{"area": "security", "category": "hardcoded-secret", "severity": "high"}]}
+{"file": "cases/code/swallowed_exception.py", "clean": false, "expected": [{"area": "code", "category": "swallowed-exception", "severity": "high"}]}
+{"file": "cases/code/long_method.py", "clean": false, "expected": [{"area": "code", "category": "long-method", "severity": "low"}]}
+{"file": "cases/test/tautological_test.py", "clean": false, "expected": [{"area": "test", "category": "tautological", "severity": "high"}]}
+{"file": "cases/domain/order.py", "clean": false, "expected": [{"area": "architecture", "category": "framework-dependency-in-domain", "severity": "medium"}]}
+{"file": "cases/clean_good.py", "clean": true, "expected": []}
