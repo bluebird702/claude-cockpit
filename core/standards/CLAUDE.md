@@ -11,7 +11,7 @@
 - @coding/coding-guidelines.md — 언어별 스타일, Clean Architecture, 조건문 패턴
 - @testing/testing-guidelines.md — 테스트 프레임워크, AAA/BDD, Mocking 전략
 - @api/api-design.md — REST API 설계 원칙, 보안, DDD 매핑
-- @templates/adr-template.md — 아키텍처 결정 기록 템플릿
+- `templates/adr-template.md` — ADR 템플릿 (ADR 작성 시 참조 · 빈 골격이라 자동 로드하지 않고 온디맨드)
 
 ## 📐 기획 (Planning)
 
