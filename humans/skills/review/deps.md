@@ -102,10 +102,11 @@ $ARGUMENTS
 - **스캔 범위**: [경로 목록]
 - **감지된 생태계**: [목록]
 - **총 직접 의존성**: X개 / **전이 의존성**: X개
-- **보안 취약점**: Critical X / High X / Medium X / Low X
 - **라이선스 문제**: X개
 - **업데이트 필요**: X개
-- **종합 점수**: XX/100
+
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### 보안 취약점
 | 패키지 | 현재 | 심각도 | CVE | 수정 버전 | 생태계 |

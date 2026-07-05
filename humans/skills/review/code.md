@@ -109,10 +109,8 @@ standards 에만 있는 고유 규칙. 아래 표의 임계값이 위 일반 항
 ```markdown
 ## 코드 품질 리뷰 결과
 
-### 점수: XX/100
-- SOLID: XX/25점 (통과 N/5)
-- 가독성: XX/25점 (통과 N/5)
-- 안티패턴: XX/50점 (통과 N/10, N/A K항목 제외)
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### 강점 (2-3개)
 

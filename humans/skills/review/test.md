@@ -77,6 +77,21 @@ $ARGUMENTS
 
 > Tier=objective 는 METRICS 수치로 자동 판정, evidence 는 증거+검증, advisory 는 점수 제외.
 
+### 프로젝트 표준 규칙 (@standards/testing/testing-guidelines.md — **standards 우선**)
+
+testing-guidelines 의 원칙(Foundations)에만 있는 고유 규칙. 위 항목과 겹치면 standards 채택.
+
+| # | 항목 | 점검 내용 (판정 기준) | Tier | Sev |
+|---|------|----------------------|------|-----|
+| 24 | Tautological 금지 | `verifyComplete()`·"예외 없음"만 확인하고 **실제 행위(반환·상태·마스킹) 단언이 없는** 테스트 = 위반. "로직을 지워도 통과"하면 무의미 | evidence | high |
+| 25 | 행위 검증(구현 아님) | 내부 호출 순서·private 상호작용을 단언하는 취약 테스트 = 위반. 관찰 가능한 결과만 단언 | evidence | medium |
+| 26 | 결정성(F.I.R.S.T) | `Instant.now()`·`LocalDate.now()`·`Math.random()`·실제 `Thread.sleep` 직접 사용 = 위반(주입/고정 clock). grep hit | objective | high |
+| 27 | 커버리지 게이밍 | `*CoverageTest` 네이밍, getter·상수만 검증하는 테스트 = 위반 (grep hit) | objective | medium |
+| 28 | 중복 스펙 금지 | 동일 대상을 여러 스펙에서 거의 같은 시나리오로 반복 검증 = 위반(Fixture/Builder로 통합) | evidence | low |
+| 29 | 변이 점수(Pitest) | 도메인 mutation score < 임계(권장 90%) = 위반. Pitest 리포트 있을 때만 판정 | objective | medium |
+
+> #26·#27·#29 는 objective(grep/측정), #24·#25·#28 은 evidence. Pitest·커버리지 도구 없으면 해당 항목 `n/a`.
+
 ## Step 3: 에이전트 위임
 
 `backend-development:tdd-orchestrator` 에이전트에게 위임. 프롬프트에 포함:
@@ -109,14 +124,8 @@ $ARGUMENTS
 - **테스트 파일**: X개 (Y줄)
 - **테스트/프로덕션 비율**: X:1
 
-### 종합 점수: XX/100
-| 영역 | 점수 | 상태 |
-|------|------|------|
-| 구조 | XX | 🟢/🟡/🔴 |
-| 피라미드 | XX | 🟢/🟡/🔴 |
-| 커버리지 | XX | 🟢/🟡/🔴 |
-| 품질 | XX | 🟢/🟡/🔴 |
-| 효율성 | XX | 🟢/🟡/🔴 |
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### 테스트 피라미드
 | 유형 | 파일 수 | 비율 | 권장 | 상태 |

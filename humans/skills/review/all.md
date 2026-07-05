@@ -60,15 +60,20 @@ CACHE="docs/review/cache/${TREE}-${RULESET}.json"
 
 레포 루트의 마커 파일로 툴체인을 감지하고, 해당 명령만 실행합니다. **도구 부재·실패는 `n/a`로 기록**(스킵)하고 진행합니다.
 
-| 스택 (마커) | lint | type | test | coverage | dep-audit | secret-scan |
-|---|---|---|---|---|---|---|
-| Python (`pyproject.toml`/`poetry.lock`) | `ruff check --output-format=concise` | `mypy .` | `pytest -q` | `pytest --cov --cov-report=term-missing` | `pip-audit` | `gitleaks detect --no-git` |
-| Node/TS (`package.json`) | `eslint . -f compact` | `tsc --noEmit` | `vitest run`/`jest` | `--coverage` | `npm audit --json` | `gitleaks detect` |
-| Kotlin/JVM (`build.gradle*`) | `ktlint`/`detekt` | (컴파일) | `gradle test` | `kover`/`jacoco` | `gradle dependencyCheckAnalyze` | `gitleaks detect` |
-| Go (`go.mod`) | `golangci-lint run` | (build) | `go test ./...` | `-cover` | `govulncheck ./...` | `gitleaks detect` |
-| Rust (`Cargo.toml`) | `cargo clippy` | (check) | `cargo test` | `tarpaulin` | `cargo audit` | `gitleaks detect` |
+| 스택 (마커) | lint | type | test | coverage | dep-audit | secret-scan | **complexity·size** |
+|---|---|---|---|---|---|---|---|
+| Python (`pyproject.toml`/`poetry.lock`) | `ruff check --output-format=concise` | `mypy .` | `pytest -q` | `pytest --cov --cov-report=term-missing` | `pip-audit` | `gitleaks detect --no-git` | `radon cc -s -n C .` · `lizard` |
+| Node/TS (`package.json`) | `eslint . -f compact` | `tsc --noEmit` | `vitest run`/`jest` | `--coverage` | `npm audit --json` | `gitleaks detect` | `eslint complexity` · `lizard` |
+| Kotlin/JVM (`build.gradle*`) | `ktlint`/`detekt` | (컴파일) | `gradle test` | `kover`/`jacoco` | `gradle dependencyCheckAnalyze` | `gitleaks detect` | `detekt`(CC·LongMethod) · `lizard` |
+| Go (`go.mod`) | `golangci-lint run` | (build) | `go test ./...` | `-cover` | `govulncheck ./...` | `gitleaks detect` | `gocyclo -over 10` · `lizard` |
+| Rust (`Cargo.toml`) | `cargo clippy` | (check) | `cargo test` | `tarpaulin` | `cargo audit` | `gitleaks detect` | `lizard` |
 
 > 프로젝트별 러너 래퍼가 있으면 우선(`poetry run`, `pnpm`, `./gradlew`, `make lint` 등). 실행 시간이 길면(대형 test suite) `test`/`coverage`는 **변경 범위로 한정**하거나 스킵하고 그 사실을 명시.
+> `lizard` 는 다언어 CC·함수 LOC·파라미터 수·중첩을 한 번에 주는 범용 폴백(대부분 objective 항목을 커버). 하나만 깔려도 code.md 의 objective 항목(#7·#8·#9·#10·#20·#22)이 진짜 objective 가 됩니다.
+
+### objective 항목의 판정 주체 (중요) ★
+
+**objective 티어 항목은 반드시 위 도구의 측정값으로만 판정**합니다. 도구가 없으면 그 항목을 `n/a` 로 두고 **LLM이 눈으로 세지 않습니다** — 눈대중으로 세는 순간 objective 가 아니라 evidence(주관)로 전락해 재현성이 깨집니다. 즉 "측정 못 하면 점수에서 빼되, 추측으로 채우지 말 것."
 
 ### 측정 결과 블록 (에이전트에 주입할 형식)
 
@@ -81,9 +86,15 @@ METRICS (측정 스냅샷 — 이 값을 점수의 앵커로 사용, 재측정 �
 - coverage: <line L% / n/a> (무테스트 파일: a.py, b.py …)
 - dep-audit: <CVE N건 (critical/high/moderate 분포) / n/a>
 - secret-scan: <hit N건 / clean / n/a>
-- complexity: <최대 CC / 평균 / n/a> (radon 등 있으면)
+- complexity: <최대 CC / 평균 / n/a>  (objective 판정용 위반 목록 포함)
+    - cc_gt_threshold: [funcA:12, funcB:8 …]     # standards 임계(기본 CC<5, 없으면 10) 초과 함수
+    - func_loc_gt_20: [funcC:34 …]               # 함수 LOC>20
+    - params_ge_5:   [funcD:6 …]                 # 파라미터 5개↑
+    - nesting_ge_4:  [funcE:4 …]                 # 중첩 4단계↑
+    - class_loc_max: <파일:줄수>                  # 최대 클래스 LOC (God Object 판정)
 - diff-size: <+A −D, 파일 F개>
 ```
+> objective 항목은 위 **위반 목록 그대로가 findings** 가 됩니다(에이전트 재판정 없음). 예: `func_loc_gt_20`의 각 항목 → `low|code|foo.py:120|long-method|func LOC 34>20`.
 
 `n/a`는 감점 사유가 아니라 "측정 불가"입니다. 점수를 깎지 말고 리포트에 그대로 노출해 재현성을 알립니다.
 
@@ -172,6 +183,24 @@ severity_penalty = {critical: 25, high: 12, medium: 5, low: 1.5}
 - `confidence < 0.6` 발견은 점수 제외(리포트엔 "미확인"으로만) → 환각 발견이 점수를 흔들지 못함.
 - METRICS의 결정적 신호(lint/test/audit/secret hit)는 **각각 하나의 발견으로 정규화**해 동일 공식에 투입(예: `high|deps|pyproject.toml|cve|aiohttp CVE-xxxx`). 즉 측정값이 자동으로 감점에 반영됨.
 - 같은 발견 집합이면 **항상 같은 점수** — 리뷰어의 그날 기분이 사라짐.
+
+#### 산술은 LLM이 하지 않는다 — 스크립트로 계산 ★
+발견을 `docs/review/findings.json`(배열: `{area,severity,confidence}`)으로 모은 뒤, **아래 스크립트를 실행해 점수를 산출**합니다(모델의 암산 금지 — 암산도 흔들림).
+```python
+# scripts: python3 - < findings.json  (또는 docs/review/score.py)
+import json,sys
+W={"security":.25,"code":.20,"architecture":.20,"test":.15,"performance":.15,"deps":.10}
+P={"critical":25,"high":12,"medium":5,"low":1.5}
+F=json.load(sys.stdin)
+area={}
+for a in W:
+    pen=sum(P[f["severity"]]*f.get("confidence",1.0)
+            for f in F if f["area"]==a and f.get("confidence",1.0)>=0.6)
+    area[a]=max(0,min(100,round(100-pen)))
+overall=round(sum(area[a]*w for a,w in W.items()))
+print(json.dumps({"overall":overall,"area":area},ensure_ascii=False))
+```
+> objective 발견은 confidence=1.0(측정이라 확실), evidence 발견은 검증 후 confidence(0.6~1.0). 이 스크립트 출력이 리포트의 점수이자 원장 `scores` 필드입니다.
 
 > sub-skill 파일의 "점수 규칙"은 이제 **어떤 위반이 어떤 severity인지**를 정의하는 용도이지, 스칼라를 직접 부르는 용도가 아닙니다.
 

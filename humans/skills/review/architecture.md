@@ -80,7 +80,8 @@ $ARGUMENTS
 ```markdown
 ## 아키텍처 리뷰 결과
 
-### 점수: XX/100 (통과 N/전체 M항목, N/A K항목 제외)
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### 강점 (2-3개)
 - ...

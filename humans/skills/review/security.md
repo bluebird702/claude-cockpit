@@ -95,8 +95,9 @@ $ARGUMENTS
 ### 요약
 - **스캔 범위**: [경로]
 - **감지된 스택**: [언어/프레임워크]
-- **위험 점수**: XX/100
-- **발견 항목**: Critical X / High X / Medium X / Low X
+
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### Critical/High 발견 항목
 | # | 카테고리 | 파일:줄 | 설명 | CWE |
