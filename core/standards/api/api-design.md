@@ -4,6 +4,19 @@
 
 ---
 
+## 설계 철학 (Foundations)
+
+> 아래가 **"왜"** 다. 이 문서의 규칙은 여기서 파생된다.
+
+- **계약 우선(Contract-first)**: 스펙(OpenAPI/스키마)이 진실. 코드보다 계약을 먼저 합의하고, 계약이 문서·mock·테스트를 생성한다.
+- **소비자 중심 · 최소 놀람(POLS)**: 서버 편의가 아니라 **호출자의 사용성**을 위해 설계. 예측 가능·일관.
+- **진화 가능성 > 완벽함**: 하위호환을 깨지 말 것. **추가는 안전, 삭제·의미 변경은 새 버전**. Deprecation은 예고(§버저닝).
+- **재시도 안전(멱등성)**: 네트워크는 실패한다. GET/PUT/DELETE는 멱등, POST는 `Idempotency-Key`로 안전하게(§고급 패턴).
+- **안전 기본값(Secure by default)**: 인증·rate-limit·최소 노출이 기본. 토큰은 URL 금지, 민감 작업은 재인증(§보안).
+- **오류도 API다**: 기계가 분기할 `code`는 **안정적 계약**. 일관된 에러 포맷·taxonomy(§응답·고급 패턴).
+
+---
+
 ## 핵심 설계 원칙
 
 ### 1. 리소스 중심 (Resource-Oriented)
@@ -311,6 +324,47 @@ POST /api/v1/users/{userId}/change-everything
 
 ---
 
+## 고급 패턴
+
+### 멱등성 (Idempotency-Key)
+
+생성(POST) 재시도 안전을 위해 `Idempotency-Key: <uuid>` 헤더를 수용한다. 같은 키 + 같은 요청 → **같은 결과**(중복 생성 방지). 키→응답을 일정 시간(예: 24h) 저장하고, 키 재사용 시 저장된 응답을 반환.
+
+```http
+POST /api/v1/payments
+Idempotency-Key: 4f1a...   # 클라이언트가 재시도해도 결제 1회만
+```
+
+### 페이징 — offset vs cursor
+
+- **소규모·랜덤 접근**: `page`/`size` (§쿼리 파라미터).
+- **대규모·실시간 목록**: **커서 기반** (`?cursor=<opaque>&size=`). offset의 깊은 페이지 성능 저하와 삽입/삭제 시 항목 누락·중복을 회피한다. 응답에 `nextCursor` 포함(없으면 마지막 페이지).
+
+### 프로토콜 선택
+
+| 프로토콜 | 언제 |
+|----------|------|
+| **REST** | 리소스 CRUD·공개 API 기본 |
+| **GraphQL** | 클라이언트가 필드 조합, over/under-fetch 심할 때(BFF) |
+| **gRPC** | 내부 서비스 간 저지연·스트리밍·강타입 계약 |
+
+> 흔한 조합: **외부 경계 = REST**, **내부 서비스 간 = gRPC**.
+
+### 에러 코드 taxonomy
+
+`code`는 **안정적 enum**(변경 시 하위호환 깨짐 — 새 버전 필요). HTTP 상태와 정합, 메시지는 사람용(영문), `errors[]`는 필드 검증.
+
+| 그룹 | 예시 code | HTTP |
+|------|-----------|------|
+| 없음 | `ACCOUNT_NOT_FOUND` | 404 |
+| 중복 | `EMAIL_ALREADY_EXISTS` | 409 |
+| 검증 | `VALIDATION_ERROR` | 400/422 |
+| 인증 | `UNAUTHORIZED`, `TOKEN_EXPIRED` | 401 |
+| 인가 | `FORBIDDEN`, `INSUFFICIENT_ROLE` | 403 |
+| 제한 | `RATE_LIMIT_EXCEEDED` | 429 |
+
+---
+
 ## 체크리스트
 
 ### 설계
@@ -333,4 +387,6 @@ POST /api/v1/users/{userId}/change-everything
 
 ---
 
-**버전**: 1.0.0 | **최종 업데이트**: 2026-03-16
+**버전**: 1.1.0 | **최종 업데이트**: 2026-07-05
+
+> 변경(1.1.0): **설계 철학(Foundations)**(계약 우선·소비자 중심·진화 가능성·멱등성·안전 기본값) + **고급 패턴**(Idempotency-Key·커서 페이징·프로토콜 선택·에러 taxonomy) 추가.

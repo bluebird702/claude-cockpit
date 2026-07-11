@@ -2,6 +2,70 @@
 
 > 모든 프로젝트에서 참조하는 코딩 스타일 및 아키텍처 원칙
 
+## 핵심 원칙 (Foundations)
+
+> 아래가 **"왜"** 이고, 이 문서의 나머지 전술 규칙은 여기서 파생된다. 규칙이 충돌하면 원칙이 우선한다.
+> (Clean Code · Clean Architecture · FP · 카테고리 이론 · 마이크로서비스 패턴 · GoF · 실용주의 프로그래머 · OOP · Ruby · Scala)
+
+### 1. 함수형 코어 (FP · Scala · 카테고리 이론)
+
+- **불변 기본**: `val`·`data class`·불변 컬렉션. 공유 가변 상태는 마지막 수단. (Scala: immutable by default)
+- **순수 함수 우선**: 같은 입력 → 같은 출력, 부수효과 없음(참조 투명성). 효과(IO/DB/시간/랜덤)는 경계로 밀어낸다 — **함수형 코어 + 명령형 셸**.
+- **불법 상태를 표현 불가능하게**: `sealed`(ADT) + `@JvmInline value class` 로 불변식을 **타입에 새긴다**. 검증은 생성 시 1회.
+- **부재·실패를 타입으로**: `null`/예외 남용 대신 `T?`·`Result`·sealed 결과. 부분 함수 금지 — `when` 은 **exhaustive**. (Option/Either/Try)
+- **조합 우선**: 작은 함수를 `map`/`flatMap`/`fold` 로 잇는다. Functor/Monad **법칙(항등·결합)** 을 지키면 파이프라인 리팩터가 안전하다. 집계는 **monoid**(빈 값 + 결합 연산)로.
+
+```kotlin
+// 효과 격리 + 불법 상태 배제 + 실패를 타입으로
+@JvmInline value class Email private constructor(val value: String) {
+    companion object {
+        fun of(raw: String): Result<Email> =           // 실패를 예외가 아닌 타입으로
+            if (EMAIL_REGEX.matches(raw)) Result.success(Email(raw))
+            else Result.failure(InvalidEmailException(raw))
+    }
+}
+sealed interface LoginResult {                          // 불법 상태 표현 불가 (exhaustive when 강제)
+    data class Success(val token: AuthToken) : LoginResult
+    data object InvalidCredentials : LoginResult
+    data class Locked(val until: Instant) : LoginResult
+}
+```
+
+### 2. 설계 원칙 (Clean Architecture · SOLID · OOP)
+
+- **의존성 규칙**: 소스 의존은 밖→안(추상)만. 세부(인프라)가 정책(도메인)에 의존. (§아키텍처 원칙)
+- **SOLID**: **S**RP(변경 이유 하나) · **O**CP(확장 열림·수정 닫힘) · **L**SP(치환 가능) · **I**SP(좁은 인터페이스 — 예: `TokenGenerator`/`TokenParser`/`TokenValidator` 분리) · **D**IP(추상에 의존).
+- **조합 > 상속**. **Tell, Don't Ask**(상태를 꺼내 판단하지 말고 객체에 시켜라). **데메테르 법칙**(한 점만 찍기). **리치 도메인**(로직은 엔티티/VO에, 서비스는 오케스트레이션만 — anemic 금지).
+- **컴포넌트 응집/결합**: 함께 바뀌는 것은 함께(CCP), 함께 쓰는 것만 함께(CRP), **순환 의존 금지**(ADP).
+
+### 3. 계약과 실패 (실용주의 프로그래머)
+
+- **계약에 의한 설계(DbC)**: 사전조건은 호출자, 사후조건·불변식은 구현자 책임. `require`(인자)·`check`(상태)로 명시.
+- **Fail-fast** — "죽은 프로그램은 거짓말하지 않는다": 잘못된 상태·운영 오설정은 **즉시 큰 소리로 실패**(기동 실패 포함). silent fallback 금지.
+- **DRY**: 지식의 단일 표현. 단, **우연한 중복**(성격이 다른데 우연히 같은 코드)은 억지 통합 금지.
+- **직교성·가역성**: 모듈 간 영향 최소화. 되돌리기 어려운 결정은 ADR(@management/decision-log.md).
+
+### 4. 가독성·표현력 (Clean Code · Ruby)
+
+- **최소 놀람 원칙(POLS)**: 읽는 사람이 예상하는 대로 동작. **영리함보다 명료함**.
+- **의도를 드러내는 이름**. 함수는 **작게 · 한 가지만 · 단일 추상화 수준 · 인자 최소**. 표현식 지향(모든 것이 값을 반환).
+- **주석은 "코드로 표현 실패"의 신호** — 이름·구조로 먼저 해결하고, **왜(의도)** 만 주석에 남긴다. 주석처리 코드·TODO 금지(이슈화).
+
+### 5. 분산 시스템 (마이크로서비스 패턴)
+
+> 상세: @api/api-design.md · @management/security.md
+
+- **서비스 경계 = 1 애그리것 = 트랜잭션 경계**. API-first · 하위호환 유지.
+- **이벤트 드리븐 + Outbox**, **멱등성**(재시도 안전), 교차 애그리것은 **Saga**(보상 트랜잭션).
+- **회복탄력성**: timeout · retry(지수 백오프) · circuit breaker · bulkhead. **관측성**(구조화 로그 · traceId 전파 · 메트릭)은 기본.
+
+### 6. 패턴은 어휘다 (GoF)
+
+- 디자인 패턴은 **목표가 아니라 소통 어휘**. 문제가 패턴을 부를 때만 도입하고 **과용 금지**(단순함 우선).
+- 자주: Strategy(분기 → 규칙 객체), Factory(`Response.from`), Adapter(포트/어댑터), Observer(도메인 이벤트), Decorator.
+
+---
+
 ## 아키텍처 원칙
 
 ### Clean Architecture 계층
@@ -440,4 +504,6 @@ Before submitting:
 
 ---
 
-**버전**: 1.0.0 | **최종 업데이트**: 2026-03-16
+**버전**: 1.1.0 | **최종 업데이트**: 2026-07-05
+
+> 변경(1.1.0): 상단에 **핵심 원칙(Foundations)** 레이어 추가 — FP·카테고리 이론·SOLID·DbC·Tell-Don't-Ask·POLS·마이크로서비스·GoF를 북극성으로 명시. 기존 전술 규칙(조건문 최소화·VO·named-arg 등)은 이 원칙의 파생.
