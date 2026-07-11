@@ -86,6 +86,35 @@ git submodule add git@github.com:<YOUR_ORG>/claude-cockpit.git .cockpit
 3. 완전히 동일하면 → 삭제 제안
 4. **사용자 확인 후** 삭제 진행 (자동 삭제 금지)
 
+## Step 4.5: 프로젝트 로컬 rules 드리프트 정리 (delta-only 강제) ★
+
+Claude Code 는 프로젝트의 `.claude/rules/*.md` 를 path glob 으로 자동 로드합니다. 이 파일들이 cockpit standards(baseline)를 **복사·재서술**하면 두 소스가 어긋나(drift) 리뷰·판정이 흔들립니다. baseline 은 cockpit 한 곳, 로컬은 **delta 만** — 이 계약을 강제합니다.
+
+```bash
+# 프로젝트 로컬 rules 수집 (cockpit submodule 제외)
+find . -path '*/.claude/rules/*.md' -not -path '*/.cockpit/*' -not -path '*/.git/*'
+```
+
+각 rule 파일에 대해:
+1. **baseline 대조**: 내용을 대응 cockpit 표준(`@standards/coding|testing|api/*`)과 비교.
+2. **분류**:
+   - **복사/재서술 문장** (baseline 과 동일한 규칙·임계) → 드리프트 위험. 제거 대상.
+   - **프로젝트 delta** (경로 스코프, override 임계, 프로젝트 고유 규칙) → 유지.
+3. **delta-only 형태로 재작성 제안**:
+   ```markdown
+   ---
+   paths: ["platform/account/**/*Test*"]   # 스코프 유지
+   ---
+   @standards/testing/testing-guidelines.md    # baseline import (복사 대신 참조)
+
+   ## Account 전용 delta
+   - 라인 커버리지 80% (baseline 대비 완화 — 근거: 레거시 모듈)
+   ```
+   → baseline 재서술은 **삭제**, `@import` 로 대체, delta 만 남김.
+4. **사용자 확인 후** 적용 (자동 수정 금지).
+
+> 이렇게 하면 로컬 rule 은 "override + import" 만 남아 **복사가 없으니 drift 할 소스가 없습니다**. `/review:all` 의 Step 0.6 RULESET 병합도 이 형태를 전제로 깔끔하게 동작합니다.
+
 ## Step 5: 결과 보고
 
 ```
@@ -100,6 +129,9 @@ git submodule add git@github.com:<YOUR_ORG>/claude-cockpit.git .cockpit
 
 ### 삭제 대상 파일
 - [삭제되었거나 삭제가 제안된 파일 목록]
+
+### 로컬 rules 드리프트 (.claude/rules)
+- [복사/재서술 감지된 rule 파일 + delta-only 재작성 제안]
 
 ### 다음 단계
 - `git add .gitmodules .cockpit docs/standards CLAUDE.md`
