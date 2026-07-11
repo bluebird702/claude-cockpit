@@ -47,12 +47,19 @@ disown 2>/dev/null || true
 find "$snap_dir" -name '*.md' -mtime +30 -delete 2>/dev/null &
 disown 2>/dev/null || true
 
-# 프로젝트별 확장 포인트 — .claude/hooks/post-stop.sh 가 있으면 background 실행
-# payload(session_id, transcript_path)를 stdin으로 전달
+# 프로젝트별 확장 포인트 — .claude/hooks/post-stop.sh.
+# 보안(Zero Trust): 클론한 레포가 제공하는 스크립트를 실행권한(+x)만으로 자동 실행하지
+# 않는다 — 임의 코드 실행 벡터. 사용자가 자기 셸 환경변수로 명시 옵트인한 경우에만 실행.
+# (COCKPIT_ALLOW_PROJECT_HOOKS=1 — 레포가 아니라 사용자가 설정하는 값)
 _project_hook="$cwd/.claude/hooks/post-stop.sh"
 if [[ -x "$_project_hook" ]]; then
-  echo "$_stop_payload" | "$_project_hook" &
-  disown 2>/dev/null || true
+  if [[ "${COCKPIT_ALLOW_PROJECT_HOOKS:-0}" == "1" ]]; then
+    echo "$_stop_payload" | "$_project_hook" &
+    disown 2>/dev/null || true
+  else
+    # 조용히 무시하지 않고 안내 (silent fallback 금지)
+    printf '[cockpit:session-end] 프로젝트 post-stop.sh 발견 — 미실행(신뢰되지 않은 레포 코드). 실행하려면 COCKPIT_ALLOW_PROJECT_HOOKS=1 로 옵트인.\n' >&2
+  fi
 fi
 
 exit 0

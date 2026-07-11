@@ -7,7 +7,18 @@
 # stdin : { "tool_name": "Bash", "tool_input": { "command": "..." } }
 
 set -euo pipefail
-command -v jq >/dev/null 2>&1 || exit 0
+
+# jq 미설치 시 fail-safe 축소 스캔 (fail-open 금지 — security.md § 안전 기본값·fail-closed).
+# 명령 문자열이 JSON 원문에 그대로 있으므로 고신호 위험 패턴을 원문에서 직접 차단한다.
+if ! command -v jq >/dev/null 2>&1; then
+  raw="$(cat | tr -s '[:space:]' ' ')"
+  if printf '%s' "$raw" | grep -Eq 'curl[^|]*\| *(ba)?sh|wget[^|]*\| *(ba)?sh|base64 (-d|--decode)[^|]*\| *(ba)?sh|/dev/(tcp|udp)/|rm -[rf][rf] +(/|~|\$HOME)|nc(at)? -l[^|]*-e|socat[^ ]* EXEC:|env [^|]*(curl|wget)'; then
+    echo "[cockpit:guard-bash] jq 미설치 — 축소 스캔에서 위험 패턴 감지, 차단" >&2
+    exit 2
+  fi
+  echo "[cockpit:guard-bash] ⚠ jq 미설치 — 가드가 축소 모드로 동작합니다(정밀도↓). jq 설치를 권장합니다." >&2
+  exit 0
+fi
 
 payload="$(cat)"
 [ -z "$payload" ] && exit 0
@@ -69,9 +80,12 @@ case "$norm" in
 esac
 
 # 8) 민감 파일 평문 출력 (exfiltration 패턴)
+# `.ssh/id_`·`.aws/credentials` 와 대칭으로 `.env` 도 bare `cat` 까지 차단한다 —
+# 파이프/리다이렉션이 없어도 stdout → 모델 컨텍스트로 시크릿이 유출되기 때문
+# (ai-usage.md: 시크릿 AI 전송 금지). 무공백 리다이렉트(`cat .env>out`)도 커버.
 case "$norm" in
-  *"cat "*".ssh/id_"*|*"cat "*".aws/credentials"*|*"cat "*"/.env"*"|"*|*"cat "*"/.env "*">"*)
-    block "민감 파일 내용 파이프/리다이렉션" ;;
+  *"cat "*".ssh/id_"*|*"cat "*".aws/credentials"*|*"cat "*".env"*)
+    block "민감 파일 내용 출력/유출 (.env·키·자격증명)" ;;
 esac
 
 # 9) git 서명·훅 우회

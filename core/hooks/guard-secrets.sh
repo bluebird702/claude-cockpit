@@ -13,8 +13,17 @@
 
 set -euo pipefail
 
-# jq 가 없으면 안전하게 통과 (차단 실패보다 낫다. 훅은 방어 계층 하나일 뿐)
-command -v jq >/dev/null 2>&1 || exit 0
+# jq 미설치 시 fail-safe 축소 스캔 (fail-open 금지 — security.md § 안전 기본값·fail-closed).
+# 원문(JSON) 전체를 grep 으로 훑어 고신호 시크릿을 차단하고, 축소 모드임을 알린다.
+if ! command -v jq >/dev/null 2>&1; then
+  raw="$(cat)"
+  if printf '%s' "$raw" | grep -Eq 'BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|gh[oprsu]_[A-Za-z0-9]{30,}|glpat-[A-Za-z0-9_-]{20,}|xox[abpr]-[A-Za-z0-9-]{10,}|sk-ant-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{35}'; then
+    echo "[cockpit:guard-secrets] jq 미설치 — 축소 스캔에서 시크릿 패턴 감지, 쓰기 차단" >&2
+    exit 2
+  fi
+  echo "[cockpit:guard-secrets] ⚠ jq 미설치 — 가드가 축소 모드로 동작합니다(정밀도↓). jq 설치를 권장합니다." >&2
+  exit 0
+fi
 
 payload="$(cat)"
 [ -z "$payload" ] && exit 0
@@ -40,7 +49,10 @@ case "$file_path" in
   */.ssh/id_*|*/.ssh/*_rsa|*/.ssh/*_ed25519|*/.aws/credentials|*/.kube/config)
     echo "[cockpit:guard-secrets] 민감 파일 쓰기 차단: $file_path" >&2
     exit 2 ;;
-  */.env|*/.env.local|*/.env.production|*/.env.*.local)
+  *.env.example|*.env.sample|*.env.dist|*.env.template) ;;  # 템플릿 허용 (실값 없음) — .env.* 차단보다 먼저
+  .env|.env.*|*/.env|*/.env.*)
+    # bare 상대경로 `.env` + 모든 변형(.env.local·.env.production·.env.staging 등).
+    # 이전 `*/.env` 패턴은 leading slash 를 요구해 상대경로·비표준 변형이 새었음.
     echo "[cockpit:guard-secrets] .env 파일 쓰기는 사용자 승인이 필요합니다: $file_path" >&2
     echo "ask 권한으로 다시 시도하거나, 사용자에게 직접 편집을 요청하세요." >&2
     exit 2 ;;
