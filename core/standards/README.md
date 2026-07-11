@@ -8,6 +8,7 @@
 
 | 문서 | 설명 |
 |------|------|
+| [hard-won-conventions.md](hard-won-conventions.md) | **실사고에서 배운 edge 관례(해자). 일반 표준보다 우선** |
 | [coding/coding-guidelines.md](coding/coding-guidelines.md) | 언어별 스타일, Clean Architecture, 조건문 패턴 |
 | [testing/testing-guidelines.md](testing/testing-guidelines.md) | 테스트 프레임워크, AAA/BDD, Mocking |
 | [api/api-design.md](api/api-design.md) | REST API 설계 원칙, 보안, DDD 매핑 |

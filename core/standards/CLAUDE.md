@@ -8,10 +8,11 @@
 
 모든 코드 작성·리뷰에 **필수 적용**.
 
+- @hard-won-conventions.md — **실사고에서 배운 edge 관례. 일반 표준과 긴장하면 이쪽 우선.**
 - @coding/coding-guidelines.md — 언어별 스타일, Clean Architecture, 조건문 패턴
 - @testing/testing-guidelines.md — 테스트 프레임워크, AAA/BDD, Mocking 전략
 - @api/api-design.md — REST API 설계 원칙, 보안, DDD 매핑
-- @templates/adr-template.md — 아키텍처 결정 기록 템플릿
+- `templates/adr-template.md` — ADR 템플릿 (ADR 작성 시 참조 · 빈 골격이라 자동 로드하지 않고 온디맨드)
 
 ## 📐 기획 (Planning)
 
