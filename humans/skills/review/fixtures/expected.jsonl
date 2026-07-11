@@ -1,0 +1,18 @@
+{"file": "cases/performance/concurrency_race.py", "clean": false, "expected": [{"area": "performance", "category": "race-condition", "severity": "high"}]}
+{"file": "cases/security/sql_injection.py", "clean": false, "expected": [{"area": "security", "category": "sql-injection", "severity": "critical"}]}
+{"file": "cases/security/hardcoded_credential.py", "clean": false, "expected": [{"area": "security", "category": "hardcoded-secret", "severity": "high"}]}
+{"file": "cases/code/swallowed_exception.py", "clean": false, "expected": [{"area": "code", "category": "swallowed-exception", "severity": "high"}]}
+{"file": "cases/code/long_method.py", "clean": false, "expected": [{"area": "code", "category": "long-method", "severity": "low"}]}
+{"file": "cases/test/tautological_test.py", "clean": false, "expected": [{"area": "test", "category": "tautological", "severity": "high"}]}
+{"file": "cases/domain/order.py", "clean": false, "expected": [{"area": "architecture", "category": "framework-dependency-in-domain", "severity": "medium"}]}
+{"file": "cases/clean_good.py", "clean": true, "expected": []}
+{"file": "cases/clean/parameterized_query.py", "clean": true, "expected": []}
+{"file": "cases/clean/env_secret.py", "clean": true, "expected": []}
+{"file": "cases/clean/locked_counter.py", "clean": true, "expected": []}
+{"file": "cases/clean/rethrown_exception.py", "clean": true, "expected": []}
+{"file": "cases/deps/requirements_unpinned.txt", "clean": false, "expected": [{"area": "deps", "category": "dynamic-version", "severity": "medium"}]}
+{"file": "cases/deps/requirements_vulnerable.txt", "clean": false, "expected": [{"area": "deps", "category": "vulnerable-dependency", "severity": "high"}]}
+{"file": "cases/security/fail_open_guard.sh", "clean": false, "expected": [{"area": "security", "category": "fail-open", "severity": "medium"}]}
+{"file": "cases/security/untrusted_exec.sh", "clean": false, "expected": [{"area": "security", "category": "arbitrary-code-execution", "severity": "high"}]}
+{"file": "cases/clean/failclosed_guard.sh", "clean": true, "expected": []}
+{"file": "cases/clean/trusted_exec.sh", "clean": true, "expected": []}
