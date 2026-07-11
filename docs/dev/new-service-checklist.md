@@ -201,9 +201,9 @@ dependencies {
 
 ## 참조
 
-- [코딩 가이드라인](coding-guidelines.md) - Kotlin 스타일, UseCase 패턴
-- [API 설계 가이드](api-design.md) - REST API 표준
-- [Account 서비스](../../platform/account/CLAUDE.md) - 헥사고날 아키텍처 참조 구현
+- [코딩 가이드라인](../../core/standards/coding/coding-guidelines.md) - 언어 스타일, UseCase 패턴
+- [API 설계 가이드](../../core/standards/api/api-design.md) - REST API 표준
+- 참조 구현: 프로젝트별 서비스 CLAUDE.md (각 프로젝트 레포)
 
 ---
 

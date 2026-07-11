@@ -20,7 +20,7 @@ claude-cockpit/
 │   ├── settings.json       권한·훅 baseline
 │   ├── keybindings.json
 │   ├── standards/          coding / testing / api / planning / product / management
-│   ├── hooks/              guard-bash, guard-secrets, format, session-context, session-end
+│   ├── hooks/              guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
 │   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7)
 │   └── memory-seed/        초기 메모리 시드
 │
@@ -94,14 +94,14 @@ cd ~/Work/claude-cockpit
 8. **plugins** — GitHub 플러그인 다운로드·설치 (claude-hud 등)
 9. **post-install check** — 전체 검증 (`scripts/post-install-check.sh`)
 
-### 3. 사용 가능한 슬래시 커맨드
+### 설치 후: 슬래시 커맨드
 
 설치 후 Claude Code 에서 즉시 호출할 수 있는 스킬은 **4도메인** 으로 나뉩니다:
 
 **🛠 개발 (Engineering)**
 ```
 /review:all /review:architecture /review:code /review:test
-/review:security /review:performance /review:deps /review:cockpit
+/review:security /review:performance /review:deps /review:cockpit /review:promote
 /dev:hotspot /dev:reproduce
 /ci:pr-enhance /ci:release-notes /ci:flaky
 /design:api
@@ -126,7 +126,7 @@ cd ~/Work/claude-cockpit
 
 > Claude Code slash 는 1단계 네임스페이스만 지원하므로 `humans/skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.
 
-### 4. MCP 설치 (대화형)
+### MCP 설치 (대화형)
 
 원클릭 설치를 건너뛰었거나 나중에 추가·재설정하려면:
 
@@ -141,7 +141,7 @@ cd ~/Work/claude-cockpit
 ./core/mcp-shared/setup.sh --purge-env    # Keychain 항목까지 모두 제거
 ```
 
-### 5. 소비 프로젝트에 연결
+### 소비 프로젝트에 연결
 
 cockpit 을 submodule 로 추가한 뒤 필요한 영역만 링크합니다.
 
@@ -164,7 +164,7 @@ git submodule update --remote .cockpit
 .cockpit/scripts/project-link.sh --reapply ...
 ```
 
-### 6. 제거
+### 제거
 
 ```bash
 ./scripts/global-uninstall.sh     # ~/.claude 링크 해제 (cockpit 레포는 유지)

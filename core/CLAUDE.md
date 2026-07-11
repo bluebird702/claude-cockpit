@@ -29,6 +29,10 @@
 - **빌드 실패 시**: 에러를 모두 확인한 뒤 한 번에 수정하고 재빌드합니다 (한 개씩 수정 → 재빌드 반복 금지).
 - **기존 패턴 먼저 확인**: 코드 작성 전에 같은 디렉토리의 기존 파일 1-2개를 읽고 import, 생성자, 패턴을 파악한 뒤 작성합니다.
 
+## 판단·평가 규칙
+
+- **평가 전에 대상 내부를 읽는다**: 시스템·코드의 강점/약점/**부재**를 단언하기 전에 그 내부(구현·설정·테스트)를 직접 읽습니다. README·디렉토리 구조·이름만 보고 "없다/못한다"를 단정하지 않습니다. 안 읽고 말해야 하면 **"가설"로 명시**합니다. (근거 없는 부재 단언은 표준 위반)
+
 ## Slash Command 네임스페이스
 
 cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준으로 네임스페이스가 나뉩니다. 단, Claude Code slash 는 1단계 네임스페이스만 지원하므로 디렉토리는 플랫 구조로 유지합니다.
@@ -37,7 +41,7 @@ cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:deps` |
+| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:deps`, `/review:promote` |
 | `skills/dev/*`    | `/dev:hotspot`, `/dev:reproduce` |
 | `skills/ci/*`     | `/ci:pr-enhance`, `/ci:release-notes`, `/ci:flaky` |
 | `skills/design/*` | `/design:api` (API 설계, 엔지니어링 영역) |

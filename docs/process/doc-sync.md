@@ -1,23 +1,31 @@
 # API 문서 동기화 가이드
 
-> API 변경 시 반드시 `docs/site/docs/` 문서도 함께 업데이트해야 합니다.
+> API 변경 시 문서도 함께 갱신한다. 이 파일은 **템플릿** — 프로젝트 문서 경로에 맞게 채운다.
 
-## 변경 항목별 영향 매핑
+## 왜
 
-| 변경 항목 | 영향받는 API 문서 |
-|----------|------------------|
-| API 엔드포인트 추가/수정/삭제 | `api-reference/*.md` |
-| 에러 코드 변경 | `appendix/error-codes.md`, 관련 API 문서 |
-| 인증/권한 로직 변경 | `getting-started/authentication.md` |
-| Rate Limit 정책 변경 | `appendix/rate-limits.md` |
-| 엔티티 상태값 변경 | `appendix/status-codes.md` |
-| 핵심 개념 변경 (Account, Tenant, Member 등) | `core-concepts/*.md` |
+코드와 문서가 어긋나면 문서는 **거짓말**이 된다. "변경 항목 → 영향 문서" 매핑을 정의해 갱신 누락을 막는다.
+
+## 변경 항목별 영향 매핑 (예시)
+
+| 변경 항목 | 영향받는 문서 |
+|----------|--------------|
+| 엔드포인트 추가/수정/삭제 | `<api-reference 경로>` |
+| 에러 코드 변경 | `<error-codes 문서>` + 관련 API 문서 |
+| 인증/권한 로직 변경 | `<authentication 문서>` |
+| Rate limit 정책 변경 | `<rate-limits 문서>` |
+| 엔티티 상태값 변경 | `<status-codes 문서>` |
+| 핵심 개념(도메인 용어) 변경 | `<core-concepts 문서>` |
 
 ## 작업 체크리스트
 
 ```
 - [ ] API 엔드포인트 구현
 - [ ] 테스트 작성
-- [ ] docs/site/docs/api-reference/{service}.md 업데이트
+- [ ] 해당 API 문서 갱신
 - [ ] 관련 에러 코드 문서화
 ```
+
+---
+
+> 프로젝트별 실제 문서 경로·도메인 용어는 **각 프로젝트 레포**에서 채운다(cockpit엔 범용 형식만).
