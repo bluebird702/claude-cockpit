@@ -1,0 +1,49 @@
+name: cockpit-ci
+
+# cockpit 자기 검증 — 결정적 게이트만 (LLM 리뷰는 별도).
+# 셸/훅 shellcheck · 스킬 frontmatter 린트 · eval.py 채점기 셀프테스트.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: shellcheck (hooks + scripts)
+        run: |
+          set -euo pipefail
+          files=$(find core/hooks scripts -name '*.sh' -type f)
+          echo "$files"
+          # shellcheck 대상이 없으면 실패로 취급
+          [ -n "$files" ] || { echo "no shell files found"; exit 1; }
+          echo "$files" | xargs shellcheck -S warning
+
+  lint-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: skill frontmatter + ref lint
+        run: bash scripts/lint-skills.sh
+
+  eval-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: eval.py 채점기 셀프테스트
+        run: python3 humans/skills/review/fixtures/selftest.py
+
+# 참고: 골든셋의 실제 리뷰 P/R(리뷰어 품질) 은 LLM 이 필요하므로 CI 기본 잡에서
+# 제외. 모델·룰셋 변경 시 `/review:all fixtures/cases --full` → eval.py 를 수동/
+# 별도(secrets 필요) 잡으로 실행한다 (docs/process/cockpit-flywheel.md 기어 3).
+# 공급망 강화: actions 를 커밋 SHA 로 핀하면 더 견고 (현재는 major 태그).
