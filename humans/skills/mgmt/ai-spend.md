@@ -86,8 +86,8 @@ ccusage daily --json --since <지난주 월요일> --until <지난주 같은 요
 - Haiku 4.5: 7% ($X) — 자동화
 
 ## 프로젝트 분포
-- `abillity-ai`: 60%
-- `claude-cockpit`: 25%
+- `<프로젝트-A>`: 60%
+- `<프로젝트-B>`: 25%
 - 기타: 15%
 
 ## ⚠️ 비정상 신호

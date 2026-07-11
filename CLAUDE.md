@@ -53,7 +53,7 @@ claude-cockpit/
 
 - **슬래시 커맨드 고치기** → `humans/skills/<namespace>/<name>.md`. 네임스페이스는 전역 지침의 4도메인 표 참조.
 - **서브에이전트 고치기** → `humans/subagents/*.md`.
-- **전역 권한·훅 조정** → `core/settings.json` + `core/hooks/*.sh`. 훅 추가/변경 시 `bash -n` 구문 검사와 실행 권한 확인 필수.
+- **전역 권한·훅 조정** → `core/settings.json.template`(설치 시 렌더→`~/.claude/settings.json`) + `core/hooks/*.sh`. 훅 추가/변경 시 `bash -n` 구문 검사와 실행 권한 확인 필수.
 - **공통 표준 변경** → `core/standards/**`. 여기가 원본이고 다른 문서에서 `@standards/...` 로 참조합니다. 복사본 만들지 말 것.
 - **워커 런타임·페르소나·회사 지식**: cockpit 에 들어가지 않습니다. cockpit 을 submodule 로 가져다 쓰는 *비공개 회사 레포* 에서 관리합니다.
 

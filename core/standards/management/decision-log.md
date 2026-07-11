@@ -22,7 +22,7 @@
 - **템플릿**: `@standards/templates/adr-template.md`
 - **위치**: 프로젝트별 `docs/adr/NNNN-title-in-kebab.md` (NNNN 은 4자리 연번)
 - **길이**: 1-2페이지. 길면 결정이 아닌 설계 문서일 가능성.
-- **작성 가이드**: `@docs/writing/adr-writing-guide.md`
+- **작성 가이드**: cockpit 레포 `docs/writing/adr-writing-guide.md` (standards submodule 밖 — 소비 프로젝트엔 없을 수 있음)
 
 ## 상태 라이프사이클
 
