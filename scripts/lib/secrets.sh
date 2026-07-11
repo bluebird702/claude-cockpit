@@ -45,24 +45,15 @@ secrets_set() {
   local key="$1" value="$2"
   case "$(secrets_backend)" in
     keychain)
-      # -U : update if exists
-      security add-generic-password \
-        -a "$USER" \
-        -s "$SECRETS_SERVICE" \
-        -l "$SECRETS_SERVICE:$key" \
-        -D "claude-cockpit secret" \
-        -c "cckt" \
-        -C "cckt" \
-        -U \
-        -w "$value" \
-        -T "" \
-        "$HOME/Library/Keychains/login.keychain-db" 2>/dev/null || \
-      security add-generic-password \
-        -a "$key" -s "$SECRETS_SERVICE" -U -w "$value" 2>/dev/null || \
-      die "Keychain 저장 실패: $key"
-      # 단순화: account 를 key 로 해서 다시 저장 (신뢰성)
+      # account 를 key 로 저장한다 — secrets_get 이 `-a "$key"` 로 조회하므로 일치 필수.
+      # (이전의 `-a "$USER"` 저장은 get 이 못 읽는 고아였고, 모든 키가 동일 account 로
+      #  충돌해 마지막 값만 남았음.) 기존 항목 제거 후 재저장으로 확실한 update.
       security delete-generic-password -a "$key" -s "$SECRETS_SERVICE" >/dev/null 2>&1 || true
-      security add-generic-password -a "$key" -s "$SECRETS_SERVICE" -w "$value" -U >/dev/null
+      security add-generic-password \
+        -a "$key" -s "$SECRETS_SERVICE" \
+        -l "$SECRETS_SERVICE:$key" -D "claude-cockpit secret" \
+        -w "$value" -U >/dev/null 2>&1 \
+        || die "Keychain 저장 실패: $key"
       ;;
     libsecret)
       printf '%s' "$value" | secret-tool store --label="$SECRETS_SERVICE:$key" \
@@ -73,13 +64,15 @@ secrets_set() {
       touch "$SECRETS_FALLBACK_FILE"
       chmod 600 "$SECRETS_FALLBACK_FILE"
       local tmp
-      tmp="$(mktemp)"
+      tmp="$(mktemp "${TMPDIR:-/tmp}/cckt-secrets-XXXXXX")"
       # 기존 동일 키 제거
       if [ -f "$SECRETS_FALLBACK_FILE" ]; then
         grep -v "^export ${key}=" "$SECRETS_FALLBACK_FILE" > "$tmp" || true
       fi
-      local esc="${value//\'/\'\\\'\'}"
-      echo "export ${key}='${esc}'" >> "$tmp"
+      # printf %q 로 shell-safe 인용 — source 로 정확히 복원된다. 이전의 수동
+      # `'\''` 이스케이프는 작은따옴표 값에서 문법오류를 만들어(foo'bar → 빈 값)
+      # store·get 양쪽이 깨져 있었다.
+      printf 'export %s=%q\n' "$key" "$value" >> "$tmp"
       mv "$tmp" "$SECRETS_FALLBACK_FILE"
       chmod 600 "$SECRETS_FALLBACK_FILE"
       ;;
@@ -100,13 +93,11 @@ secrets_get() {
       ;;
     file)
       [ -f "$SECRETS_FALLBACK_FILE" ] || return 0
-      awk -F'=' -v k="$key" '
-        $1 == "export " k {
-          sub(/^export [^=]+=/, "")
-          gsub(/^'\''|'\''$/, "")
-          print
-          exit
-        }' "$SECRETS_FALLBACK_FILE"
+      # 파일은 `export KEY='...'` shell 문이므로 shell 로 평가해 읽는다.
+      # awk 파싱은 저장 시의 `'\''` 이스케이프를 되돌리지 못해 작은따옴표 포함
+      # 값이 손상됨(예: foo'bar → foo'\''bar). 서브셸로 격리해 유출 방지.
+      # shellcheck disable=SC1090
+      ( set +u +e; source "$SECRETS_FALLBACK_FILE" 2>/dev/null; printf '%s' "${!key-}" )
       ;;
   esac
 }

@@ -56,11 +56,11 @@ verify_executable() {
 
 log_info "── 전역 링크 검증"
 verify_link "$CLAUDE_DIR/CLAUDE.md"        "$ROOT/core/CLAUDE.md"
-verify_link "$CLAUDE_DIR/settings.json"    "$ROOT/core/settings.json"
+verify_link "$CLAUDE_DIR/settings.json"    "$ROOT/.cockpit-local/settings.json"
 verify_link "$CLAUDE_DIR/keybindings.json" "$ROOT/core/keybindings.json"
 
 log_info "── JSON 유효성"
-if jq empty "$ROOT/core/settings.json" 2>/dev/null; then
+if jq empty "$ROOT/.cockpit-local/settings.json" 2>/dev/null; then
   log_ok "settings.json jq valid"
 else
   log_err "settings.json JSON 파싱 실패"
@@ -130,7 +130,7 @@ for h in "$ROOT"/core/hooks/*.sh; do
 done
 
 log_info "── settings.json 훅 엔트리 일치"
-if jq -e '.hooks.PreToolUse' "$ROOT/core/settings.json" >/dev/null 2>&1; then
+if jq -e '.hooks.PreToolUse' "$ROOT/.cockpit-local/settings.json" >/dev/null 2>&1; then
   log_ok "PreToolUse hooks 등록됨"
 else
   log_err "settings.json 에 PreToolUse hooks 없음"
@@ -138,11 +138,11 @@ else
 fi
 
 log_info "── 권한 모델"
-deny_count=$(jq '.permissions.deny | length' "$ROOT/core/settings.json" 2>/dev/null || echo 0)
-allow_count=$(jq '.permissions.allow | length' "$ROOT/core/settings.json" 2>/dev/null || echo 0)
-ask_count=$(jq '.permissions.ask | length' "$ROOT/core/settings.json" 2>/dev/null || echo 0)
+deny_count=$(jq '.permissions.deny | length' "$ROOT/.cockpit-local/settings.json" 2>/dev/null || echo 0)
+allow_count=$(jq '.permissions.allow | length' "$ROOT/.cockpit-local/settings.json" 2>/dev/null || echo 0)
+ask_count=$(jq '.permissions.ask | length' "$ROOT/.cockpit-local/settings.json" 2>/dev/null || echo 0)
 log_ok "allow $allow_count / ask $ask_count / deny $deny_count 엔트리"
-if jq -e '.permissions.allow[] | select(. == "Bash(*)")' "$ROOT/core/settings.json" >/dev/null 2>&1; then
+if jq -e '.permissions.allow[] | select(. == "Bash(*)")' "$ROOT/.cockpit-local/settings.json" >/dev/null 2>&1; then
   log_err "위험: Bash(*) 전체 허용이 남아있음"
   FAIL=$((FAIL+1))
 fi

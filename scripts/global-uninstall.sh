@@ -154,10 +154,15 @@ if [ "$OPT_PURGE_MEMORY" = "1" ]; then
   log_step "Phase 5 · memory 시드 제거"
   MEMORY_DIR="$CLAUDE_DIR/memory"
   SEED_DIR="$ROOT_DIR/core/memory-seed"
+  LOCAL_DIR="$ROOT_DIR/.cockpit-local"
   if [ -d "$MEMORY_DIR" ] && [ -d "$SEED_DIR" ]; then
     removed=0
-    for src in "$SEED_DIR"/*.md; do
+    # install 과 대칭으로 seed 이름 수집: 렌더본(.cockpit-local/memory-seed/*.md)
+    # + 정적 원본(core/memory-seed/*.md, .template 제외). 렌더본만 존재하는 seed
+    # (reference_cockpit.md·user_profile.md 등)까지 지워 고아 파일을 남기지 않는다.
+    for src in "$LOCAL_DIR"/memory-seed/*.md "$SEED_DIR"/*.md; do
       [ -f "$src" ] || continue
+      case "$src" in *.template) continue ;; esac
       name="$(basename "$src")"
       dst="$MEMORY_DIR/$name"
       if [ -f "$dst" ]; then

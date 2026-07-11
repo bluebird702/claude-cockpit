@@ -76,9 +76,6 @@ log_step "보안"
 check recommended security "macOS Keychain CLI (기본 제공)"
 check recommended op       "brew install 1password-cli  # 1Password CLI (선택)"
 
-log_step "MCP 네트워크 필수"
-check required node "이미 체크됨"
-
 # gh 인증 상태
 if command -v gh >/dev/null 2>&1; then
   log_step "GitHub CLI 인증 상태"
