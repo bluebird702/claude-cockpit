@@ -31,24 +31,28 @@ $ARGUMENTS
 
 ## Step 2: 체크리스트 (16항목)
 
-| # | 항목 | 점검 내용 |
-|---|------|----------|
-| 1 | 계층 분리 | presentation / application / domain / infrastructure 경계 명확성 |
-| 2 | 의존성 방향 | 외부 → 내부 (도메인은 어떤 것에도 의존하지 않는가) |
-| 3 | 의존성 역전 | 도메인이 인프라 추상화(포트)에 의존하는가 |
-| 4 | 순환 의존 | 패키지/모듈 간 순환 참조 존재 여부 |
-| 5 | Bounded Context | DDD 경계 설정, 컨텍스트 간 명확한 계약 |
-| 6 | Aggregate 경계 | 트랜잭션 단위와 일치하는가, 루트를 통한 접근 |
-| 7 | 포트/어댑터 | Hexagonal 적용 시 포트 인터페이스 위치, 어댑터 구현 분리 |
-| 8 | 안티 부패 계층 | 외부 시스템 연동 시 도메인 보호 레이어 존재 여부 |
-| 9 | 프레임워크 누수 | 도메인 계층에 Spring/JPA/HTTP 등 인프라 어노테이션 혼입 |
-| 10 | 모듈 응집도 | 같은 이유로 변경되는 코드가 같은 모듈에 있는가 |
-| 11 | 인터페이스 분리 | 비대한 인터페이스, 사용처별 역할 분리 |
-| 12 | 트랜잭션 경계 | 애플리케이션 서비스에서만 시작, 도메인/인프라 혼재 금지 |
-| 13 | 이벤트 vs 직접 호출 | 도메인 이벤트 발행 위치, 사이드이펙트 커플링 |
-| 14 | 공유 커널 | 모듈 간 공유 모델 과다, 중복 vs 결합 트레이드오프 |
-| 15 | 패키지 구조 일관성 | Feature vs Layer 혼용, 네이밍 규칙 |
-| 16 | 설정 외부화 | 환경별 설정, 비밀 관리, 프로파일 분리 |
+| # | 항목 | 점검 내용 | Tier | Sev |
+|---|------|----------|------|-----|
+| 1 | 계층 분리 | presentation / application / domain / infrastructure 경계 명확성 | evidence | medium |
+| 2 | 의존성 방향 | 외부 → 내부 (도메인은 어떤 것에도 의존하지 않는가) | evidence | high |
+| 3 | 의존성 역전 | 도메인이 인프라 추상화(포트)에 의존하는가 | evidence | medium |
+| 4 | 순환 의존 | 패키지/모듈 간 순환 참조 존재 여부 (import 사이클 탐지, 측정) | objective | high |
+| 5 | Bounded Context | DDD 경계 설정, 컨텍스트 간 명확한 계약 | evidence | medium |
+| 6 | Aggregate 경계 | 트랜잭션 단위와 일치하는가, 루트를 통한 접근 | evidence | high |
+| 7 | 포트/어댑터 | Hexagonal 적용 시 포트 인터페이스 위치, 어댑터 구현 분리 | evidence | medium |
+| 8 | 안티 부패 계층 | 외부 시스템 연동 시 도메인 보호 레이어 존재 여부 | evidence | medium |
+| 9 | 프레임워크 누수 | 도메인 계층 패키지에 Spring/JPA/HTTP 등 인프라 어노테이션 혼입 (grep hit, 측정) | objective | medium |
+| 10 | 모듈 응집도 | 같은 이유로 변경되는 코드가 같은 모듈에 있는가 | evidence | medium |
+| 11 | 인터페이스 분리 | 비대한 인터페이스, 사용처별 역할 분리 | evidence | low |
+| 12 | 트랜잭션 경계 | 애플리케이션 서비스에서만 시작, 도메인/인프라 혼재 금지 | evidence | high |
+| 13 | 이벤트 vs 직접 호출 | 도메인 이벤트 발행 위치, 사이드이펙트 커플링 | advisory | low |
+| 14 | 공유 커널 | 모듈 간 공유 모델 과다, 중복 vs 결합 트레이드오프 | advisory | low |
+| 15 | 패키지 구조 일관성 | Feature vs Layer 혼용, 네이밍 규칙 | evidence | low |
+| 16 | 설정 외부화 | 환경별 설정, 비밀 관리, 프로파일 분리 | evidence | medium |
+
+> ★ **언어 불문 계층 규칙**: `*/domain/*`·`*-domain` 경로의 파일이 웹/ORM/프레임워크를 **import**(Spring/JPA·FastAPI·SQLAlchemy·Django 등)하면 의존성 방향(#2)·프레임워크 누수(#9) 위반 — 어노테이션뿐 아니라 **import 문**(Python·Kotlin·TS 공통).
+
+> Tier=objective 는 METRICS 수치로 자동 판정, evidence 는 증거+검증, advisory 는 점수 제외.
 
 ## Step 3: 에이전트 위임
 
@@ -61,14 +65,16 @@ $ARGUMENTS
 
 **빌드/테스트 실행 금지, 코드 읽기만.**
 
-## 점수 산정 규칙
+## 점수 산정 (all.md 가 계산)
 
-- **판단 기준**: 코드 읽기(정적 분석)만으로 확인 가능한 패턴 기준. 빌드·실행 불필요.
-- **N/A 처리**: 프로젝트 아키텍처에 해당 없는 항목은 N/A로 표시하고 분모에서 제외 — 점수 불이익 없음
-  - DDD 미사용 → #5(Bounded Context), #6(Aggregate 경계), #8(안티 부패 계층) N/A 가능
-  - Hexagonal 미사용 → #7(포트/어댑터) N/A
-  - 이벤트 아키텍처 미사용 → #13(이벤트 vs 직접 호출) N/A
-- **점수 계산**: `통과 항목 수 ÷ (16 − N/A 항목 수) × 100` (소수점 반올림)
+이 스킬은 점수를 직접 매기지 않는다. 체크리스트 위반을 **findings 블록**으로 방출하고,
+종합/영역 점수는 오케스트레이터(all.md)가 `100 − Σ(severity_penalty × confidence)` 로
+결정적으로 계산한다.
+
+- **objective 항목**: Step 0.5 METRICS 수치로 verdict 자동 결정 (LLM 재판정 금지)
+- **evidence 항목**: file:line 증거가 있을 때만 발견으로 기록 (confidence 부여, 적대적 검증 대상)
+- **advisory 항목**: 서술로만 노출, 점수에서 제외
+- **N/A**: 언어·스택상 비해당 항목은 `n/a` (감점 아님, 재현성 위해 노출)
 
 ## Step 4: 출력 형식
 
@@ -76,7 +82,8 @@ $ARGUMENTS
 ```markdown
 ## 아키텍처 리뷰 결과
 
-### 점수: XX/100 (통과 N/전체 M항목, N/A K항목 제외)
+### 발견 요약
+- critical N · high N · medium N · low N  (점수는 all.md 가 findings 로 계산)
 
 ### 강점 (2-3개)
 - ...
@@ -94,6 +101,12 @@ $ARGUMENTS
 > *문제*: (왜 체크리스트를 위반하는지)
 > *개선*: (개선 코드 또는 방향)
 ```
+
+### findings (기계 판독 — 원장용, 필수)
+```findings
+severity|area|file:line|category|한 줄 요약
+```
+severity ∈ {critical,high,medium,low}. area 는 이 스킬 영역(architecture). 발견 없으면 빈 블록.
 
 ## Step 5: 드릴다운
 
