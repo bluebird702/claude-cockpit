@@ -56,11 +56,12 @@ esac
 
 # awk 단일 패스 스캔 (grep -E 다중 호출보다 빠름)
 hit="$(printf '%s' "$content" | awk '
-  BEGIN { IGNORECASE=1; found="" }
+  BEGIN { found="" }
+  { low=tolower($0) }
   /-----BEGIN (RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/ { found="PRIVATE KEY block"; exit }
   /AKIA[0-9A-Z]{16}/                                        { found="AWS access key (AKIA...)"; exit }
   /ASIA[0-9A-Z]{16}/                                        { found="AWS temp key (ASIA...)"; exit }
-  /aws_secret_access_key[[:space:]]*=[[:space:]]*[A-Za-z0-9\/+=]{30,}/ { found="AWS secret access key"; exit }
+  low ~ /aws_secret_access_key[[:space:]]*=[[:space:]]*[a-za-z0-9\/+=]{30,}/ { found="AWS secret access key"; exit }
   /ghp_[A-Za-z0-9]{30,}/                                    { found="GitHub personal token (ghp_)"; exit }
   /gho_[A-Za-z0-9]{30,}/                                    { found="GitHub OAuth token (gho_)"; exit }
   /ghu_[A-Za-z0-9]{30,}/                                    { found="GitHub user-to-server token"; exit }
@@ -73,7 +74,7 @@ hit="$(printf '%s' "$content" | awk '
   /AIza[0-9A-Za-z_-]{35}/                                   { found="Google API key (AIza...)"; exit }
   /ya29\.[0-9A-Za-z_-]{20,}/                                { found="Google OAuth token"; exit }
   /SG\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{30,}/              { found="SendGrid API key"; exit }
-  /[A-Za-z0-9_-]{0,10}_?(PASSWORD|PASSWD|SECRET|TOKEN|APIKEY|API_KEY)[[:space:]]*=[[:space:]]*"[^"$\{]{12,}"/ { found="hardcoded password/secret assignment"; exit }
+  low ~ /(password|passwd|secret|token|apikey|api_key)[[:space:]]*=[[:space:]]*"[^"$\{]{12,}"/ { found="hardcoded password/secret assignment"; exit }
   END { if (found != "") print found }
 ')"
 

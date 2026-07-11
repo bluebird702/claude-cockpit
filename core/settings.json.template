@@ -22,7 +22,7 @@
       "Bash(date *)",
       "Bash(uname *)",
       "Bash(hostname)",
-      "Bash(env)",
+      "Bash(env | head *)",
       "Bash(true)",
       "Bash(false)",
       "Bash(test *)",
@@ -161,7 +161,6 @@
       "Bash(chmod u+x *)",
       "Bash(bash -n *)",
       "Bash(bash --version)",
-      "Bash(bash -c *)",
       "Bash(command -v *)",
       "Bash(shellcheck *)",
       "Bash(./install.sh)",
@@ -169,16 +168,12 @@
       "Bash(./bootstrap.sh*)",
       "Bash(./scripts/post-install-check.sh*)",
       "Bash(./scripts/check-deps.sh*)",
-      "Bash(./scripts/phase-doctor.sh*)",
-      "Bash(./scripts/worker-run.sh*)",
-      "Bash(./scripts/worker-scaffold.sh*)",
-      "Bash(./scripts/secrets-setup.sh*)",
+      "Bash(./scripts/claude-plugins.sh *)",
       "Bash(./scripts/claude-plugins.sh*)",
       "Bash({{COCKPIT_HOME}}/install.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/post-install-check.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/check-deps.sh*)",
-      "Bash({{COCKPIT_HOME}}/scripts/worker-run.sh*)",
-      "Bash({{COCKPIT_HOME}}/scripts/worker-scaffold.sh*)",
+      "Bash({{COCKPIT_HOME}}/scripts/claude-plugins.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/claude-plugins.sh*)",
       "Bash(git remote show*)",
       "Bash(git config --get *)",
@@ -342,7 +337,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.cockpit-hooks/guard-secrets.sh || {{COCKPIT_HOME}}/core/hooks/guard-secrets.sh"
+            "command": "test -x $CLAUDE_PROJECT_DIR/.cockpit-hooks/guard-secrets.sh && $CLAUDE_PROJECT_DIR/.cockpit-hooks/guard-secrets.sh || {{COCKPIT_HOME}}/core/hooks/guard-secrets.sh"
           }
         ]
       },

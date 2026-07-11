@@ -88,7 +88,7 @@ install_github_plugin() {
     log_info "  · $github_repo@${tag} 다운로드 중..."
 
     local tmp
-    tmp=$(mktemp /tmp/claude-plugin-XXXXXX.tar.gz)
+    tmp=$(mktemp "${TMPDIR:-/tmp}/claude-plugin-XXXXXX")
     curl -fsSL "https://api.github.com/repos/$github_repo/tarball/${tag}" -o "$tmp" || {
       rm -f "$tmp"; rmdir "$install_dir" 2>/dev/null || true
       log_warn "  ! 다운로드 실패"

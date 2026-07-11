@@ -13,8 +13,8 @@ type: reference
 
 - `core/` — 전사 baseline (CLAUDE.md, settings, standards, hooks, mcp-shared, memory-seed)
 - `humans/` — CEO 및 인간 직원의 대화형 도구 (skills, subagents)
-- `workers/` — 에이전트 직원 정의 (_runtime, _template, 각 봇 디렉토리) · Sprint 0~ 구축 중
-- `slack/` · `deploy/` · `knowledge/` · `secrets/` — 에이전트 플랫폼 지원 레이어
+- `platform/` — 에이전트 플랫폼 (runtime, template, docs) · Sprint 0~ 구축 중
+- `scripts/` · `docs/` · `secrets/` — 설치·문서·스키마 지원 레이어
 
 ## 주요 엔트리 포인트
 
@@ -26,7 +26,7 @@ type: reference
 | MCP 서버 설정 | `./core/mcp-shared/setup.sh` |
 | MCP 서버 정의 | `./core/mcp-shared/servers.json` |
 | 전역 CLAUDE.md | `./core/CLAUDE.md` |
-| 전역 권한/훅 | `./core/settings.json` |
+| 전역 권한/훅 | `./core/settings.json.template` |
 | 보안 훅 | `./core/hooks/*.sh` |
 | 스킬 | `./humans/skills/{review,design,dev,ci,docs,wiki,mgmt,plan,prod}/` |
 | 서브에이전트 | `./humans/subagents/*.md` |
@@ -44,5 +44,5 @@ type: reference
 ## 적용
 
 - Claude 설정·스킬·에이전트에 대한 질문이 나오면 먼저 이 레포부터 확인.
-- "왜 이 훅이 동작하지?" → `core/settings.json` 의 `hooks` 와 `core/hooks/*.sh`.
-- "이 명령이 왜 막히지?" → `core/settings.json` 의 `permissions.deny` + `core/hooks/guard-bash.sh`.
+- "왜 이 훅이 동작하지?" → `core/settings.json.template` 의 `hooks` 와 `core/hooks/*.sh`.
+- "이 명령이 왜 막히지?" → `core/settings.json.template` 의 `permissions.deny` + `core/hooks/guard-bash.sh`.
