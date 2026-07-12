@@ -47,7 +47,7 @@ claude-cockpit/
 ├── core/                            # Claude Code 전역 설정 원본
 │   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, guard-prompt-injection, session-*
-│   ├── standards/                   # 4도메인 표준 (coding/testing/api/planning/product/management) + templates/
+│   ├── standards/                   # 철학 + 5도메인 표준 (philosophy/coding/testing/api/writing/ai/planning/product/management) + templates/
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
 ├── humans/
@@ -103,9 +103,9 @@ claude-cockpit/
 
 - [ ] `core/CLAUDE.md` 가 `@standards/CLAUDE.md` 를 참조
 - [ ] `core/CLAUDE.md` 가 **존댓말 규칙**, **한글 응답**, **Colima** 규칙을 포함
-- [ ] `core/standards/CLAUDE.md` 의 `@` 참조 경로가 실제 파일과 매칭 (coding/testing/api/planning/product/management)
+- [ ] `core/standards/CLAUDE.md` 의 `@` 참조 경로가 실제 파일과 매칭 (philosophy/coding/testing/api/writing/ai/planning/product/management)
 - [ ] `core/standards/templates/CLAUDE.md.template` 에 standards 자동 로드 안내 존재
-- [ ] `core/standards/` 의 4도메인(개발·기획·프로덕트·경영) 구조가 README 와 일치
+- [ ] `core/standards/` 의 5도메인(개발·기획·프로덕트·경영·AI) + 철학 구조가 README 와 일치
 
 ### §5. MCP 설정 (15점)
 

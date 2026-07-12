@@ -105,5 +105,5 @@ ccusage daily --json --since <지난주 월요일> --until <지난주 같은 요
 
 - **숫자만 던지지 말 것**: 매 출력에 "그래서 뭐?" 한 줄 (비정상 신호 또는 액션 후보) 포함.
 - **5개 이상 액션 금지**: 1-2개로 압축. 1인 창업의 인지 부담 절약.
-- **PII 금지**: ccusage 출력에 프로젝트명·경로가 있어도, 외부 공유 시 익명화 (`@standards/management/ai-usage.md`).
+- **PII 금지**: ccusage 출력에 프로젝트명·경로가 있어도, 외부 공유 시 익명화 (`@standards/ai/ai-usage.md`).
 - **저장 옵션**: 출력 끝에 "이번 회차를 `~/.claude/briefings/spend-YYYY-MM-DD.md` 에 저장할지" 사용자 승인 한 줄.

@@ -10,6 +10,7 @@ Claude Code 설정·스킬·표준을 한 곳에서 관리하는 **단일 출처
 > - **언어**: 모든 문서·스킬·표준이 **한국어** 로 작성돼 있습니다. 응답 톤(한글·존댓말) 은 `core/CLAUDE.md` 에서 변경할 수 있습니다. 영어 번역 PR 환영합니다.
 > - **로컬 환경 전제**: macOS + Colima 를 권장 기본값으로 합니다. Linux·Docker Desktop·Podman 에서도 동작 가능하지만 일부 스크립트 경로는 검증되지 않았습니다.
 > - **개인 설정 치환**: 설치 시 `scripts/global-install.sh` 가 `$HOME`, GitHub 사용자명, 레포 경로 등을 감지해 `~/.claude/*` 에 반영합니다. 레포에는 템플릿 형태로만 존재합니다.
+> - **철학 교체 슬롯**: `core/standards/philosophy.md` 가 모든 표준의 최종 심판 기준입니다. 포크 시 이 파일 하나만 자신의 철학으로 교체하면 나머지 표준·스킬·훅 체계를 그대로 상속합니다.
 
 ## 레이어
 
@@ -19,7 +20,7 @@ claude-cockpit/
 │   ├── CLAUDE.md           전역 지침 (→ ~/.claude/CLAUDE.md)
 │   ├── settings.json       권한·훅 baseline
 │   ├── keybindings.json
-│   ├── standards/          coding / testing / api / writing / planning / product / management
+│   ├── standards/          philosophy / coding / testing / api / writing / ai / planning / product / management
 │   ├── hooks/              guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
 │   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7)
 │   └── memory-seed/        초기 메모리 시드
