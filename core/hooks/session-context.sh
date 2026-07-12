@@ -49,4 +49,12 @@ if [ -f "$cwd/.claude/CLAUDE.md" ] || [ -f "$cwd/CLAUDE.md" ]; then
   echo "_프로젝트 CLAUDE.md 가 로드되어 있습니다._"
 fi
 
+# cockpit 템플릿이 렌더본보다 최신이면 업데이트 넛지 (훅 위치 기준으로 레포 탐색, mtime 비교만 — 저비용)
+COCKPIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+if [ -f "$COCKPIT_ROOT/core/settings.json.template" ] \
+   && [ "$COCKPIT_ROOT/core/settings.json.template" -nt "$COCKPIT_ROOT/.cockpit-local/settings.json" ]; then
+  echo
+  echo "⚠️ _cockpit 설정 템플릿이 렌더본보다 최신입니다 — \`$COCKPIT_ROOT/scripts/update.sh\` 실행을 권장합니다._"
+fi
+
 exit 0

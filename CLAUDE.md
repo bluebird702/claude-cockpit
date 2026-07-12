@@ -38,6 +38,7 @@ claude-cockpit/
 │
 ├── scripts/             설치·링크·진단
 │   ├── global-install.sh    ~/.claude 에 링크 (install.sh 가 래퍼)
+│   ├── update.sh            설치된 머신 최신화 (pull → 재렌더 → 링크·시드 동기화)
 │   ├── global-uninstall.sh
 │   ├── check-deps.sh        환경 진단 (구 phase-doctor)
 │   ├── claude-plugins.sh    플러그인 설치 (구 phase-plugins)

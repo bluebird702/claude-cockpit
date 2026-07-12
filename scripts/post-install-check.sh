@@ -56,7 +56,17 @@ verify_executable() {
 
 log_info "── 전역 링크 검증"
 verify_link "$CLAUDE_DIR/CLAUDE.md"        "$ROOT/core/CLAUDE.md"
-verify_link "$CLAUDE_DIR/settings.json"    "$ROOT/.cockpit-local/settings.json"
+# settings.json 은 Claude Code 가 atomic write 로 심링크를 실파일로 대체할 수 있음(정상 드리프트).
+# 심링크면 OK, 실파일이면 경고 + update.sh 안내 (실패 아님).
+if [ -L "$CLAUDE_DIR/settings.json" ] && [ "$(readlink "$CLAUDE_DIR/settings.json")" = "$ROOT/.cockpit-local/settings.json" ]; then
+  log_ok "link $CLAUDE_DIR/settings.json"
+elif [ -f "$CLAUDE_DIR/settings.json" ] && [ ! -L "$CLAUDE_DIR/settings.json" ]; then
+  log_warn "settings.json 이 실파일로 드리프트됨 — ./scripts/update.sh 가 baseline 을 머지해 동기화합니다"
+  warn=$((warn+1))
+else
+  log_err "link 누락/오염: $CLAUDE_DIR/settings.json (기대 → $ROOT/.cockpit-local/settings.json)"
+  FAIL=$((FAIL+1))
+fi
 verify_link "$CLAUDE_DIR/keybindings.json" "$ROOT/core/keybindings.json"
 
 log_info "── JSON 유효성"

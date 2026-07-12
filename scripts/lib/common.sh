@@ -73,7 +73,8 @@ claude_home() {
 #
 # 출력 (export):
 #   COCKPIT_HOME   cockpit 레포 절대 경로 (호출 시 인자로 전달)
-#   USER_NAME      git user.name 또는 $USER, 없으면 "user"
+#   USER_NAME      COCKPIT_USER_NAME > $USER > git user.name > "user"
+#                  (git user.name 은 회사 아이덴티티일 수 있어 로컬 계정을 우선)
 #   GITHUB_ORG     gh api user --jq .login, 없으면 "<YOUR_ORG>"
 #
 # 사용:
@@ -82,15 +83,25 @@ detect_template_vars() {
   export COCKPIT_HOME="${1:-$(pwd)}"
   export HOME_DIR="$HOME"  # sed 치환용 alias
   if [ -z "${USER_NAME:-}" ]; then
-    USER_NAME="$(git config --get user.name 2>/dev/null || true)"
-    [ -z "$USER_NAME" ] && USER_NAME="${USER:-user}"
+    USER_NAME="${COCKPIT_USER_NAME:-${USER:-}}"
+    [ -z "$USER_NAME" ] && USER_NAME="$(git config --get user.name 2>/dev/null || true)"
+    [ -z "$USER_NAME" ] && USER_NAME="user"
+    USER_NAME="$(_sanitize_tvar "$USER_NAME")"
     export USER_NAME
   fi
   if [ -z "${GITHUB_ORG:-}" ]; then
     GITHUB_ORG="$(gh api user --jq .login 2>/dev/null || true)"
+    GITHUB_ORG="$(_sanitize_tvar "$GITHUB_ORG")"
+    # gh 가 에러 본문(JSON 등)을 뱉는 경우가 있어 GitHub 계정명 형식만 수용
+    printf '%s' "$GITHUB_ORG" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' || GITHUB_ORG=""
     [ -z "$GITHUB_ORG" ] && GITHUB_ORG="<YOUR_ORG>"
     export GITHUB_ORG
   fi
+}
+
+# _sanitize_tvar — 템플릿 치환값 정화: CR/개행 제거 + sed 메타문자(| & \) 이스케이프
+_sanitize_tvar() {
+  printf '%s' "$1" | tr -d '\r\n' | sed -e 's/[\\&|]/\\&/g'
 }
 
 # render_template <src> <dst>

@@ -169,10 +169,12 @@
       "Bash(./bootstrap.sh*)",
       "Bash(./scripts/post-install-check.sh*)",
       "Bash(./scripts/check-deps.sh*)",
+      "Bash(./scripts/update.sh*)",
       "Bash(./scripts/claude-plugins.sh*)",
       "Bash({{COCKPIT_HOME}}/install.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/post-install-check.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/check-deps.sh*)",
+      "Bash({{COCKPIT_HOME}}/scripts/update.sh*)",
       "Bash({{COCKPIT_HOME}}/scripts/claude-plugins.sh*)",
       "Bash(git remote show*)",
       "Bash(git config --get *)",
@@ -415,5 +417,5 @@
   },
   "alwaysThinkingEnabled": true,
   "voiceEnabled": false,
-  "_comment": "claude-cockpit 전역 설정. 원본은 cockpit/core/settings.json, ~/.claude/settings.json 으로 심볼릭 링크. 개인 오버라이드가 필요하면 ~/.claude/settings.local.json 을 사용하세요 (이 파일을 수정하지 말 것)."
+  "_comment": "claude-cockpit 전역 설정. 원본은 core/settings.json.template — 설치 시 .cockpit-local/settings.json 으로 렌더되어 ~/.claude/settings.json 에 링크됩니다. 갱신은 scripts/update.sh, 개인 오버라이드는 ~/.claude/settings.local.json (이 파일을 직접 수정하지 말 것)."
 }
