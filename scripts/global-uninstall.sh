@@ -103,6 +103,12 @@ log_step "Phase 1 · global 파일"
 remove_link "$CLAUDE_DIR/CLAUDE.md"
 remove_link "$CLAUDE_DIR/settings.json"
 remove_link "$CLAUDE_DIR/keybindings.json"
+remove_link "$HOME/.gitmessage"
+if command -v git > /dev/null 2>&1 \
+   && [ "$(git config --global --get commit.template 2>/dev/null)" = "$HOME/.gitmessage" ]; then
+  git config --global --unset commit.template
+  log_ok "  - git commit.template 설정 해제"
+fi
 
 # ─────────────────────────────────────────────
 # Phase 2: skills 카테고리

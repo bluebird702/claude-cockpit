@@ -19,7 +19,8 @@ claude-cockpit/
 │   ├── CLAUDE.md         전역 지침 (→ ~/.claude/CLAUDE.md 로 링크)
 │   ├── settings.json     권한·훅 baseline
 │   ├── keybindings.json
-│   ├── standards/        coding / testing / api / planning / product / management
+│   ├── git/              커밋 메시지 템플릿 (→ ~/.gitmessage 링크 + commit.template)
+│   ├── standards/        coding / testing / api / writing / planning / product / management
 │   ├── hooks/            guard-bash, guard-secrets, format, session-context, session-end
 │   ├── mcp-shared/       공통 MCP (GitHub / Jira / Confluence / Playwright) + setup.sh
 │   └── memory-seed/      초기 메모리 시드 (user_profile, feedback_style, reference_cockpit)

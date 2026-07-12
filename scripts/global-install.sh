@@ -120,6 +120,13 @@ link_file "$ROOT_DIR/core/CLAUDE.md"        "$CLAUDE_DIR/CLAUDE.md"
 link_file "$LOCAL_DIR/settings.json"        "$CLAUDE_DIR/settings.json"
 link_file "$ROOT_DIR/core/keybindings.json" "$CLAUDE_DIR/keybindings.json"
 
+# git 커밋 메시지 템플릿 (~/.gitmessage → core/git/gitmessage)
+link_file "$ROOT_DIR/core/git/gitmessage" "$HOME/.gitmessage"
+if command -v git > /dev/null 2>&1; then
+  git config --global commit.template "$HOME/.gitmessage"
+  log_ok "  + git config --global commit.template ~/.gitmessage"
+fi
+
 # ─────────────────────────────────────────────
 # Phase 3: skills 카테고리 링크
 # ─────────────────────────────────────────────
