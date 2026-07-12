@@ -71,6 +71,6 @@
 
 ---
 
-> 관련: [[hard-won-conventions]] · `humans/skills/review/all.md`(원장·점수) · `humans/skills/review/fixtures/README.md`(골든셋)
+> 관련: [[hard-won-conventions]] · `humans/skills/review/all.md`(원장·점수) · `humans/review-fixtures/README.md`(골든셋)
 
 **버전**: 1.0.0 | **최종 업데이트**: 2026-07-05

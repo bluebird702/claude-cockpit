@@ -27,7 +27,8 @@ claude-cockpit/
 │
 ├── humans/              사람(CEO) 용 대화형 도구
 │   ├── skills/           슬래시 커맨드 — review/ design/ dev/ ci/ docs/ wiki/ plan/ prod/ mgmt/
-│   └── subagents/        Task 툴 서브에이전트 (ceo-briefing, flaky-test-hunter, ...)
+│   ├── subagents/        Task 툴 서브에이전트 (ceo-briefing, flaky-test-hunter, ...)
+│   └── review-fixtures/  리뷰어 골든셋 (QA 데이터 — 스킬로 노출되면 안 됨)
 │
 ├── docs/                레포 문서
 │   ├── dev/              project-structure, local-environment (Colima), ...

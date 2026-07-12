@@ -52,7 +52,8 @@ claude-cockpit/
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
 ├── humans/
 │   ├── skills/                      # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki
-│   └── subagents/                   # 5종 에이전트
+│   ├── subagents/                   # 5종 에이전트
+│   └── review-fixtures/             # 리뷰어 골든셋 (QA 데이터 — 스킬 수집 대상 아님)
 ├── scripts/                         # global-install, project-link, check-deps, post-install-check, lib/
 ├── secrets/                         # 1Password 스키마만 (실제 값 X)
 └── docs/                            # dev/examples/process/writing

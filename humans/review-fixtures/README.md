@@ -38,12 +38,12 @@ fixtures/
 ## 실행 프로토콜
 ```bash
 # 1) 골든셋을 리뷰 (전체 스코프)
-/review:all humans/skills/review/fixtures/cases --full
+/review:all humans/review-fixtures/cases --full
 #    → 리뷰가 방출한 findings 를 JSON 배열로 저장 (예: run_findings.json)
 #      스키마: [{"area","category","severity","file":"cases/.../x.py:LN"}]
 
 # 2) 채점
-python3 humans/skills/review/fixtures/eval.py --findings run_findings.json
+python3 humans/review-fixtures/eval.py --findings run_findings.json
 #    → {tp,fp,fn,precision,recall,f1, misses[], false_positives[]}
 #    → 종료코드 0=PASS(P≥0.8·R≥0.8) / 1=FAIL
 ```

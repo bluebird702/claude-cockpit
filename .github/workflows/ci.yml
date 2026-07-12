@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: eval.py 채점기 셀프테스트
-        run: python3 humans/skills/review/fixtures/selftest.py
+        run: python3 humans/review-fixtures/selftest.py
 
 # 참고: 골든셋의 실제 리뷰 P/R(리뷰어 품질) 은 LLM 이 필요하므로 CI 기본 잡에서
 # 제외. 모델·룰셋 변경 시 `/review:all fixtures/cases --full` → eval.py 를 수동/

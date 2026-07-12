@@ -28,7 +28,7 @@ enforcement: required
 - `--apply <번호…>` — **승인 후** 해당 번호만 실제 적용 (기본은 초안까지만)
 
 ## Step 0: 컨텍스트
-- 표준 경로 `core/standards/`, 골든셋 `humans/skills/review/fixtures/`, `RULESET_VERSION` 읽기
+- 표준 경로 `core/standards/`, 골든셋 `humans/review-fixtures/`, `RULESET_VERSION` 읽기
 - 원장 소스 확정: cockpit `docs/review/ledger.jsonl`(있으면) + `--ledger` 인자들
 - **원장이 없으면 경고**하고 명시 인자·`--from-golden` 경로로만 진행 (추측 금지)
 

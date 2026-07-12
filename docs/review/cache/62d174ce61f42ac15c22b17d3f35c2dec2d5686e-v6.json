@@ -39,14 +39,14 @@
    "key": "test:fixtures/eval.py:lenient-matcher",
    "severity": "medium",
    "area": "test",
-   "file": "humans/skills/review/fixtures/eval.py:88",
+   "file": "humans/review-fixtures/eval.py:88",
    "summary": "[캐리] matcher 가 severity±1 관대 — recall 인플레 여지"
   },
   {
    "key": "test:fixtures/deps:cve-contamination",
    "severity": "medium",
    "area": "test",
-   "file": "humans/skills/review/fixtures/cases/deps/requirements_unpinned.txt:2",
+   "file": "humans/review-fixtures/cases/deps/requirements_unpinned.txt:2",
    "summary": "[캐리] clean filler requests 버전이 실제 CVE — 가짜 TP 위장"
   },
   {
