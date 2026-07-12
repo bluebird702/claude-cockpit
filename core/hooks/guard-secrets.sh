@@ -59,6 +59,10 @@ case "$file_path" in
   *.pem|*.key|*.p12|*.pfx)
     echo "[cockpit:guard-secrets] 인증서/키 파일 쓰기 차단: $file_path" >&2
     exit 2 ;;
+  *credentials.json|*service-account*.json)
+    # security.md § 시크릿 관리의 커밋 금지 목록과 정합 (GCP service account 등)
+    echo "[cockpit:guard-secrets] 자격증명 파일 쓰기 차단: $file_path" >&2
+    exit 2 ;;
 esac
 
 # ─────────────────────────────────────────────

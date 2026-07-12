@@ -9,7 +9,7 @@ claude-cockpit 은 **단일 출처(SSOT)** 입니다. `~/.claude/` 하위의 모
 
 - **수정은 반드시 cockpit 레포에서만** 합니다. `~/.claude/*` 를 직접 편집하지 않습니다.
 - 장비별/개인 오버라이드가 필요하면 `~/.claude/settings.local.json` (레포 밖) 을 사용합니다.
-- **정체성**: "어디서든 노트북에 다운받으면 그 머신이 좋은 퀄리티의 Claude Code 환경이 되는 dotfiles + 표준 + 슬래시 커맨드 + 훅 + MCP". Slack 상주 AI 워커 런타임 같은 프로젝트별 자산은 *cockpit 을 submodule 로 가져다 쓰는 별도 레포* (예: 비공개 abillity-ai) 에서 운영합니다.
+- **정체성**: "어디서든 노트북에 다운받으면 그 머신이 좋은 퀄리티의 Claude Code 환경이 되는 dotfiles + 표준 + 슬래시 커맨드 + 훅 + MCP". Slack 상주 AI 워커 런타임 같은 프로젝트·회사별 자산은 *cockpit 을 submodule 로 가져다 쓰는 별도 비공개 레포*에서 운영합니다 — cockpit 자체에는 특정 회사·프로젝트 이름이 들어가지 않습니다.
 
 ## 레이어 구조
 
@@ -20,9 +20,9 @@ claude-cockpit/
 │   ├── settings.json     권한·훅 baseline
 │   ├── keybindings.json
 │   ├── git/              커밋 메시지 템플릿 (→ ~/.gitmessage 링크 + commit.template)
-│   ├── standards/        coding / testing / api / writing / planning / product / management
-│   ├── hooks/            guard-bash, guard-secrets, format, session-context, session-end
-│   ├── mcp-shared/       공통 MCP (GitHub / Jira / Confluence / Playwright) + setup.sh
+│   ├── standards/        philosophy / coding / testing / api / writing / ai / planning / product / management
+│   ├── hooks/            guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
+│   ├── mcp-shared/       공통 MCP (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7) + setup.sh
 │   └── memory-seed/      초기 메모리 시드 (user_profile, feedback_style, reference_cockpit)
 │
 ├── humans/              사람(CEO) 용 대화형 도구
