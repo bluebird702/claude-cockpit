@@ -25,7 +25,7 @@
 
 ## 로컬 환경 표준
 
-- **Docker 런타임은 Colima** 를 사용합니다. Docker Desktop 은 사용하지 않습니다. 상세: @docs/dev/local-environment.md
+- **Docker 런타임은 Colima** 를 사용합니다. Docker Desktop 은 사용하지 않습니다. 상세: cockpit 레포 `docs/dev/local-environment.md`
 
 ## 코드 작성 규칙
 
@@ -67,12 +67,12 @@ cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/prod/*` | `/prod:metrics-define` |
+| `skills/prod/*` | `/prod:metrics-define`, `/prod:metrics-verdict` |
 
 ### 🏢 경영 (Management)
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/mgmt/*` | `/mgmt:standup`, `/mgmt:ceo-briefing`, `/mgmt:ai-spend` |
+| `skills/mgmt/*` | `/mgmt:standup`, `/mgmt:ceo-briefing`, `/mgmt:ai-spend`, `/mgmt:security-monthly`, `/mgmt:adr-review` |
 
 > **참고**: `skills/jira/` 는 `skills/mgmt/` 로 리네임됐습니다. 기존 `/jira:*` 명령어는 더 이상 동작하지 않습니다.

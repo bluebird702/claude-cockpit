@@ -71,6 +71,15 @@ curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scr
 curl -fsSL https://raw.githubusercontent.com/bluebird702/claude-cockpit/main/scripts/bootstrap.sh | bash -s -- --clean --all
 ```
 
+**이미 설치된 머신의 최신화**는 전체 재설치 대신 업데이트 스크립트를 사용하세요 (doctor·대화형 MCP 없이 pull → 재렌더 → 링크·시드 동기화, settings.json 실파일 드리프트도 자동 머지 복구):
+
+```bash
+cd <cockpit 경로>
+./scripts/update.sh              # git pull + 동기화
+./scripts/update.sh --no-pull    # pull 은 직접 했을 때
+./scripts/update.sh --reseed     # 메모리 시드를 백업 후 렌더본으로 교체 (이름 오검출 교정 등)
+```
+
 > 📌 부트스트랩은 git HTTPS 로 클론 후 `install.sh` (또는 `--clean` 시 `uninstall.sh`) 를 위임 실행합니다. cockpit 레포 자체는 자동 삭제되지 않습니다 — 완전 초기화는 `rm -rf $COCKPIT_HOME` 으로 명시적으로. 스크립트는 80 줄 미만이라 [`scripts/bootstrap.sh`](./scripts/bootstrap.sh) 직접 검토를 권장합니다.
 
 ### 옵션 B. 수동 (이미 클론한 경우)
@@ -118,12 +127,13 @@ cd ~/Work/claude-cockpit
 
 **🎯 프로덕트 (Product)**
 ```
-/prod:metrics-define
+/prod:metrics-define /prod:metrics-verdict
 ```
 
 **🏢 경영 (Management)**
 ```
 /mgmt:standup /mgmt:ceo-briefing /mgmt:ai-spend
+/mgmt:security-monthly /mgmt:adr-review
 ```
 
 > Claude Code slash 는 1단계 네임스페이스만 지원하므로 `humans/skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.
