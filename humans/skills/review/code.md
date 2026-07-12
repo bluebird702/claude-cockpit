@@ -6,13 +6,14 @@ category: review
 follows-standards:
   - standards/CLAUDE.md
   - standards/coding/coding-guidelines.md
+  - standards/hard-won-conventions.md
 enforcement: required
 ---
 
 # 코드 품질 리뷰
 
 > ⚠️ **Standards 준수 필수** — 코드 판단 기준은 standards를 우선합니다.
-> @standards/CLAUDE.md · @standards/coding/coding-guidelines.md
+> @standards/CLAUDE.md · @standards/coding/coding-guidelines.md · @standards/hard-won-conventions.md(일반 표준과 긴장하면 이쪽 우선)
 
 SOLID 원칙, 가독성, 안티패턴, standards 위반 여부를 심층 점검합니다.
 

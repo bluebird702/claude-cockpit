@@ -277,7 +277,7 @@ severity_penalty = {critical: 25, high: 12, medium: 5, low: 1.5}
 #### 산술은 LLM이 하지 않는다 — 스크립트로 계산 ★
 발견을 `docs/review/findings.json`(배열: `{area,severity,confidence}`)으로 모은 뒤, **아래 스크립트를 실행해 점수를 산출**합니다(모델의 암산 금지 — 암산도 흔들림).
 ```python
-# scripts: python3 - < findings.json  (또는 docs/review/score.py)
+# scripts: python3 - < findings.json  (아래 인라인 스크립트가 정본 — 별도 파일 없음)
 import json,sys
 W={"security":.25,"code":.20,"architecture":.20,"test":.15,"performance":.10,"deps":.10}  # 합=1.00
 P={"critical":25,"high":12,"medium":5,"low":1.5}

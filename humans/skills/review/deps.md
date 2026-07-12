@@ -5,13 +5,15 @@ type: slash-command
 category: review
 follows-standards:
   - standards/CLAUDE.md
+  - standards/management/security.md
+  - standards/hard-won-conventions.md
 enforcement: required
 ---
 
 # 의존성 리뷰
 
 > ⚠️ **Standards 준수 필수** — 버전/라이선스 정책은 standards를 우선합니다.
-> @standards/CLAUDE.md
+> @standards/management/security.md(§의존성 — 감사 주기·critical 24h/moderate 1주 SLA·버전 핀) · @standards/hard-won-conventions.md(§공급망·실행 신뢰) · @standards/CLAUDE.md
 
 프로젝트의 모든 의존성을 분석하여 보안 취약점(CVE), 라이선스 호환성, 업데이트 필요성, 공급망 위험을 점검합니다.
 

@@ -6,13 +6,14 @@ category: review
 follows-standards:
   - standards/CLAUDE.md
   - standards/coding/coding-guidelines.md
+  - standards/hard-won-conventions.md
 enforcement: required
 ---
 
 # 아키텍처 리뷰
 
 > ⚠️ **Standards 준수 필수** — 아키텍처 판단 기준은 standards를 우선합니다.
-> @standards/CLAUDE.md · @standards/coding/coding-guidelines.md
+> @standards/CLAUDE.md · @standards/coding/coding-guidelines.md · @standards/hard-won-conventions.md(§아키텍처·회복탄력성 — 일반 표준과 긴장하면 이쪽 우선)
 
 프로젝트의 구조적 건전성을 심층 분석합니다. 계층 분리, 의존성 방향, DDD 경계, 모듈 응집도를 점검합니다.
 

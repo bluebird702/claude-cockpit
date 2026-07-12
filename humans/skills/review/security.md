@@ -5,14 +5,17 @@ type: slash-command
 category: review
 follows-standards:
   - standards/CLAUDE.md
+  - standards/management/security.md
+  - standards/hard-won-conventions.md
   - standards/coding/coding-guidelines.md
+  - standards/api/api-design.md
 enforcement: required
 ---
 
 # 보안 리뷰
 
 > ⚠️ **Standards 준수 필수** — 보안 판단 기준은 standards를 우선합니다.
-> @standards/coding/coding-guidelines.md · @standards/api/api-design.md · @standards/CLAUDE.md
+> @standards/management/security.md · @standards/hard-won-conventions.md(§보안—신뢰 경계: XFF·JWT·fail-fast 실사고 관례) · @standards/coding/coding-guidelines.md · @standards/api/api-design.md · @standards/CLAUDE.md
 
 프로젝트 코드를 정적 분석하여 OWASP Top 10, 시크릿 노출, 인증/인가 누락, 프레임워크 보안 설정 결함을 탐지합니다.
 

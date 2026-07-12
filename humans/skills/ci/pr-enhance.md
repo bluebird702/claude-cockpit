@@ -7,6 +7,7 @@ follows-standards:
   - standards/CLAUDE.md
   - standards/coding/coding-guidelines.md
   - standards/testing/testing-guidelines.md
+  - standards/api/api-design.md
 enforcement: required
 ---
 

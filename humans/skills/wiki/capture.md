@@ -5,12 +5,13 @@ type: slash-command
 category: wiki
 follows-standards:
   - standards/CLAUDE.md
+  - standards/management/decision-log.md
 enforcement: required
 ---
 
 # 세션 학습 포착
 
-> ⚠️ **Standards 준수 필수** · @standards/CLAUDE.md · @docs/writing
+> ⚠️ **Standards 준수 필수** · @standards/CLAUDE.md · @standards/management/decision-log.md · (문체: cockpit 레포 `docs/writing/`)
 
 대화·디버깅·설계 세션에서 얻은 **재사용 가능한 지식**을 휘발되기 전에 문서 초안으로 남깁니다.
 
@@ -35,33 +36,10 @@ $ARGUMENTS
 
 ## Step 3: 초안 생성
 
-### ADR 템플릿
-```markdown
-# ADR-NNN: [결정 제목]
-
-**상태**: Proposed / Accepted / Superseded
-**날짜**: 2026-04-05
-**관련자**: @owner, @teammate
-
-## 맥락
-[왜 이 결정이 필요한가. 현재 상태, 문제, 제약]
-
-## 결정
-[무엇을 하기로 했는가. 1-2 문장]
-
-## 근거
-- [이유 1]
-- [이유 2]
-
-## 대안
-- **A**: [이유로 거절]
-- **B**: [이유로 거절]
-
-## 결과
-- **긍정**: ...
-- **부정**: ...
-- **추가 작업**: ...
-```
+### ADR — 표준 템플릿 사용 (여기 복사하지 않음, SSOT)
+- **골격**: `@standards/templates/adr-template.md` 를 그대로 사용합니다.
+- **작성 기준** (언제 ADR 인가 · 상태 라이프사이클 · 체크리스트): `@standards/management/decision-log.md` 를 따릅니다.
+- Alternatives 최소 1개, Consequences 에 Negative 포함 — 없으면 초안 반려.
 
 ### 런북 템플릿
 ```markdown
