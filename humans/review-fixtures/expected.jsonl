@@ -16,3 +16,21 @@
 {"file": "cases/security/untrusted_exec.sh", "clean": false, "expected": [{"area": "security", "category": "arbitrary-code-execution", "severity": "high"}]}
 {"file": "cases/clean/failclosed_guard.sh", "clean": true, "expected": []}
 {"file": "cases/clean/trusted_exec.sh", "clean": true, "expected": []}
+{"file": "cases/performance/n_plus_one.py", "clean": false, "expected": [{"area": "performance", "category": "n-plus-one", "severity": "high"}]}
+{"file": "cases/performance/unbounded_query.py", "clean": false, "expected": [{"area": "performance", "category": "unbounded-query", "severity": "high"}]}
+{"file": "cases/performance/high_cardinality_metric.py", "clean": false, "expected": [{"area": "performance", "category": "high-cardinality-metric", "severity": "high"}]}
+{"file": "cases/resilience/missing_timeout.py", "clean": false, "expected": [{"area": "resilience", "category": "missing-timeout", "severity": "high"}]}
+{"file": "cases/resilience/retry_no_backoff.py", "clean": false, "expected": [{"area": "resilience", "category": "retry-no-backoff", "severity": "high"}]}
+{"file": "cases/resilience/cache_stampede.py", "clean": false, "expected": [{"area": "resilience", "category": "cache-stampede", "severity": "medium"}]}
+{"file": "cases/resilience/non_idempotent_charge.py", "clean": false, "expected": [{"area": "resilience", "category": "non-idempotent-write", "severity": "high"}]}
+{"file": "cases/code/CreateOrderService.kt", "clean": false, "expected": [{"area": "code", "category": "validation-in-usecase", "severity": "medium"}]}
+{"file": "cases/code/MemberController.kt", "clean": false, "expected": [{"area": "code", "category": "response-entity-ok", "severity": "low"}]}
+{"file": "cases/code/AuthTokenIssuer.kt", "clean": false, "expected": [{"area": "code", "category": "argument-newline", "severity": "low"}]}
+{"file": "cases/architecture/report_usecase.py", "clean": false, "expected": [{"area": "architecture", "category": "dependency-inversion", "severity": "medium"}]}
+{"file": "cases/test/time_dependent_test.py", "clean": false, "expected": [{"area": "test", "category": "non-deterministic-time", "severity": "high"}]}
+{"file": "cases/test/model_coverage_test.py", "clean": false, "expected": [{"area": "test", "category": "coverage-gaming", "severity": "medium"}]}
+{"file": "cases/clean/paginated_query.py", "clean": true, "expected": []}
+{"file": "cases/clean/http_with_timeout.py", "clean": true, "expected": []}
+{"file": "cases/clean/backoff_retry.py", "clean": true, "expected": []}
+{"file": "cases/clean/idempotent_charge.py", "clean": true, "expected": []}
+{"file": "cases/clean/AccountController.kt", "clean": true, "expected": []}
