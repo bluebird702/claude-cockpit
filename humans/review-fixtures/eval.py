@@ -186,6 +186,9 @@ def main() -> int:
         "precision": round(precision, 3),
         "recall": round(recall, 3),
         "f1": round(f1, 3),
+        # 추세 관찰용 100점 환산 (F1×100). 판정은 아래 P/R 게이트가 한다 —
+        # 단일 점수는 P/R 어느 쪽이 무너졌는지 숨기므로 게이트를 대체하지 않는다.
+        "score": round(f1 * 100),
         "misses": misses,
         "false_positives": false_positives,
     }
@@ -195,7 +198,8 @@ def main() -> int:
     ok = precision >= 0.8 and recall >= 0.8
     print(
         ("PASS" if ok else "FAIL")
-        + f" (precision≥0.8·recall≥0.8) — P={precision:.2f} R={recall:.2f}",
+        + f" (precision≥0.8·recall≥0.8) — P={precision:.2f} R={recall:.2f}"
+        + f" · score {report['score']}/100",
         file=sys.stderr,
     )
     return 0 if ok else 1
