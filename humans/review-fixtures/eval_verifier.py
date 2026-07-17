@@ -52,9 +52,14 @@ def score(cases: dict[str, str], verdicts: list[dict]) -> dict:
 
     confirm_recall = confirm_hits / len(true_ids) if true_ids else 1.0
     refute_recall = refute_hits / len(false_ids) if false_ids else 1.0
+    denom = confirm_recall + refute_recall
+    harmonic = 2 * confirm_recall * refute_recall / denom if denom else 0.0
     return {
         "confirm_recall": round(confirm_recall, 3),
         "refute_recall": round(refute_recall, 3),
+        # 추세 관찰용 100점 환산 (두 recall 의 조화평균 ×100 — 한쪽 붕괴가 평균에
+        # 가려지지 않게). 판정은 아래 passed 게이트가 한다.
+        "score": round(harmonic * 100),
         "wrongly_refuted": [i for i in true_ids if got.get(i) != "confirmed"],
         "wrongly_confirmed": [i for i in false_ids if got.get(i) != "refuted"],
         "missing": missing,
@@ -108,7 +113,8 @@ def main() -> int:
     print(
         ("PASS" if report["passed"] else "FAIL")
         + f" (confirm/refute recall ≥ {THRESHOLD}) — "
-        + f"confirm={report['confirm_recall']:.2f} refute={report['refute_recall']:.2f}",
+        + f"confirm={report['confirm_recall']:.2f} refute={report['refute_recall']:.2f}"
+        + f" · score {report['score']}/100",
         file=sys.stderr,
     )
     return 0 if report["passed"] else 1

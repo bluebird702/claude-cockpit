@@ -52,8 +52,10 @@ fixtures/
 
 # 채점
 python3 humans/review-fixtures/eval.py --findings run_findings.json
-#    → {tp,fp,fn,precision,recall,f1, misses[], false_positives[]}
+#    → {tp,fp,fn,precision,recall,f1,score, misses[], false_positives[]}
 #    → 종료코드 0=PASS(P≥0.8·R≥0.8) / 1=FAIL
+#    → score(F1×100)는 실행 간 추세 관찰용 — 판정은 항상 P/R 게이트
+#      (단일 점수는 P/R 어느 쪽이 무너졌는지 숨기므로 게이트를 대체하지 않는다)
 ```
 
 ### 2) 검증자 측정 (confirm/refute recall) ★
