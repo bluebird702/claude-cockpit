@@ -59,3 +59,4 @@ area 는 `resilience` 고정. 발견 없으면 findings 빈 블록 (files_read �
 
 - 장애 주입·부하 실행 (METRICS 해석만) · 점수 산정 · 파일 수정
 - 쿼리 성능·캐시 히트율은 범위 외 (`review-performance` 담당) — 중복 방출 금지
+- **보안 가드**(인증·검증·차단 스크립트)의 fail-open 은 범위 외 (`review-security` 담당) — 이 영역의 fail-open 판정은 **트래픽/가용성 경로**(rate-limit·캐시·폴백)만. 같은 결함을 두 영역이 방출하면 점수가 이중 감점된다 (골든셋 1차 라이브 실측 FP)

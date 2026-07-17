@@ -46,7 +46,7 @@ $ARGUMENTS
 | 1 | 타임아웃 부재 | HTTP/DB/캐시 클라이언트 생성부에 timeout 미명시 (grep hit, 측정) — R7 | objective | high |
 | 2 | retry storm | 백오프·지터 없는 즉시 재시도 루프 (grep hit, 측정) — R8 | objective | high |
 | 3 | 서킷브레이커 | 핵심 외부 의존 CB 부재·수동 등록 시 인스턴스 누락 (hard-won §CB) — R9 | evidence | medium |
-| 4 | fail-open/closed 방향 | 가용성 경로 fail-closed(self-DoS)·보안 경로 fail-open (hard-won §rate-limit) — R13 | evidence | high |
+| 4 | fail-open/closed 방향 | **트래픽/가용성 경로**(rate-limit·캐시·폴백)의 fail-closed(self-DoS) — R13, hard-won §rate-limit. 보안 가드(인증·검증·차단)의 fail-open 은 `/review:security` 담당(중복 방출 금지) | evidence | high |
 | 5 | 커넥션 풀 산술 | `풀 크기 × 인스턴스 수 > DB max_connections` (설정 산술, 측정) — R10 | objective | high |
 
 ### B. 캐시·자원 (3)

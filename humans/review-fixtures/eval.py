@@ -48,6 +48,7 @@ _SYN = {
     "crede": "secre",  # hardcoded-credential ↔ hardcoded-secret
     "known": "vulne",  # known-vulnerability ↔ vulnerable-dependency
     "direc": "depen",  # dependency-direction ↔ (framework-)dependency
+    "exec": "execu",  # exec ↔ execution (5자 stem 절단 아티팩트 — 같은 어근)
 }
 
 
