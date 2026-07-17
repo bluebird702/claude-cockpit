@@ -28,9 +28,12 @@ fixtures/
 │   │                   backoff_retry · idempotent_charge · AccountController.kt
 │   └── clean_good.py   결함 없음 (거짓양성 탐지)
 ├── expected.jsonl        정답 매니페스트 (파일별 기대 발견 — 라벨의 유일한 위치)
-├── eval.py               리뷰어 채점: findings ↔ expected 대조 → P/R/F1
-├── verifier-cases.jsonl  검증자 골든셋 (known-true 5 + known-false 6)
-├── eval_verifier.py      검증자 채점: confirm/refute recall
+├── eval.py               리뷰어 채점: findings ↔ expected 대조 → P/R/F1/score
+├── verifier-cases.jsonl  검증자 골든셋 17케이스 (known-true 7 + known-false 10 —
+│                         vh-* 는 교차 파일 가드·위장 결함 등 난이도 상향 케이스)
+├── eval_verifier.py      검증자 채점: confirm/refute recall + score
+├── eval_stability.py     재현성 채점: 두 실행의 발견 집합을 안정 키로 비교 → jaccard
+│                         (실제 프로젝트의 "같은 커밋 2회 실행" 비교에도 사용 — 라벨 불필요)
 └── selftest.py           eval.py 채점기 자체 회귀 (CI, LLM 불필요)
 ```
 > `cases/` 는 **의도적 결함**이다. lint/CI 대상에서 제외하고, 절대 "고치지"(결함 제거) 말 것.
@@ -67,6 +70,29 @@ python3 humans/review-fixtures/eval.py --findings run_findings.json
 python3 humans/review-fixtures/eval_verifier.py --verdicts run_verdicts.json
 #    → 종료코드 0=PASS(confirm/refute recall ≥0.8) / 1=FAIL
 ```
+
+### 3) 재현성 측정 (run-to-run jaccard)
+같은 입력을 두 번 리뷰해 발견 집합의 흔들림을 잰다 — 골든셋이 "맞느냐"라면 이건 "흔들리느냐".
+```bash
+python3 humans/review-fixtures/eval_stability.py --a run1.json --b run2.json
+#    → {jaccard, by_area{only_a,only_b}, passed}  (임계 0.8)
+# 실제 프로젝트: 같은 커밋을 2회 /review:all 실행 → 두 findings 를 비교 (정답 라벨 불필요)
+```
+
+## held-out 케이스 정책 ★
+골든셋으로 점수를 끌어올리다 보면 **골든셋에만 강한 리뷰어**(암기)가 될 수 있다.
+일부 케이스는 유형을 체크리스트·에이전트 프롬프트·이 문서 어디에도 예시로 언급하지 않는
+**held-out** 으로 유지한다 (라벨은 expected.jsonl 에만). held-out 에서만 recall 이 떨어지면
+그것이 암기의 신호다. held-out 케이스의 유형을 문서·프롬프트에 추가하는 것은 held-out 해제를
+의미하므로, 해제 시 새 held-out 을 보충한다.
+
+## 베이스라인 기록 (측정 이력)
+| 날짜 | 룰셋 | 실행 | 리뷰어 P/R (score) | 검증자 (score) | 비고 |
+|------|------|------|--------------------|----------------|------|
+| 2026-07-17 | v7 | run1 (36케이스) | 0.79/0.96 (87) → 정제 후 0.92/1.00 (96) | 1.00/1.00 (100, 11케이스) | 최초 라이브. FAIL 원인 전부 픽스처·채점기·영역 경계 결함 — 수정 반영 |
+| 2026-07-17 | v7 | run2 (36케이스) | **1.00/1.00 (100)** | **1.00/1.00 (100, 17케이스 — vh-* 난이도 상향 포함)** | FP 완전 소거 확인. run1↔run2 jaccard **0.85** (불일치 4 중 3은 의도적 수정 효과, 순수 명명 변동 1). 검증자는 교차 파일 가드·위장 멱등성까지 17/17 정답 |
+
+> 신규 실행 시 이 표에 한 줄 추가 (측정 provenance — "점수가 어디서 왔는가"에 답하는 표).
 
 ## 언제 돌리나
 - 위임 에이전트(`humans/subagents/review-*.md`)·모델 변경 시 — **1)·2) 모두**
