@@ -16,6 +16,7 @@
 
 - @hard-won-conventions.md — **실사고에서 배운 edge 관례. 일반 표준과 긴장하면 이쪽 우선.**
 - @coding/coding-guidelines.md — 언어별 스타일, Clean Architecture, 조건문 패턴
+- @engineering/reliability.md — **대규모(2000만↑) 전제의 신뢰성·확장성 기준** — 스케일 티어(prototype/production/hyperscale)·데이터 접근·회복탄력성·멱등성·관측성·launch-readiness
 - @testing/testing-guidelines.md — 테스트 프레임워크, AAA/BDD, Mocking 전략
 - @api/api-design.md — REST API 설계 원칙, 보안, DDD 매핑
 - @writing/commit-message.md — 커밋 메시지 형식·type·AI 에이전트 커밋 규칙
