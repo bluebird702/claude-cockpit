@@ -50,7 +50,7 @@ cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:deps`, `/review:promote` |
+| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:resilience`, `/review:deps`, `/review:promote` |
 | `skills/dev/*`    | `/dev:hotspot`, `/dev:reproduce` |
 | `skills/ci/*`     | `/ci:pr-enhance`, `/ci:release-notes`, `/ci:flaky` |
 | `skills/design/*` | `/design:api` (API 설계, 엔지니어링 영역) |

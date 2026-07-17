@@ -20,15 +20,15 @@ claude-cockpit/
 │   ├── CLAUDE.md           전역 지침 (→ ~/.claude/CLAUDE.md)
 │   ├── settings.json       권한·훅 baseline
 │   ├── keybindings.json
-│   ├── standards/          philosophy / coding / testing / api / writing / ai / planning / product / management
+│   ├── standards/          philosophy / coding / engineering(reliability) / testing / api / writing / ai / planning / product / management
 │   ├── hooks/              guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
 │   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7)
 │   └── memory-seed/        초기 메모리 시드
 │
 ├── humans/                사람(CEO) 용 대화형 도구
 │   ├── skills/             슬래시 커맨드 (4도메인: 개발 / 기획 / 프로덕트 / 경영)
-│   ├── subagents/          Task 툴 서브에이전트
-│   └── review-fixtures/    리뷰어 골든셋 (QA 데이터 — 슬래시 커맨드 아님)
+│   ├── subagents/          Task 툴 서브에이전트 (리뷰 전담 review-* 8종 + 운영 5종)
+│   └── review-fixtures/    리뷰어·검증자 골든셋 (QA 데이터 — 슬래시 커맨드 아님)
 │
 ├── docs/                  레포 문서 (dev / process / examples / writing)
 ├── scripts/               설치·링크·진단 (lib/ 공통 라이브러리 포함)
@@ -112,7 +112,8 @@ cd ~/Work/claude-cockpit
 **🛠 개발 (Engineering)**
 ```
 /review:all /review:architecture /review:code /review:test
-/review:security /review:performance /review:deps /review:cockpit /review:promote
+/review:security /review:performance /review:resilience /review:deps
+/review:cockpit /review:promote
 /dev:hotspot /dev:reproduce
 /ci:pr-enhance /ci:release-notes /ci:flaky
 /design:api
@@ -191,6 +192,10 @@ git submodule update --remote .cockpit
 3. **전역 CLAUDE.md** — `core/CLAUDE.md` 가 `@standards/CLAUDE.md` 자동 로드
 
 이 레포 자체의 규약 준수는 `/review:cockpit` 으로 검증합니다.
+
+리뷰어 자체의 품질(탐지 P/R·검증자 confirm/refute recall)은 `humans/review-fixtures/` 골든셋으로
+측정하며, 리뷰 체계(스킬·`review-*` 에이전트·룰셋·픽스처)를 바꾸는 PR 은
+`.github/workflows/goldenset-eval.yml` 이 LLM 골든셋 평가를 자동 실행해 머지 게이트로 잡습니다.
 
 ## 사용자 전역 정책 (요약)
 
