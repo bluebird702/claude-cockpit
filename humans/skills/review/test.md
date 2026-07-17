@@ -94,7 +94,8 @@ testing-guidelines 의 원칙(Foundations)에만 있는 고유 규칙. 위 항�
 
 ## Step 3: 에이전트 위임
 
-`backend-development:tdd-orchestrator` 에이전트에게 위임. 프롬프트에 포함:
+**cockpit 자체 에이전트 `review-test`** 에게 위임 (미설치 시 `general-purpose` 폴백 —
+이 파일의 체크리스트·출력 형식을 프롬프트에 그대로 실음). 프롬프트에 포함:
 - Step 1 프로파일링 결과
 - Step 2 전체 체크리스트
 - standards 문서 경로

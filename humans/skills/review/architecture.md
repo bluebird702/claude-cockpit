@@ -57,7 +57,8 @@ $ARGUMENTS
 
 ## Step 3: 에이전트 위임
 
-`code-review-ai:architect-review` 에이전트에게 위임. 프롬프트에 포함:
+**cockpit 자체 에이전트 `review-architecture`** 에게 위임 (미설치 시 `general-purpose` 폴백 —
+이 파일의 체크리스트·출력 형식을 프롬프트에 그대로 실음). 프롬프트에 포함:
 - Step 1 컨텍스트 한 줄 요약
 - 분석 대상 경로
 - Step 2 체크리스트 16항목 (그대로 전달)

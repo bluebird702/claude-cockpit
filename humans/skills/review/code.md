@@ -84,7 +84,8 @@ standards 에만 있는 고유 규칙. 아래 표의 임계값이 위 일반 항
 
 ## Step 3: 에이전트 위임
 
-`pr-review-toolkit:code-reviewer` 에이전트에게 위임. 프롬프트에 포함:
+**cockpit 자체 에이전트 `review-code`** 에게 위임 (미설치 시 `general-purpose` 폴백 —
+이 파일의 체크리스트·출력 형식을 프롬프트에 그대로 실음). 프롬프트에 포함:
 - Step 1 컨텍스트 한 줄 요약
 - 분석 대상 경로
 - Step 2 체크리스트 20항목
