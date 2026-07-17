@@ -34,3 +34,12 @@
 {"file": "cases/clean/backoff_retry.py", "clean": true, "expected": []}
 {"file": "cases/clean/idempotent_charge.py", "clean": true, "expected": []}
 {"file": "cases/clean/AccountController.kt", "clean": true, "expected": []}
+{"file": "cases/clean/timeout_session.py", "clean": true, "expected": []}
+{"file": "cases/clean/fetch_prices.py", "clean": true, "expected": []}
+{"file": "cases/clean/plain_counter.py", "clean": true, "expected": []}
+{"file": "cases/clean/metrics_service.py", "clean": true, "expected": []}
+{"file": "cases/clean/table_whitelist_query.py", "clean": true, "expected": []}
+{"file": "cases/resilience/fake_idempotent_charge.py", "clean": false, "expected": [{"area": "resilience", "category": "non-idempotent-write", "severity": "high"}]}
+{"file": "cases/code/log_and_default.py", "clean": false, "expected": [{"area": "code", "category": "swallowed-exception", "severity": "medium"}]}
+{"file": "cases/security/open_redirect.py", "clean": false, "expected": [{"area": "security", "category": "open-redirect", "severity": "high"}]}
+{"file": "cases/code/mutable_default.py", "clean": false, "expected": [{"area": "code", "category": "mutable-default-argument", "severity": "medium"}]}
