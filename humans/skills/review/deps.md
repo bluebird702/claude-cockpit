@@ -75,7 +75,8 @@ $ARGUMENTS
 
 ## Step 3: 에이전트 위임
 
-`backend-development:backend-architect` 에이전트에게 위임. 프롬프트에 포함:
+**cockpit 자체 에이전트 `review-deps`** 에게 위임 (미설치 시 `general-purpose` 폴백 —
+이 파일의 체크리스트·출력 형식을 프롬프트에 그대로 실음). 프롬프트에 포함:
 - Step 1 수집 결과
 - Step 2 전체 체크리스트
 - standards의 버전/라이선스 정책
