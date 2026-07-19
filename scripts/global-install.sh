@@ -135,6 +135,10 @@ fi
 # ─────────────────────────────────────────────
 log_step "Phase 3 · skills 카테고리 링크"
 
+# 기존 설치 후 삭제된 카테고리 등 깨진 symlink 자동 청소
+find "$CLAUDE_DIR/commands" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+find "$CLAUDE_DIR/commands" -type d -empty -delete 2>/dev/null || true
+
 for cat_dir in "$ROOT_DIR"/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
@@ -178,6 +182,9 @@ done
 # Phase 4: agents 링크
 # ─────────────────────────────────────────────
 log_step "Phase 4 · agents 링크"
+
+# 기존 설치 후 삭제된 에이전트 등 깨진 symlink 자동 청소
+find "$CLAUDE_DIR/agents" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 
 if [ -d "$ROOT_DIR/system/subagents" ] && compgen -G "$ROOT_DIR/system/subagents/*.md" > /dev/null; then
   dst="$CLAUDE_DIR/agents"
