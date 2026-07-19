@@ -17,11 +17,11 @@
 - **Tier 기반 조기 종료(Early Exit):** `prototype` 티어에서는 적대적 검증(Verifier)과 샌드박싱을 생략하고, `hyperscale`에서만 전체 파이프라인을 가동하도록 `cockpit`의 룰(Rule) 개편.
 - **캐싱(Caching) 극대화:** 동일한 코드 블록에 대한 리뷰나 동일한 컨텍스트(RAG) 호출은 `abillity-ai` 단에서 해시(Hash) 기반으로 캐싱하여 불필요한 LLM API 호출을 차단.
 
-## 3. 오픈소스 카니발리제이션 방지 (Open-Source Boundary)
-**현황:** `cockpit`에 파이썬 기반의 강력한 평가 로직(`eval.py`, `cockpit-metrics.py`)이 다수 포함되어 있어, 엔터프라이즈 고객이 `abillity-ai` 플랫폼을 결제할 유인이 감소할 수 있음.
-**개선 사항:**
-- **경계 재설정 (Ruthless SoC):** `cockpit` 오픈소스는 철저히 **"인터페이스(Interface)와 스키마, 프롬프트"**만을 제공하도록 제한. 
-- 복잡한 데이터 집계 로직이나 다중 샌드박스 오케스트레이션 로직은 `abillity-ai`의 Private Repo로 이관하여 핵심 비즈니스 로직(Moat)을 보호.
+## 3. 강력한 오픈소스 배포와 실행(Execution) 중심의 비즈니스 해자 (Open-Source Boundary)
+**현황:** `cockpit` 내부에 강력한 점수 산출 로직(`all.md`) 및 원장 기반 추적 로직이 포함되어 있음.
+**전략적 결정:** 
+- **초강력 오픈소스 유지:** 평가 로직(가중치, 스코어링)과 단일 레포지토리 내의 상태 추적 로직은 기업/개인이 즉시 사용할 수 있도록 **오픈소스로 유지**하여 압도적인 생태계 장악(Adoption)과 커뮤니티의 신뢰를 확보.
+- **실행(Execution)과 스케일(Scale)을 해자(Moat)로 삼음:** `abillity-ai` 플랫폼의 핵심 가치는 룰을 계산하는 것이 아니라, 룰을 바탕으로 **실제 도커 샌드박스를 프로비저닝하고, 다중 에이전트를 스케줄링하며, 수백 개의 레포지토리 데이터를 중앙 관제(Fleet Management)하는 인프라 런타임**으로 차별화함.
 
 ## 4. 비결정적 AI 응답에 대한 결함 허용 (Fault Tolerance for Non-Determinism)
 **현황:** LLM이 마크다운 포맷을 어기거나 닫는 태그를 누락할 경우 플랫폼 엔진이 정지할 위험.
