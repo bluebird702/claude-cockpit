@@ -59,12 +59,8 @@ claude-cockpit/
 │   ├── subagents/                   # 5종 에이전트
 │   └── review-fixtures/             # 리뷰어 골든셋 (QA 데이터 — 스킬 수집 대상 아님)
 ├── scripts/                         # global-install, project-link, check-deps, post-install-check, lib/
-├── secrets/                         # 1Password 스키마만 (실제 값 X)
 └── docs/                            # dev/examples/process/writing
 ```
-
-> 워커 런타임·페르소나·회사 지식(과거의 `platform/`, `knowledge/`, `deploy/`, `slack/`, `workers/`) 은
-> cockpit 을 submodule 로 가져다 쓰는 **비공개 회사 레포** 에서 운영합니다 (커밋 a231aa1).
 
 ## 검증 절차
 
@@ -79,7 +75,6 @@ claude-cockpit/
 - [ ] `scripts/` — `global-install.sh`, `global-uninstall.sh`, `project-link.sh`, `project-unlink.sh`, `check-deps.sh`, `post-install-check.sh`
 - [ ] `scripts/lib/` — `common.sh`, `tui.sh`, `jq_merge.sh`, `secrets.sh`
 - [ ] `docs/` — `dev/`, `examples/`, `process/`, `writing/`
-- [ ] `secrets/` 가 1Password 스키마 디렉토리로 존재 (실제 시크릿 값 없음)
 - [ ] `install.sh` 가 레포 루트에 존재하고 실행 권한 보유
 
 ### §2. 설치·링크 모델 (10점)

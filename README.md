@@ -168,7 +168,7 @@ git submodule add git@github.com:<YOUR_ORG>/claude-cockpit.git .cockpit
 .cockpit/scripts/project-link.sh \
   --with brain \
   --with skills/dev \
-  --with skills/ci \
+  --with skills/plan \
   --with docs/process \
   --with docs/writing
 ```
