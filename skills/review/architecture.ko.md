@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:architecture
 description: 아키텍처 구조·의존성 방향·DDD 경계·계층 분리 심층 리뷰

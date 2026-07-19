@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: dev:refactor
 description: 추상화 역전 방지, 피처 토글(Feature Toggle) 기반 무중단 리팩터링

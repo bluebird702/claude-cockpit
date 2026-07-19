@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:all
 description: 프로젝트 품질을 7개 영역(아키텍처/코드/테스트/보안/성능/회복탄력성/의존성)으로 병렬 분석

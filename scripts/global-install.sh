@@ -316,5 +316,5 @@ printf '\n'
 log_ok "전역 설치 완료"
 log_dim "  백업:  $BACKUP_DIR"
 log_dim "  확인:  ls -la $CLAUDE_DIR"
-printf '\n  %sClaude Code 재시작 후 %s/review:all%s, %s/mgmt:standup%s, %s/dev:hotspot%s 등을 사용해 보세요.%s\n\n' \
+printf '\n  %sClaude Code 재시작 후 %s/review:all%s, %s/plan:ideation%s, %s/dev:refactor%s 등을 사용해 보세요.%s\n\n' \
   "$C_BOLD" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_RESET"

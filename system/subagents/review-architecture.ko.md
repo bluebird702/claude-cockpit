@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-architecture
 description: 아키텍처 리뷰 전문 — 계층 분리·의존성 방향·DDD 경계·순환 의존을 심층 점검합니다. /review:all 또는 /review:architecture 가 위임할 때 사용하세요.

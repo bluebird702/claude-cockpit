@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:promote
 description: 원장·골든셋의 반복 발견을 표준·픽스처·체크리스트 수정안으로 승격(초안화). 적용은 사람 승인.

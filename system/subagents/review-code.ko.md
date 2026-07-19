@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-code
 description: 코드 품질 리뷰 전문 — SOLID·가독성·안티패턴·프로젝트 표준 규칙(인자 개행·검증 위치 등)을 심층 점검합니다. /review:all 또는 /review:code 가 위임할 때 사용하세요.

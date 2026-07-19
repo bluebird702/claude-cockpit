@@ -15,39 +15,22 @@ claude-cockpit 은 **단일 출처(SSOT)** 입니다. `~/.claude/` 하위의 모
 
 ```
 claude-cockpit/
-├── system/                전사 baseline — 모든 사람·에이전트가 상속
-│   ├── CLAUDE.md         전역 지침 (→ ~/.claude/CLAUDE.md 로 링크)
-│   ├── settings.json     권한·훅 baseline
-│   ├── keybindings.json
-│   ├── git/              커밋 메시지 템플릿 (→ ~/.gitmessage 링크 + commit.template)
-│   ├── standards/        philosophy / coding / testing / api / writing / ai / planning / product / management
-│   ├── hooks/            guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
-│   ├── mcp-shared/       공통 MCP (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7) + setup.sh
-│   └── memory-seed/      초기 메모리 시드 (user_profile, feedback_style, reference_cockpit)
+├── system/                [뼈대] AI 구동 인프라 및 환경 설정
+│   ├── CLAUDE.md           전역 지침 (→ ~/.claude/CLAUDE.md)
+│   ├── hooks/              guard-bash, guard-secrets 등 보안 스크립트
+│   ├── mcp-shared/         공통 MCP 설정
+│   ├── subagents/          Task 툴 서브에이전트
+│   └── review-fixtures/    리뷰어·검증자 골든셋 (QA 데이터)
 │
-├── humans/              사람(CEO) 용 대화형 도구
-│   ├── skills/           슬래시 커맨드 — review/ design/ dev/ ci/ docs/ wiki/ plan/ prod/ mgmt/
-│   ├── subagents/        Task 툴 서브에이전트 (ceo-briefing, flaky-test-hunter, ...)
-│   └── review-fixtures/  리뷰어 골든셋 (QA 데이터 — 스킬로 노출되면 안 됨)
+├── brain/                 [지능] AI의 판단 기준이 되는 지식과 사상 (법전)
+│   └── (philosophy, coding, engineering, product 등 마크다운 룰셋)
 │
-├── docs/                레포 문서
-│   ├── dev/              project-structure, local-environment (Colima), ...
-│   ├── process/          review-exclusions, doc-sync
-│   ├── examples/         실제 프로젝트 CLAUDE.md 샘플
-│   └── writing/          commit / PR / ADR / 한글 톤 가이드
+├── skills/                [행동] AI가 구사하는 슬래시 커맨드 트리거
+│   └── (개발 / 기획 / 운영 관련 .md 스킬 파일들)
 │
-├── scripts/             설치·링크·진단
-│   ├── global-install.sh    ~/.claude 에 링크 (install.sh 가 래퍼)
-│   ├── update.sh            설치된 머신 최신화 (pull → 재렌더 → 링크·시드 동기화)
-│   ├── global-uninstall.sh
-│   ├── check-deps.sh        환경 진단 (구 phase-doctor)
-│   ├── claude-plugins.sh    플러그인 설치 (구 phase-plugins)
-│   ├── post-install-check.sh
-│   ├── project-link.sh / project-unlink.sh   소비 프로젝트용
-│   └── lib/                 common · tui · jq_merge · secrets
-│
-├── secrets/             1Password 스키마만 (실제 값 X)
-└── install.sh           원클릭 래퍼 → scripts/global-install.sh --with-mcp
+├── docs/                  [설명서] 인간용 매뉴얼 (architecture / guides / playbooks)
+├── scripts/               설치·다국어번역(I18n)·링크 유틸리티
+└── install.sh             원클릭 래퍼
 ```
 
 ## 작업 시 규칙

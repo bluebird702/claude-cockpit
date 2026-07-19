@@ -57,7 +57,7 @@
 
 ## 체크리스트 (월 1회)
 
-> 실행 도구: `/mgmt:security-monthly` — 아래 항목을 명령 실행 결과로 판정합니다.
+
 
 - [ ] `.env` 류 파일이 커밋되지 않았는지 `git log --all -p | grep -iE 'password|token|secret'` 샘플링
 - [ ] `/review:deps` 실행, moderate 이상 처리

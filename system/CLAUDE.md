@@ -43,36 +43,24 @@
 
 ## Slash Command 네임스페이스
 
-cockpit 스킬은 **4도메인**(개발 / 기획 / 프로덕트 / 경영) 기준으로 네임스페이스가 나뉩니다. 단, Claude Code slash 는 1단계 네임스페이스만 지원하므로 디렉토리는 플랫 구조로 유지합니다.
-(표준은 여기에 **AI** 를 더한 5도메인 — `standards/ai/` 는 아직 전용 슬래시 커맨드 없이 표준만 존재합니다.)
+cockpit 스킬은 역할을 기준으로 네임스페이스가 나뉩니다. 현재 엄선된 16개의 코어 스킬만 제공합니다.
 
-### 🛠 개발 (Engineering)
-
-| 카테고리 | 호출 예시 |
-|---------|----------|
-| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:resilience`, `/review:deps`, `/review:promote` |
-| `skills/dev/*`    | `/dev:hotspot`, `/dev:reproduce` |
-| `skills/ci/*`     | `/ci:pr-enhance`, `/ci:release-notes`, `/ci:flaky` |
-| `skills/design/*` | `/design:api` (API 설계, 엔지니어링 영역) |
-| `skills/docs/*`   | `/docs:claude-docs-review`, `/docs:migrate-standards` |
-| `skills/wiki/*`   | `/wiki:capture` |
-
-### 📐 기획 (Planning)
+### 🛠 개발 및 리뷰 (Engineering & Review)
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/plan/*` | `/plan:prd-draft` |
+| `skills/review/*` | `/review:all`, `/review:architecture`, `/review:code`, `/review:test`, `/review:security`, `/review:performance`, `/review:resilience`, `/review:deps`, `/review:promote`, `/review:cockpit` |
+| `skills/dev/*`    | `/dev:refactor`, `/dev:reproduce` |
 
-### 🎯 프로덕트 (Product)
-
-| 카테고리 | 호출 예시 |
-|---------|----------|
-| `skills/prod/*` | `/prod:metrics-define`, `/prod:metrics-verdict` |
-
-### 🏢 경영 (Management)
+### 📐 기획 및 설계 (Planning & Design)
 
 | 카테고리 | 호출 예시 |
 |---------|----------|
-| `skills/mgmt/*` | `/mgmt:standup`, `/mgmt:ceo-briefing`, `/mgmt:ai-spend`, `/mgmt:security-monthly`, `/mgmt:adr-review` |
+| `skills/plan/*` | `/plan:ideation`, `/plan:prd-draft` |
+| `skills/design/*` | `/design:system-design` |
 
-> **참고**: `skills/jira/` 는 `skills/mgmt/` 로 리네임됐습니다. 기존 `/jira:*` 명령어는 더 이상 동작하지 않습니다.
+### 🎯 운영 및 사후분석 (Operations)
+
+| 카테고리 | 호출 예시 |
+|---------|----------|
+| `skills/prod/*` | `/prod:rca` |

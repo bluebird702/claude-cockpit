@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-test
 description: 테스트 품질 리뷰 전문 — tautological 테스트·결정성·피라미드·커버리지 갭을 심층 점검합니다. /review:all 또는 /review:test 가 위임할 때 사용하세요.

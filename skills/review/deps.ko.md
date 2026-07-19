@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:deps
 description: 의존성 보안 취약점·라이선스·업데이트 필요성·공급망 위험 감사

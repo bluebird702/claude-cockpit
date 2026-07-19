@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-performance
 description: 성능·관측성 리뷰 전문 — N+1·무한정 쿼리·캐싱·메트릭 카디널리티를 심층 점검합니다. /review:all 또는 /review:performance 가 위임할 때 사용하세요.

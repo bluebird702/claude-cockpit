@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: design:system-design
 description: C4 모델, FMEA, 대략적 규모 산정(QPS)이 포함된 세계 최고 수준의 아키텍처 설계

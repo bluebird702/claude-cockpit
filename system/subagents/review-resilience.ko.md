@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-resilience
 description: 회복탄력성 리뷰 전문 — 타임아웃·retry storm·서킷브레이커·캐시 스탬피드·멱등성·race 를 심층 점검합니다. /review:all 또는 /review:resilience 가 위임할 때 사용하세요.

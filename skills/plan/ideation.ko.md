@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: plan:ideation
 description: JTBD, RICE 프레임워크, Pre-mortem이 포함된 극한의 기획 검증

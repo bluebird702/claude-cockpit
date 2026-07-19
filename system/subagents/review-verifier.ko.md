@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review-verifier
 description: 리뷰 발견 적대적 검증 전문 — high/critical 발견을 반증 시도해 plausible-but-wrong 을 걸러냅니다. /review:all Step 2.6 이 위임할 때 사용하세요.

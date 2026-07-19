@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:cockpit
 description: claude-cockpit 레포 자체의 구조·규약·문서 일관성을 검증하는 메타 리뷰

@@ -33,9 +33,7 @@
 
 ## 세션 산출물 관리
 
-- **결정 사항 캡처**: 세션 중 내린 비자명한 결정은 `/wiki:capture` 로 저장 → `docs/adr/` 또는 `docs/writing/` 로 승격.
-- **메모리 쓰기**: Claude 가 `~/.claude/projects/.../memory/` 에 저장하는 내용에 고객 데이터가 섞이지 않도록 주기적으로 감사 (`ls -lt memory/`).
-- **브리핑 보관**: `/mgmt:ceo-briefing` 출력은 `~/.claude/briefings/YYYY-MM-DD.md` 로만 저장, 깃 추적 금지.
+- **결정 사항 캡처**: 세션 중 내린 비자명한 결정은 `docs/adr/` 또는 `docs/writing/` 로 명시적으로 기록.
 
 ## 외부 코드 어시스턴트 (Copilot, Cursor 등)
 

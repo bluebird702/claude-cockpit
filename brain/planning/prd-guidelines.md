@@ -81,7 +81,7 @@ Draft (작성) → Approved (본인 재확인 후) → Shipped → [성공 지�
 
 - **Killed** 로 끝나는 것을 부끄러워하지 않음. 지표가 안 나오면 명시적으로 죽입니다.
 - Killed 된 PRD 도 지우지 않음. "왜 실패했는가" 가 다음 PRD 의 입력.
-- Kept/Killed 판정 도구: `/prod:metrics-verdict` (측정 기간 종료 후 실측값으로 기계적 판정).
+
 
 ## 파일 위치
 
