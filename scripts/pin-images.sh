@@ -64,7 +64,11 @@ for img in "${IMAGES[@]}"; do
   fi
   # servers.json 의 정확한 따옴표 문자열을 교체 (모든 등장 위치)
   tmp="$(mktemp "${TMPDIR:-/tmp}/servers-XXXXXX")"
-  sed "s|\"${img}\"|\"${img}@${digest}\"|g" "$FILE" > "$tmp"
+  jq --arg img "$img" --arg new "${img}@${digest}" '
+    .servers |= map_values(
+      .args |= if type == "array" then map(if type == "string" and . == $img then $new else . end) else . end
+    )
+  ' "$FILE" > "$tmp"
   if jq -e . "$tmp" >/dev/null 2>&1; then
     mv "$tmp" "$FILE"
     echo "✓ 핀: $img → @${digest:0:19}…"

@@ -138,10 +138,16 @@ def main() -> int:
     false_positives: list[str] = []
 
     matched_ids: set[int] = set()
+    clean_files: set[str] = set()
+
     for row in expected:
         base = _basename(row["file"])
+        if row.get("clean"):
+            clean_files.add(base)
+            continue
+            
         cands = by_file.get(base, [])
-        for exp in row["expected"]:
+        for exp in row.get("expected", []):
             hit = None
             for i, f in enumerate(cands):
                 if id(f) in matched_ids:
@@ -155,25 +161,16 @@ def main() -> int:
             else:
                 fn += 1
                 misses.append(f"{base}: {exp['area']}/{exp.get('category')}")
-        # clean 파일: 매칭 안 된 모든 발견 = FP
-        if row.get("clean"):
-            for f in cands:
-                fp += 1
-                false_positives.append(
-                    f"{base}: {f.get('area')}/{f.get('category')} (clean 파일)"
-                )
 
-    # clean 아닌 파일에서 정답과 매칭 안 된 잉여 발견도 FP 로 집계
-    for row in expected:
-        if row.get("clean"):
-            continue
-        base = _basename(row["file"])
-        for f in by_file.get(base, []):
-            if id(f) not in matched_ids:
-                fp += 1
-                false_positives.append(
-                    f"{base}: {f.get('area')}/{f.get('category')} (잉여)"
-                )
+    # 매칭 안 된 모든 발견은 FP (clean 파일, 잉여, 예상밖 파일 모두 포함)
+    for f in findings:
+        if id(f) not in matched_ids:
+            fp += 1
+            base = _basename(f.get("file", ""))
+            label = "clean 파일" if base in clean_files else "잉여/예상밖"
+            false_positives.append(
+                f"{base}: {f.get('area')}/{f.get('category')} ({label})"
+            )
 
     precision = tp / (tp + fp) if (tp + fp) else 1.0
     recall = tp / (tp + fn) if (tp + fn) else 1.0

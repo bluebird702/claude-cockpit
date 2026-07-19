@@ -85,7 +85,7 @@ install_github_plugin() {
       log_warn "  ! GitHub API 접근 실패 — 네트워크 연결을 확인하세요"
       return 1
     }
-    tag=$(echo "$release" | jq -r '.tag_name')
+    tag=$(printf '%s\n' "$release" | jq -r '.tag_name')
   fi
   version="${tag#v}"          # v0.0.12 → 0.0.12
 
@@ -103,8 +103,8 @@ install_github_plugin() {
 
   if [ -n "$ref_obj" ]; then
     local obj_type obj_sha
-    obj_type=$(echo "$ref_obj" | jq -r '.object.type // ""')
-    obj_sha=$(echo  "$ref_obj" | jq -r '.object.sha  // ""')
+    obj_type=$(printf '%s\n' "$ref_obj" | jq -r '.object.type // ""')
+    obj_sha=$(printf '%s\n'  "$ref_obj" | jq -r '.object.sha  // ""')
 
     if [ "$obj_type" = "tag" ]; then
       commit_sha=$(curl -fsSL \
