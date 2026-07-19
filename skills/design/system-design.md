@@ -8,8 +8,8 @@ description: C4 모델, FMEA, 대략적 규모 산정(QPS)이 포함된 세계 �
 type: slash-command
 category: design
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/engineering/reliability.md
+  - brain/CLAUDE.md
+  - brain/engineering/reliability.md
 enforcement: required
 ---
 

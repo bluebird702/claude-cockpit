@@ -8,8 +8,8 @@ description: claude-cockpit 레포 자체의 구조·규약·문서 일관성을
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/management/security.md
+  - brain/CLAUDE.md
+  - brain/management/security.md
 enforcement: recommended
 ---
 
@@ -51,7 +51,7 @@ claude-cockpit/
 ├── system/                            # Claude Code 전역 설정 원본
 │   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, guard-prompt-injection, session-*
-│   ├── standards/                   # 철학 + 5도메인 표준 (philosophy/coding/testing/api/writing/ai/planning/product/management) + templates/
+│   ├── brain/                   # 철학 + 5도메인 표준 (philosophy/coding/testing/api/writing/ai/planning/product/management) + templates/
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
 ├── skills/
@@ -96,7 +96,7 @@ claude-cockpit/
 
 각 `skills/**/*.md` (단 `_template.md` 제외) 에 대해:
 
-- [ ] YAML frontmatter 에 `follows-standards` 배열이 존재함. **경로 규약**: 설치 후 관점의 `standards/…` 로 기입하고, 검증 시 `brain/…` 로 resolve 하여 실제 파일 존재 확인 (이중 허용 금지)
+- [ ] YAML frontmatter 에 `follows-standards` 배열이 존재함. **경로 규약**: 설치 후 관점의 `brain/…` 로 기입하고, 검증 시 `brain/…` 로 resolve 하여 실제 파일 존재 확인 (이중 허용 금지)
 - [ ] `enforcement: required` 또는 `recommended` 명시
 - [ ] 본문 상단에 "Standards 준수 필수" 블록 존재 (`⚠️` + `@brain/...` 참조)
 - [ ] `name: <category>:<slug>` 형식이 파일 경로(`skills/<category>/<slug>.md`)와 일치
@@ -374,7 +374,7 @@ grep -rnoE '@[a-zA-Z][a-zA-Z0-9/_.-]*\.md' --include='*.md' system/ brain/ skill
   | while IFS=: read -r src line ref; do
       p="${ref#@}"
       case "$p" in
-        standards/*)  real="system/$p" ;;
+        brain/*)  real="system/$p" ;;
         skills/*) real="$p" ;;
         subagents/*) real="system/$p" ;;
         docs/*|system/*|brain/*) real="$p" ;;

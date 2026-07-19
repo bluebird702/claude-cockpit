@@ -4,11 +4,11 @@ description: OWASP Top 10·시크릿·인증/인가·프레임워크 보안 설�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/management/security.md
-  - standards/hard-won-conventions.md
-  - standards/coding/coding-guidelines.md
-  - standards/api/api-design.md
+  - brain/CLAUDE.md
+  - brain/management/security.md
+  - brain/hard-won-conventions.md
+  - brain/coding/coding-guidelines.md
+  - brain/api/api-design.md
 enforcement: required
 ---
 

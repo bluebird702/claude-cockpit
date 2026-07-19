@@ -4,9 +4,9 @@ description: 한 줄 아이디어를 1-페이지 PRD 초안으로 변환 (Out of
 type: slash-command
 category: plan
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/planning/prd-guidelines.md
-  - standards/product/metrics.md
+  - brain/CLAUDE.md
+  - brain/planning/prd-guidelines.md
+  - brain/product/metrics.md
 enforcement: required
 ---
 

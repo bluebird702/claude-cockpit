@@ -4,8 +4,8 @@ description: 원장·골든셋의 반복 발견을 표준·픽스처·체크리�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/hard-won-conventions.md
+  - brain/CLAUDE.md
+  - brain/hard-won-conventions.md
 enforcement: required
 ---
 

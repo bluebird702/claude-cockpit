@@ -8,8 +8,8 @@ description: 버그 리포트를 최소 재현 테스트로 변환
 type: slash-command
 category: dev
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/testing/testing-guidelines.md
+  - brain/CLAUDE.md
+  - brain/testing/testing-guidelines.md
 enforcement: required
 ---
 

@@ -22,7 +22,7 @@ while [ $# -gt 0 ]; do
     -h|--help)
       cat <<EOF
 Usage: $0 [--with <area>... | --all]
-  --all  cockpit 소유의 모든 링크 제거 (standards, skills/*, docs/*)
+  --all  cockpit 소유의 모든 링크 제거 (brain, skills/*, docs/*)
 EOF
       exit 0 ;;
     *) die "알 수 없는 옵션: $1" ;;
@@ -51,7 +51,7 @@ try_remove() {
 }
 
 if [ "$OPT_ALL" = "1" ]; then
-  try_remove "$PROJECT_ROOT/docs/standards"
+  try_remove "$PROJECT_ROOT/docs/brain"
   for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
     [ -d "$cat_dir" ] || continue
     try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
@@ -64,7 +64,7 @@ else
   [ ${#WITH[@]} -eq 0 ] && die "--with 또는 --all 이 필요합니다"
   for area in "${WITH[@]}"; do
     case "$area" in
-      standards)    try_remove "$PROJECT_ROOT/docs/standards" ;;
+      brain)    try_remove "$PROJECT_ROOT/docs/brain" ;;
       skills/*)     try_remove "$PROJECT_ROOT/.claude/commands/${area#skills/}" ;;
       docs/*)       try_remove "$PROJECT_ROOT/docs/${area#docs/}" ;;
       *) log_warn "알 수 없는 영역: $area" ;;

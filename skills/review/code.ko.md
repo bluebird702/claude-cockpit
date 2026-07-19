@@ -4,9 +4,9 @@ description: SOLID·가독성·네이밍·안티패턴 등 코드 품질 심층 
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
-  - standards/hard-won-conventions.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
+  - brain/hard-won-conventions.md
 enforcement: required
 ---
 

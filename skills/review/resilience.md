@@ -8,10 +8,10 @@ description: 회복탄력성·멱등성·동시성 심층 리뷰 — 타임아�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/engineering/reliability.md
-  - standards/hard-won-conventions.md
-  - standards/api/api-design.md
+  - brain/CLAUDE.md
+  - brain/engineering/reliability.md
+  - brain/hard-won-conventions.md
+  - brain/api/api-design.md
 enforcement: required
 ---
 

@@ -8,9 +8,9 @@ description: 의존성 보안 취약점·라이선스·업데이트 필요성·�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/management/security.md
-  - standards/hard-won-conventions.md
+  - brain/CLAUDE.md
+  - brain/management/security.md
+  - brain/hard-won-conventions.md
 enforcement: required
 ---
 

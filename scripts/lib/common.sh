@@ -53,7 +53,7 @@ cockpit_root() {
   local dir
   dir="$(cd "$(dirname "$here")" && pwd)"
   while [ "$dir" != "/" ]; do
-    if [ -d "$dir/core" ] && [ -d "$dir/humans" ]; then
+    if [ -d "$dir/system" ] && [ -d "$dir/skills" ]; then
       echo "$dir"
       return 0
     fi

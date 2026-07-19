@@ -11,7 +11,7 @@
 
 ## 철학 vs 개인 선호 (포크 가이드)
 
-- **철학·표준** (가져다 쓰거나, `standards/philosophy.md` 하나만 교체): `brain/**` — 규칙 충돌 시 philosophy.md 가 최종 심판.
+- **철학·표준** (가져다 쓰거나, `brain/philosophy.md` 하나만 교체): `brain/**` — 규칙 충돌 시 philosophy.md 가 최종 심판.
 - **개인 선호** (자유롭게 수정): 이 파일의 응답 언어·존댓말, Colima 같은 로컬 환경 항목.
 
 ## 응답 규칙 (Response Rules)

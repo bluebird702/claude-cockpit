@@ -8,9 +8,9 @@ description: 아키텍처 구조·의존성 방향·DDD 경계·계층 분리 �
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
-  - standards/hard-won-conventions.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
+  - brain/hard-won-conventions.md
 enforcement: required
 ---
 

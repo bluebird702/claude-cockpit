@@ -4,9 +4,9 @@ description: <한 줄 설명>
 type: slash-command
 category: review | design | dev | docs | ci | mgmt | prod | plan | wiki
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
-  - standards/testing/testing-guidelines.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
+  - brain/testing/testing-guidelines.md
 enforcement: required
 ---
 

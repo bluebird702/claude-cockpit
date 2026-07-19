@@ -8,9 +8,9 @@ description: 프로젝트 품질을 7개 영역(아키텍처/코드/테스트/�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
-  - standards/testing/testing-guidelines.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
+  - brain/testing/testing-guidelines.md
 enforcement: required
 ---
 
@@ -38,7 +38,7 @@ $ARGUMENTS
 분석 전에 아래를 한 번만 파악하고, **모든 sub-skill 호출에 동일한 한 줄 요약으로 전달**합니다.
 - 언어, 프레임워크, 빌드 도구
 - 디렉토리 구조 및 아키텍처 패턴
-- standards 문서 경로 (`docs/standards/` 또는 cockpit의 `@brain/*`)
+- standards 문서 경로 (`docs/brain/` 또는 cockpit의 `@brain/*`)
 
 ## Step 0.4: 캐시 체크 ("같은 커밋 = 같은 결과") ★
 

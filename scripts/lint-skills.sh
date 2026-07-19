@@ -3,7 +3,7 @@
 #
 # 검사:
 #   1) frontmatter 필수 6필드 존재 (name·description·type·category·follows-standards·enforcement)
-#   2) follows-standards 가 가리키는 표준 파일이 system/ 아래 실제 존재
+#   2) follows-standards 가 가리키는 표준 파일이 brain/ 아래 실제 존재
 #   3) 본문 @brain/@docs 참조가 dangling 인지 (경고)
 #
 # 종료코드: 0 통과 / 1 실패(필수 필드·경로 오류)
@@ -39,8 +39,8 @@ for f in skills/*/*.md; do
   # 2) follows-standards 경로 존재
   while IFS= read -r sp; do
     [ -n "$sp" ] || continue
-    [ -f "system/$sp" ] || {
-      echo "✘ $f: follows-standards 경로 없음 → system/$sp"
+    [ -f "$sp" ] || {
+      echo "✘ $f: follows-standards 경로 없음 → $sp"
       fail=$((fail + 1))
     }
   done < <(printf '%s\n' "$fm" | awk '
@@ -53,7 +53,7 @@ for f in skills/*/*.md; do
   while IFS= read -r ref; do
     [ -n "$ref" ] || continue
     case "$ref" in
-      @brain/*) tgt="system/${ref#@}" ;;
+      @brain/*) tgt="${ref#@}" ;;
       @docs/*) tgt="${ref#@}" ;;
       *) continue ;;
     esac
@@ -61,7 +61,7 @@ for f in skills/*/*.md; do
       echo "⚠ $f: dangling 참조 $ref (→ $tgt 없음)"
       warn=$((warn + 1))
     }
-  done < <(grep -oE '@(standards|docs)/[A-Za-z0-9/._-]+\.md' "$f" 2>/dev/null | sort -u)
+  done < <(grep -oE '@(brain|docs)/[A-Za-z0-9/._-]+\.md' "$f" 2>/dev/null | sort -u)
 done
 
 echo ""

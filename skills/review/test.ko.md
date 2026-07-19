@@ -4,8 +4,8 @@ description: 테스트 구조·피라미드·커버리지·품질·효율성 종
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/testing/testing-guidelines.md
+  - brain/CLAUDE.md
+  - brain/testing/testing-guidelines.md
 enforcement: required
 ---
 

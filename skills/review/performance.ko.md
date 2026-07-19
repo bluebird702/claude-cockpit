@@ -4,9 +4,9 @@ description: 성능 병목·쿼리·캐싱·관측성 심층 리뷰 (회복탄�
 type: slash-command
 category: review
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
-  - standards/engineering/reliability.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
+  - brain/engineering/reliability.md
 enforcement: required
 ---
 

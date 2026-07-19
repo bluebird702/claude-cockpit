@@ -8,8 +8,8 @@ description: 추상화 역전 방지, 피처 토글(Feature Toggle) 기반 무�
 type: slash-command
 category: dev
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/coding/coding-guidelines.md
+  - brain/CLAUDE.md
+  - brain/coding/coding-guidelines.md
 enforcement: required
 ---
 

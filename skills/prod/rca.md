@@ -8,8 +8,8 @@ description: 비난 없는 포스트모템(Blameless Post-mortem), MTTR 지표 �
 type: slash-command
 category: prod
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/engineering/reliability.md
+  - brain/CLAUDE.md
+  - brain/engineering/reliability.md
 enforcement: required
 ---
 

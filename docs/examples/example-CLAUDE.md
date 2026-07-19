@@ -69,7 +69,7 @@ Frontend (Web/Mobile) → @example/platform-js
 
 ## 📚 개발 문서 (docs/)
 
-> ⚠️ **공통 개발 표준은 `docs/standards/CLAUDE.md` 에서 자동 로딩됩니다** (cockpit submodule 연결 시).
+> ⚠️ **공통 개발 표준은 `brain/CLAUDE.md` 에서 자동 로딩됩니다** (cockpit submodule 연결 시).
 
 ### 프로젝트 전용
 - ⚠️ **필수**: `docs/guidelines/project-structure.md`

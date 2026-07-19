@@ -4,8 +4,8 @@ description: JTBD, RICE 프레임워크, Pre-mortem이 포함된 극한의 기�
 type: slash-command
 category: plan
 follows-standards:
-  - standards/CLAUDE.md
-  - standards/planning/product.md
+  - brain/CLAUDE.md
+  - brain/planning/product.md
 enforcement: required
 ---
 

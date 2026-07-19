@@ -5,7 +5,7 @@
 #
 # 사용법 (소비 프로젝트 루트에서):
 #   .cockpit/scripts/project-link.sh \
-#     --with standards \
+#     --with brain \
 #     --with skills/dev \
 #     --with skills/ci \
 #     --with docs/process
@@ -40,13 +40,13 @@ while [ $# -gt 0 ]; do
 Usage: $0 --with <area> [--with <area>...] [--reapply] [--dry-run]
 
 Areas:
-  standards          → <project>/docs/standards
+  brain          → <project>/docs/brain
   skills/<category>  → <project>/.claude/commands/<category>
   docs/<name>        → <project>/docs/<name>
   global/CLAUDE.md   → <project>/CLAUDE.md (없을 때만 복사, 링크 아님)
 
 Examples:
-  $0 --with standards --with skills/dev --with skills/ci --with docs/process
+  $0 --with brain --with skills/dev --with skills/ci --with docs/process
 EOF
       exit 0 ;;
     *) die "알 수 없는 옵션: $1" ;;
@@ -64,8 +64,8 @@ log_ok "project root: $PROJECT_ROOT"
 resolve_link() {
   local area="$1"
   case "$area" in
-    standards)
-      echo "$COCKPIT_ROOT/brain|$PROJECT_ROOT/docs/standards"
+    brain)
+      echo "$COCKPIT_ROOT/brain|$PROJECT_ROOT/docs/brain"
       ;;
     skills/*)
       local cat="${area#skills/}"
