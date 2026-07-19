@@ -30,6 +30,7 @@ OPT_MCP=0
 OPT_FORCE=0
 OPT_SKIP_DOCTOR=0
 OPT_NO_PLUGINS=0
+OPT_LANG="en"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -37,6 +38,7 @@ while [ $# -gt 0 ]; do
     --force)       OPT_FORCE=1; shift ;;
     --skip-doctor) OPT_SKIP_DOCTOR=1; shift ;;
     --no-plugins)  OPT_NO_PLUGINS=1; shift ;;
+    --lang=*)      OPT_LANG="${1#*=}"; shift ;;
     -h|--help)
       cat <<EOF
 Usage: $0 [options]
@@ -44,6 +46,7 @@ Usage: $0 [options]
   --force         기존 실제 파일도 백업 후 덮어씀
   --skip-doctor   Phase 1 (환경 진단) 건너뜀
   --no-plugins    Phase 7.5 (플러그인 설치) 건너뜀
+  --lang=<en|ko>  스킬셋 언어 설정 (기본값: en)
 EOF
       exit 0 ;;
     *) die "알 수 없는 옵션: $1" ;;
@@ -135,29 +138,40 @@ log_step "Phase 3 · skills 카테고리 링크"
 for cat_dir in "$ROOT_DIR"/humans/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
-  # 비어있는 카테고리는 건너뜀
-  if ! compgen -G "${cat_dir}*.md" > /dev/null; then
-    log_dim "  · humans/skills/$cat_name 비어있음 (건너뜀)"
-    continue
+  dst_dir="$CLAUDE_DIR/commands/$cat_name"
+  
+  if [ -e "$dst_dir" ] || [ -L "$dst_dir" ]; then
+    backup_path "$dst_dir" "$BACKUP_DIR"
+    rm -rf "$dst_dir"
   fi
-  dst="$CLAUDE_DIR/commands/$cat_name"
-  if [ -L "$dst" ]; then
-    if [ "$(readlink "$dst")" = "${cat_dir%/}" ] || [ "$(readlink "$dst")" = "$cat_dir" ]; then
-      log_dim "  = $dst (이미 연결됨)"
-      continue
-    fi
-    backup_path "$dst" "$BACKUP_DIR"
-    rm "$dst"
-  elif [ -e "$dst" ]; then
-    backup_path "$dst" "$BACKUP_DIR"
-    if [ "$OPT_FORCE" = "1" ]; then
-      rm -rf "$dst"
+  
+  mkdir -p "$dst_dir"
+  linked=0
+  
+  for src_file in "$cat_dir"*.md; do
+    [ -f "$src_file" ] || continue
+    file_name="$(basename "$src_file")"
+    
+    if [ "$OPT_LANG" = "ko" ]; then
+      if [[ "$file_name" == *.ko.md ]]; then
+        base_name="${file_name%.ko.md}.md"
+        ln -s "$src_file" "$dst_dir/$base_name"
+        linked=$((linked+1))
+      fi
     else
-      die "실제 디렉토리가 존재합니다: $dst (--force 필요)"
+      if [[ "$file_name" != *.ko.md ]]; then
+        ln -s "$src_file" "$dst_dir/$file_name"
+        linked=$((linked+1))
+      fi
     fi
+  done
+  
+  if [ "$linked" -gt 0 ]; then
+    log_ok "  + $dst_dir (${linked}개 스킬, 언어: $OPT_LANG)"
+  else
+    log_dim "  · $cat_name 비어있음 (건너뜀)"
+    rm -rf "$dst_dir"
   fi
-  ln -s "${cat_dir%/}" "$dst"
-  log_ok "  + $dst → ${cat_dir%/}"
 done
 
 # ─────────────────────────────────────────────
