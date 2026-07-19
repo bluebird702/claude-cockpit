@@ -13,31 +13,40 @@
 > - **개인 설정 치환**: 설치 시 `scripts/global-install.sh` 가 `$HOME`, GitHub 사용자명, 레포 경로 등을 감지해 `~/.claude/*` 에 반영합니다. 레포에는 템플릿 형태로만 존재합니다.
 > - **철학 교체 슬롯**: `core/standards/philosophy.md` 가 모든 표준의 최종 심판 기준입니다. 포크 시 이 파일 하나만 자신의 철학으로 교체하면 나머지 표준·스킬·훅 체계를 그대로 상속합니다.
 
-## 레이어
+## 아키텍처 철학: 기계와 인간의 분리 (Separation of Concerns)
+
+이 레포지토리의 가장 중요한 핵심 철학은 **"타겟 독자(Target Audience)의 분리"**입니다. 지식을 잘못된 곳에 넣으면 AI는 토큰을 낭비하고, 인간은 길을 잃습니다.
+
+*   🤖 **`core/standards/` (기계용 진실 공급원 - Machine-Readable)**
+    *   **타겟:** AI 에이전트 (Claude, Gemini 등)
+    *   **목적:** AI가 코딩이나 기획을 할 때 컨텍스트에 주입되어 반드시 지켜야 하는 **강제적 룰셋(법전)**입니다.
+    *   **특징:** 토큰 절약을 위해 친절한 설명은 빼고, 건조하고 명령적인 어조(Imperative)로 작성됩니다. (예: "ADR 작성 시 CAP 정리를 명시할 것")
+*   🧑‍💻 **`docs/` (인간용 매뉴얼 - Human-Readable)**
+    *   **타겟:** 인간 개발자 (사용자, 오픈소스 기여자)
+    *   **목적:** 이 거대한 시스템을 인간이 어떻게 조합해서 쓰고, 기여할 수 있는지 알려주는 **친절한 교과서**입니다.
+    *   **특징:** 튜토리얼, 아키텍처 다이어그램, 스텝바이스텝 가이드가 포함됩니다. 평소 AI의 프롬프트로는 로드되지 않습니다.
+
+---
+
+## 디렉토리 레이어
 
 ```
 claude-cockpit/
-├── core/                  전사 baseline — 모든 사람·에이전트 공통
+├── core/                  [기계용] 전사 baseline — 모든 사람·에이전트 공통
 │   ├── CLAUDE.md           전역 지침 (→ ~/.claude/CLAUDE.md)
-│   ├── settings.json       권한·훅 baseline
-│   ├── keybindings.json
-│   ├── standards/          philosophy / coding / engineering(reliability) / testing / api / writing / ai / planning / product / management
-│   ├── hooks/              guard-bash, guard-secrets, guard-prompt-injection, format, session-context, session-end
-│   ├── mcp-shared/         공통 MCP 설정 (GitHub / Jira / Confluence / Playwright / Slack / Figma / Context7)
-│   └── memory-seed/        초기 메모리 시드
+│   ├── standards/          AI가 읽고 따를 룰셋 (philosophy / coding / engineering / product 등)
+│   ├── hooks/              guard-bash, guard-secrets 등 보안 스크립트
+│   └── mcp-shared/         공통 MCP 설정
 │
-├── humans/                사람(CEO) 용 대화형 도구
+├── humans/                [실행부] 사람(CEO) 용 대화형 도구 (트리거)
 │   ├── skills/             슬래시 커맨드 (4도메인: 개발 / 기획 / 프로덕트 / 경영)
-│   ├── subagents/          Task 툴 서브에이전트 (리뷰 전담 review-* 8종 + 운영 5종)
-│   └── review-fixtures/    리뷰어·검증자 골든셋 (QA 데이터 — 슬래시 커맨드 아님)
+│   ├── subagents/          Task 툴 서브에이전트 (리뷰 전담 8종 + 운영 5종)
+│   └── review-fixtures/    리뷰어·검증자 골든셋 (QA 데이터)
 │
-├── docs/                  레포 문서 (dev / process / examples / writing)
-├── scripts/               설치·링크·진단 (lib/ 공통 라이브러리 포함)
-├── secrets/               1Password 스키마만 (실제 값 없음)
-├── install.sh             원클릭 래퍼
-└── CLAUDE.md              cockpit 레포 작업 시 Claude 가 따르는 프로젝트 지침
+├── docs/                  [인간용] 레포 문서 (architecture / guides / playbooks)
+├── scripts/               설치·다국어번역(I18n)·링크 유틸리티
+└── install.sh             원클릭 래퍼
 ```
-
 ## 빠른 시작
 
 ### 옵션 A. 새 장비 — 1줄 부트스트랩 (권장)
