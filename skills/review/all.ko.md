@@ -3,7 +3,7 @@ name: review:all
 description: 프로젝트 품질을 7개 영역(아키텍처/코드/테스트/보안/성능/회복탄력성/의존성)으로 병렬 분석
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/coding/coding-guidelines.md
   - brain/testing/testing-guidelines.md
@@ -12,7 +12,7 @@ enforcement: required
 
 # 프로젝트 리뷰 (오케스트레이터)
 
-> ⚠️ **Standards 준수 필수** — 모든 sub-skill의 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 모든 sub-skill의 판단 기준은 standards를 우선합니다.
 > @brain/CLAUDE.md · @brain/coding/coding-guidelines.md · @brain/testing/testing-guidelines.md
 
 7개 sub-skill을 병렬 호출하여 프로젝트 품질 스냅샷을 생성합니다. 각 영역의 상세 기준과 체크리스트는 **sub-skill 파일이 단일 출처(SSOT)** 이며, 이 오케스트레이터는 얇은 래퍼입니다.

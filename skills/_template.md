@@ -7,7 +7,7 @@ name: <카테고리>:<이름>
 description: <한 줄 설명>
 type: slash-command
 category: review | design | dev | docs | ci | mgmt | prod | plan | wiki
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/coding/coding-guidelines.md
   - brain/testing/testing-guidelines.md
@@ -16,7 +16,7 @@ enforcement: required
 
 # <제목>
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > 이 skill은 아래 문서의 규칙을 반드시 따릅니다. 결과물이 위반되면 즉시 수정하세요.
 > - @brain/CLAUDE.md
 > - @brain/coding/coding-guidelines.md

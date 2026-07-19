@@ -191,8 +191,8 @@ git submodule update --remote .cockpit
 
 모든 `skills/**/*.md` 는 3중 장치로 `brain/` 준수를 강제합니다:
 
-1. **Frontmatter** — `follows-standards: [...]`, `enforcement: required`
-2. **본문 상단** — ⚠️ "Standards 준수 필수" 블록 + `@brain/*` 참조
+1. **Frontmatter** — `follows-brain: [...]`, `enforcement: required`
+2. **본문 상단** — ⚠️ "Brain 원칙 준수 필수" 블록 + `@brain/*` 참조
 3. **전역 CLAUDE.md** — `system/CLAUDE.md` 가 `@brain/CLAUDE.md` 자동 로드
 
 이 레포 자체의 규약 준수는 `/review:cockpit` 으로 검증합니다.

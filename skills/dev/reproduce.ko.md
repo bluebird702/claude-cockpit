@@ -3,7 +3,7 @@ name: dev:reproduce
 description: 버그 리포트를 최소 재현 테스트로 변환
 type: slash-command
 category: dev
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/testing/testing-guidelines.md
 enforcement: required
@@ -11,7 +11,7 @@ enforcement: required
 
 # dev:reproduce — 버그 → 최소 재현 테스트
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > @brain/CLAUDE.md · @brain/testing/testing-guidelines.md
 
 버그 리포트(이슈 본문, Slack 메시지, Sentry 스택)를 입력 받아 **실행 가능한 최소 재현 테스트**를 작성합니다. 수정은 하지 않습니다 — 재현만.

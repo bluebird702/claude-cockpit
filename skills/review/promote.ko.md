@@ -3,7 +3,7 @@ name: review:promote
 description: 원장·골든셋의 반복 발견을 표준·픽스처·체크리스트 수정안으로 승격(초안화). 적용은 사람 승인.
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/hard-won-conventions.md
 enforcement: required
@@ -11,7 +11,7 @@ enforcement: required
 
 # 승격 (Promote) — 플라이휠 ④
 
-> ⚠️ **Standards 준수 필수** — @brain/CLAUDE.md · @brain/hard-won-conventions.md
+> ⚠️ **Brain 원칙 준수 필수** — @brain/CLAUDE.md · @brain/hard-won-conventions.md
 > **사람 게이트 필수** — 이 스킬은 승격 후보를 **초안(draft)** 으로만 만든다.
 > enforced 표준(`brain/**`)에 **자동 병합 금지**. 무인 자기수정 금지.
 

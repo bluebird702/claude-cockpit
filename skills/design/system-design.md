@@ -7,7 +7,7 @@ name: design:system-design
 description: C4 모델, FMEA, 대략적 규모 산정(QPS)이 포함된 세계 최고 수준의 아키텍처 설계
 type: slash-command
 category: design
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/engineering/reliability.md
 enforcement: required
@@ -15,7 +15,7 @@ enforcement: required
 
 # 🏗️ 월드클래스 시스템 아키텍처 설계 (World-Class System Design)
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > 이 skill은 아래 문서의 규칙을 반드시 따릅니다. 결과물이 위반되면 즉시 수정하세요.
 > - @brain/engineering/reliability.md
 

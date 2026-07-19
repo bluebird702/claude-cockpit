@@ -24,7 +24,7 @@ mcp.public.env
 .vscode/
 *.swp
 
-# Python / Poetry (platform/runtime)
+# Python / Poetry
 __pycache__/
 *.pyc
 *.pyo
@@ -35,6 +35,3 @@ __pycache__/
 dist/
 *.egg-info/
 # poetry.lock 은 커밋 (재현성 위해)
-
-# 스캐폴드 임시 결과물
-workers/test-*/

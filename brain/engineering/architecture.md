@@ -2,7 +2,7 @@
 description: 기계용 진실 공급원 - 시스템 아키텍처 및 분산 시스템 설계 표준
 ---
 
-# Architecture Engineering Standards
+# Architecture Engineering Brain
 
 이 문서는 AI가 시스템 설계(Architecture)를 수행할 때 반드시 지켜야 하는 원칙입니다.
 모든 설계 스킬(예: `/design:system-design`)은 이 룰셋을 상속합니다.

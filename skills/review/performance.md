@@ -7,7 +7,7 @@ name: review:performance
 description: 성능 병목·쿼리·캐싱·관측성 심층 리뷰 (회복탄력성·동시성은 review:resilience)
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/coding/coding-guidelines.md
   - brain/engineering/reliability.md
@@ -16,7 +16,7 @@ enforcement: required
 
 # 성능·관측성 리뷰
 
-> ⚠️ **Standards 준수 필수** — 성능/관측성 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 성능/관측성 판단 기준은 standards를 우선합니다.
 > @brain/engineering/reliability.md(§데이터 접근·§관측성) · @brain/coding/coding-guidelines.md · @brain/CLAUDE.md
 > 타임아웃·재시도·서킷브레이커·멱등성·race 는 **`/review:resilience` 담당** (중복 발견 금지).
 

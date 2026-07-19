@@ -1,4 +1,4 @@
-# Standards
+# Brain
 
 > 이 문서는 Claude Code 가 세션 시작 시 자동 로드합니다. 모든 작업은 아래 표준을 따릅니다.
 

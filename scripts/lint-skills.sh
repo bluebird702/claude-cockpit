@@ -2,8 +2,8 @@
 # lint-skills.sh — 스킬 마크다운 정합성 린트 (CI·로컬 공용, 결정적)
 #
 # 검사:
-#   1) frontmatter 필수 6필드 존재 (name·description·type·category·follows-standards·enforcement)
-#   2) follows-standards 가 가리키는 표준 파일이 brain/ 아래 실제 존재
+#   1) frontmatter 필수 6필드 존재 (name·description·type·category·follows-brain·enforcement)
+#   2) follows-brain 가 가리키는 표준 파일이 brain/ 아래 실제 존재
 #   3) 본문 @brain/@docs 참조가 dangling 인지 (경고)
 #
 # 종료코드: 0 통과 / 1 실패(필수 필드·경로 오류)
@@ -13,7 +13,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-REQUIRED=(name description type category follows-standards enforcement)
+REQUIRED=(name description type category follows-brain enforcement)
 fail=0
 warn=0
 
@@ -36,15 +36,15 @@ for f in skills/*/*.md; do
     }
   done
 
-  # 2) follows-standards 경로 존재
+  # 2) follows-brain 경로 존재
   while IFS= read -r sp; do
     [ -n "$sp" ] || continue
     [ -f "$sp" ] || {
-      echo "✘ $f: follows-standards 경로 없음 → $sp"
+      echo "✘ $f: follows-brain 경로 없음 → $sp"
       fail=$((fail + 1))
     }
   done < <(printf '%s\n' "$fm" | awk '
-    /^follows-standards:/ {g=1; next}
+    /^follows-brain:/ {g=1; next}
     g && /^[[:space:]]*-[[:space:]]/ {gsub(/^[[:space:]]*-[[:space:]]*/,""); print; next}
     g && /^[^[:space:]-]/ {g=0}
   ')

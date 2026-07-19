@@ -2,7 +2,7 @@
 description: 기계용 진실 공급원 - 장애 대응 및 SRE 운영 표준
 ---
 
-# Incident Management Standards
+# Incident Management Brain
 
 이 문서는 AI가 운영 상의 장애나 포스트모템을 분석할 때 반드시 지켜야 하는 SRE(Site Reliability Engineering) 원칙입니다.
 
@@ -16,7 +16,7 @@ description: 기계용 진실 공급원 - 장애 대응 및 SRE 운영 표준
 2. 왜 고갈되었나? -> 특정 슬로우 쿼리가 커넥션을 물고 놓지 않아서.
 3. 왜 슬로우 쿼리가 발생했나? -> 새로 배포된 기능에 인덱스가 누락되어서.
 4. 왜 누락을 몰랐나? -> 리뷰 과정에서 Explain Plan을 확인하는 절차가 없어서.
-5. 왜 절차가 없었나? -> DB 마이그레이션 리뷰 표준(Standards)이 정의되지 않아서.
+5. 왜 절차가 없었나? -> DB 마이그레이션 리뷰 표준(Brain)이 정의되지 않아서.
 
 ## 3. PDM (Prevent, Detect, Mitigate) 분류 체계
 Action Item(재발 방지 대책)을 도출할 때는 반드시 아래 세 가지 범주로 나누어 제안하십시오.

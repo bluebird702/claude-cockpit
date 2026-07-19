@@ -3,7 +3,7 @@ name: review:cockpit
 description: claude-cockpit 레포 자체의 구조·규약·문서 일관성을 검증하는 메타 리뷰
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/management/security.md
 enforcement: recommended
@@ -16,7 +16,7 @@ enforcement: recommended
      와 의미가 다릅니다. -->
 
 
-> ⚠️ **Standards 준수 필수** — 판단 기준은 standards 가 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 standards 가 우선합니다.
 > @brain/CLAUDE.md · @brain/management/security.md
 
 > 이 스킬은 cockpit 레포 **자체의** 품질(구조·규약·문서 일관성)을 확인하는 체크리스트입니다.
@@ -92,9 +92,9 @@ claude-cockpit/
 
 각 `skills/**/*.md` (단 `_template.md` 제외) 에 대해:
 
-- [ ] YAML frontmatter 에 `follows-standards` 배열이 존재함. **경로 규약**: 설치 후 관점의 `brain/…` 로 기입하고, 검증 시 `brain/…` 로 resolve 하여 실제 파일 존재 확인 (이중 허용 금지)
+- [ ] YAML frontmatter 에 `follows-brain` 배열이 존재함. **경로 규약**: 설치 후 관점의 `brain/…` 로 기입하고, 검증 시 `brain/…` 로 resolve 하여 실제 파일 존재 확인 (이중 허용 금지)
 - [ ] `enforcement: required` 또는 `recommended` 명시
-- [ ] 본문 상단에 "Standards 준수 필수" 블록 존재 (`⚠️` + `@brain/...` 참조)
+- [ ] 본문 상단에 "Brain 원칙 준수 필수" 블록 존재 (`⚠️` + `@brain/...` 참조)
 - [ ] `name: <category>:<slug>` 형식이 파일 경로(`skills/<category>/<slug>.md`)와 일치
 - [ ] `type: slash-command` 또는 그에 준하는 type 명시
 - [ ] 9 카테고리 각각에 최소 1개 스킬 존재
@@ -167,7 +167,7 @@ claude-cockpit/
 - [ ] `system/mcp-shared/.env.example` 은 예시 값만 포함
 - [ ] `.gitignore` 에 `secrets.env`, `mcp.public.env`, `backups/`, `secrets/*.local*` 포함
 - [ ] `system/settings.json` 에는 `${VAR}` 참조만 있고 실제 값 없음
-- [ ] `system/memory-seed/`, `knowledge/`, `secrets/` 중 민감정보가 포함된 파일 없음
+- [ ] `system/memory-seed/` 중 민감정보가 포함된 파일 없음
 
 ### §11. 한글 톤 · 응답 규칙 (5점)
 
@@ -262,12 +262,12 @@ grep -qE '\[ -L \]|readlink' scripts/project-link.sh   || echo "MISSING idempote
 # ============================================================
 find skills -type f -name '*.md' ! -name '_template.md' | while read -r f; do
   fm=$(awk '/^---$/{c++; if(c==2) exit; next} c==1' "$f")
-  echo "$fm" | grep -q 'follows-standards'                         || echo "MISSING follows-standards: $f"
+  echo "$fm" | grep -q 'follows-brain'                         || echo "MISSING follows-brain: $f"
   echo "$fm" | grep -Eq 'enforcement: (required|recommended)'      || echo "MISSING enforcement: $f"
   echo "$fm" | grep -Eq '^name: [a-z-]+:[a-z0-9-]+'                || echo "MISSING name:<cat>:<slug>: $f"
 done
 
-# 3b) §3 — 본문 "Standards 준수 필수" 블록 (⚠️ + @brain/…) 존재 검사
+# 3b) §3 — 본문 "Brain 원칙 준수 필수" 블록 (⚠️ + @brain/…) 존재 검사
 find skills -type f -name '*.md' ! -name '_template.md' | while read -r f; do
   body=$(awk '/^---$/{c++; next} c==2' "$f" | head -10)
   echo "$body" | grep -q '⚠️'               || { echo "MISSING ⚠️ block: $f"; continue; }

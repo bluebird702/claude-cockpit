@@ -2,7 +2,7 @@
 description: 기계용 진실 공급원 - 제품 기획 및 요구사항 정의 표준
 ---
 
-# Product Planning Standards
+# Product Planning Brain
 
 이 문서는 AI가 제품 기획 및 요구사항(PRD)을 작성할 때 반드시 준수해야 하는 글로벌 표준입니다.
 모든 기획 스킬(예: `/plan:ideation`)은 이 룰셋을 상속합니다.

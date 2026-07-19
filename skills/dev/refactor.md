@@ -7,7 +7,7 @@ name: dev:refactor
 description: 추상화 역전 방지, 피처 토글(Feature Toggle) 기반 무중단 리팩터링
 type: slash-command
 category: dev
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/coding/coding-guidelines.md
 enforcement: required
@@ -15,7 +15,7 @@ enforcement: required
 
 # 🛠️ 월드클래스 점진적 무중단 리팩터링 (Zero-Downtime Refactoring)
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > 이 skill은 아래 문서의 규칙을 반드시 따릅니다. 결과물이 위반되면 즉시 수정하세요.
 > - @brain/coding/coding-guidelines.md
 

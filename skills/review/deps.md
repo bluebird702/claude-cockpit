@@ -7,7 +7,7 @@ name: review:deps
 description: 의존성 보안 취약점·라이선스·업데이트 필요성·공급망 위험 감사
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/management/security.md
   - brain/hard-won-conventions.md
@@ -16,7 +16,7 @@ enforcement: required
 
 # 의존성 리뷰
 
-> ⚠️ **Standards 준수 필수** — 버전/라이선스 정책은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 버전/라이선스 정책은 standards를 우선합니다.
 > @brain/management/security.md(§의존성 — 감사 주기·critical 24h/moderate 1주 SLA·버전 핀) · @brain/hard-won-conventions.md(§공급망·실행 신뢰) · @brain/CLAUDE.md
 
 프로젝트의 모든 의존성을 분석하여 보안 취약점(CVE), 라이선스 호환성, 업데이트 필요성, 공급망 위험을 점검합니다.

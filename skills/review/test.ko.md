@@ -3,7 +3,7 @@ name: review:test
 description: 테스트 구조·피라미드·커버리지·품질·효율성 종합 리뷰
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/testing/testing-guidelines.md
 enforcement: required
@@ -11,7 +11,7 @@ enforcement: required
 
 # 테스트 품질 리뷰
 
-> ⚠️ **Standards 준수 필수** — 테스트 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 테스트 판단 기준은 standards를 우선합니다.
 > @brain/testing/testing-guidelines.md · @brain/CLAUDE.md
 
 테스트 코드의 구조, 피라미드 균형, 커버리지 갭, 품질, 실행 효율성을 종합 점검합니다.

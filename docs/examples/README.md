@@ -4,4 +4,4 @@ cockpit 을 submodule 로 연결한 프로젝트에서 `CLAUDE.md` 와 가이드
 
 | 파일 | 내용 |
 |------|------|
-| [example-CLAUDE.md](./example-CLAUDE.md) | 마이크로서비스 플랫폼 프로젝트의 루트 CLAUDE.md 샘플 (standards submodule + 프로젝트 전용 규칙 혼합) |
+| [example-CLAUDE.md](./example-CLAUDE.md) | 마이크로서비스 플랫폼 프로젝트의 루트 CLAUDE.md 샘플 (brain submodule + 프로젝트 전용 규칙 혼합) |

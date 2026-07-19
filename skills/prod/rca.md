@@ -7,7 +7,7 @@ name: prod:rca
 description: 비난 없는 포스트모템(Blameless Post-mortem), MTTR 지표 기반의 세계적 수준 장애 분석
 type: slash-command
 category: prod
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/engineering/reliability.md
 enforcement: required
@@ -15,7 +15,7 @@ enforcement: required
 
 # 🚑 월드클래스 장애 분석 및 포스트모템 (Blameless RCA)
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > 이 skill은 아래 문서의 규칙을 반드시 따릅니다. 결과물이 위반되면 즉시 수정하세요.
 > - @brain/engineering/reliability.md
 

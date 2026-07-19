@@ -7,7 +7,7 @@ name: review:code
 description: SOLID·가독성·네이밍·안티패턴 등 코드 품질 심층 리뷰
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/coding/coding-guidelines.md
   - brain/hard-won-conventions.md
@@ -16,7 +16,7 @@ enforcement: required
 
 # 코드 품질 리뷰
 
-> ⚠️ **Standards 준수 필수** — 코드 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 코드 판단 기준은 standards를 우선합니다.
 > @brain/CLAUDE.md · @brain/coding/coding-guidelines.md · @brain/hard-won-conventions.md(일반 표준과 긴장하면 이쪽 우선)
 
 SOLID 원칙, 가독성, 안티패턴, standards 위반 여부를 심층 점검합니다.

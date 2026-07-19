@@ -7,7 +7,7 @@ name: review:security
 description: OWASP Top 10·시크릿·인증/인가·프레임워크 보안 설정 심층 리뷰
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/management/security.md
   - brain/hard-won-conventions.md
@@ -18,7 +18,7 @@ enforcement: required
 
 # 보안 리뷰
 
-> ⚠️ **Standards 준수 필수** — 보안 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 보안 판단 기준은 standards를 우선합니다.
 > @brain/management/security.md · @brain/hard-won-conventions.md(§보안—신뢰 경계: XFF·JWT·fail-fast 실사고 관례) · @brain/coding/coding-guidelines.md · @brain/api/api-design.md · @brain/CLAUDE.md
 
 프로젝트 코드를 정적 분석하여 OWASP Top 10, 시크릿 노출, 인증/인가 누락, 프레임워크 보안 설정 결함을 탐지합니다.

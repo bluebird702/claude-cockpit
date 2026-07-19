@@ -7,7 +7,7 @@ name: plan:ideation
 description: JTBD, RICE 프레임워크, Pre-mortem이 포함된 극한의 기획 검증
 type: slash-command
 category: plan
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/planning/product.md
 enforcement: required
@@ -15,7 +15,7 @@ enforcement: required
 
 # 🧠 월드클래스 기획 및 아이데이션 (World-Class Ideation & Pre-mortem)
 
-> ⚠️ **Standards 준수 필수**
+> ⚠️ **Brain 원칙 준수 필수**
 > 이 skill은 아래 문서의 규칙을 반드시 따릅니다. 결과물이 위반되면 즉시 수정하세요.
 > - @brain/CLAUDE.md
 

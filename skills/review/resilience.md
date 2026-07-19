@@ -7,7 +7,7 @@ name: review:resilience
 description: 회복탄력성·멱등성·동시성 심층 리뷰 — 타임아웃·재시도·서킷브레이커·캐시 스탬피드·race
 type: slash-command
 category: review
-follows-standards:
+follows-brain:
   - brain/CLAUDE.md
   - brain/engineering/reliability.md
   - brain/hard-won-conventions.md
@@ -17,7 +17,7 @@ enforcement: required
 
 # 회복탄력성 리뷰
 
-> ⚠️ **Standards 준수 필수** — 판단 기준은 standards를 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 standards를 우선합니다.
 > @brain/engineering/reliability.md · @brain/hard-won-conventions.md(§아키텍처·회복탄력성 — 실사고 관례, 일반 표준과 긴장하면 이쪽 우선) · @brain/api/api-design.md(§멱등성) · @brain/CLAUDE.md
 
 대규모 트래픽에서 서비스를 죽이는 시스템적 결함 — 타임아웃 부재, retry storm, 캐시 스탬피드,
