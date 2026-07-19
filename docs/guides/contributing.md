@@ -10,7 +10,7 @@
 *   예시: `skills/dev/my-new-skill.ko.md`
 *   반드시 다른 스킬 파일들의 템플릿(YAML Frontmatter 등) 형식을 지켜주세요.
 
-### 2. (선택 사항) 코어 룰셋(Standards) 작성
+### 2. (선택 사항) 코어 룰셋(brain) 작성
 만약 당신의 스킬이 완전히 새로운 개념(예: 새로운 보안 점검 프레임워크)을 도입한다면, 지식을 스킬 파일에 다 적지 말고 `brain/` 아래에 독립적인 규칙 파일로 분리하세요.
 *   예: `brain/engineering/security-check.md`
 

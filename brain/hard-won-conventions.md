@@ -49,7 +49,7 @@
 
 ---
 
-> **성장 규칙**: 새 관례는 cockpit 플라이휠(cockpit 레포 `docs/process/cockpit-flywheel.md`; standards 를 submodule 로만 소비하는 프로젝트엔 없을 수 있음)의 **승격 기준**을 통과한 것만 여기 추가한다(반복 발생 or 실사고). 임의 추가 금지 — 이 목록의 **신뢰도가 곧 해자**다.
+> **성장 규칙**: 새 관례는 cockpit 플라이휠(cockpit 레포 `docs/process/cockpit-flywheel.md`; brain 를 submodule 로만 소비하는 프로젝트엔 없을 수 있음)의 **승격 기준**을 통과한 것만 여기 추가한다(반복 발생 or 실사고). 임의 추가 금지 — 이 목록의 **신뢰도가 곧 해자**다.
 
 **버전**: 1.2.0 | **최종 업데이트**: 2026-07-19
 

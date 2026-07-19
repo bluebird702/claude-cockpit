@@ -18,7 +18,7 @@
 | 요소 | 규칙 |
 |------|------|
 | type | `feat` `fix` `refactor` `perf` `docs` `test` `chore` `ci` `build` `style` `revert` |
-| scope | 모듈/서비스명, 선택 (예: `account`, `mcp`, `standards`) |
+| scope | 모듈/서비스명, 선택 (예: `account`, `mcp`, `brain`) |
 | subject | 명령형 · 마침표 없음 · **70자 이하** · 제목만 보고 "왜"가 떠오르게 |
 | body | **"왜" 먼저**(문제·배경) → 무엇을(불릿) → 검증 방법(사소하면 생략) · 줄당 72자 |
 | footer | `Refs: PROJ-123` · `Closes: #42` · `BREAKING CHANGE: …` |

@@ -11,7 +11,7 @@ type: reference
 
 ## 레이어
 
-- `system/` — 전사 baseline (CLAUDE.md, settings, standards, hooks, mcp-shared, memory-seed)
+- `system/` — 전사 baseline (CLAUDE.md, settings, brain, hooks, mcp-shared, memory-seed)
 - `skills/` — 슬래시 커맨드 트리거
 - `system/subagents/` — 백그라운드 AI 워커
 - `docs/` — 레포 문서 (dev / process / examples / writing)
@@ -29,7 +29,7 @@ type: reference
 | 전역 CLAUDE.md | `./system/CLAUDE.md` |
 | 전역 권한/훅 | `./system/settings.json.template` (설치 시 렌더 → `~/.claude/settings.json`) |
 | 보안 훅 | `./system/hooks/*.sh` |
-| 스킬 | `./skills/{review,design,dev,ci,docs,wiki,mgmt,plan,prod}/` |
+| 스킬 | `./skills/{design,dev,plan,prod,review}/` |
 | 서브에이전트 | `./system/subagents/*.md` |
 | 공통 표준 | `./brain/` |
 

@@ -38,7 +38,7 @@ $ARGUMENTS
 분석 전에 아래를 한 번만 파악하고, **모든 sub-skill 호출에 동일한 한 줄 요약으로 전달**합니다.
 - 언어, 프레임워크, 빌드 도구
 - 디렉토리 구조 및 아키텍처 패턴
-- standards 문서 경로 (`docs/brain/` 또는 cockpit의 `@brain/*`)
+- brain 문서 경로 (`docs/brain/` 또는 cockpit의 `@brain/*`)
 
 ## Step 0.4: 캐시 체크 ("같은 커밋 = 같은 결과") ★
 
@@ -97,7 +97,7 @@ METRICS (측정 스냅샷 — 이 값을 점수의 앵커로 사용, 재측정 �
 - dep-audit: <CVE N건 (critical/high/moderate 분포) / n/a>
 - secret-scan: <hit N건 / clean / n/a>
 - complexity: <최대 CC / 평균 / n/a>  (objective 판정용 위반 목록 포함)
-    - cc_gt_threshold: [funcA:12, funcB:8 …]     # standards 임계(기본 CC<5, 없으면 10) 초과 함수
+    - cc_gt_threshold: [funcA:12, funcB:8 …]     # brain 임계(기본 CC<5, 없으면 10) 초과 함수
     - func_loc_gt_20: [funcC:34 …]               # 함수 LOC>20
     - params_ge_5:   [funcD:6 …]                 # 파라미터 5개↑
     - nesting_ge_4:  [funcE:4 …]                 # 중첩 4단계↑

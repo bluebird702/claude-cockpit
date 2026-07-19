@@ -95,7 +95,7 @@ PAYLOAD="$CLAUDE_DIR/context_payload.md"
 cat <<EOF > "$PAYLOAD"
 # 🧠 Claude Cockpit - Distilled Context Payload
 
-이 문서는 프로젝트의 수많은 기준(Standards) 중 핵심을 압축한 것입니다. 항상 이 규칙을 우선시하세요.
+이 문서는 프로젝트의 수많은 기준(Brain) 중 핵심을 압축한 것입니다. 항상 이 규칙을 우선시하세요.
 
 ## 1. Security (Fail-Closed)
 - 어떠한 상황에서도 Secrets, API Keys, Passwords를 출력하거나 커밋하지 마십시오.

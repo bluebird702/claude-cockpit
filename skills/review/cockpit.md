@@ -16,11 +16,11 @@ enforcement: recommended
 # claude-cockpit 자가 검증 (메타 리뷰)
 
 <!-- enforcement 주석: 이 스킬은 수동 호출 검증 도구입니다. `recommended` 는 "실행 시
-     standards 기준으로 판정" 을 의미하며, 다른 스킬의 `required` (작업 시 반드시 준수)
+     brain 기준으로 판정" 을 의미하며, 다른 스킬의 `required` (작업 시 반드시 준수)
      와 의미가 다릅니다. -->
 
 
-> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 standards 가 우선합니다.
+> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 brain 가 우선합니다.
 > @brain/CLAUDE.md · @brain/management/security.md
 
 > 이 스킬은 cockpit 레포 **자체의** 품질(구조·규약·문서 일관성)을 확인하는 체크리스트입니다.
@@ -87,12 +87,12 @@ claude-cockpit/
 - [ ] `install.sh` 가 단일 진입점으로 동작 (Phase 구조 + `--help` 지원)
 - [ ] `scripts/check-deps.sh` 와 `scripts/post-install-check.sh` 가 존재하고 `bash -n` 통과
 - [ ] `scripts/global-install.sh` 가 `--force`, `--with-mcp` 옵션 지원
-- [ ] `scripts/project-link.sh` 가 `--with standards|skills/*|docs/*` 영역 지원
+- [ ] `scripts/project-link.sh` 가 `--with brain|skills/*|docs/*` 영역 지원
 - [ ] `skills/<category>/` 가 카테고리 단위로 `~/.claude/commands/<category>` 디렉토리 링크 가능
 - [ ] `system/subagents/` 가 `~/.claude/agents/` 로 링크 가능
 - [ ] `scripts/global-install.sh` 와 `scripts/project-link.sh` 에 `[ -L ]` 또는 `readlink` 기반 중복 링크 방지 로직 존재
 
-### §3. Skills 의 Standards 강제 준수 (15점)
+### §3. Skills 의 brain 강제 준수 (15점)
 
 각 `skills/**/*.md` (단 `_template.md` 제외) 에 대해:
 
@@ -103,12 +103,12 @@ claude-cockpit/
 - [ ] `type: slash-command` 또는 그에 준하는 type 명시
 - [ ] 9 카테고리 각각에 최소 1개 스킬 존재
 
-### §4. Global 및 Standards 자동 로드 (10점)
+### §4. Global 및 brain 자동 로드 (10점)
 
 - [ ] `system/CLAUDE.md` 가 `@brain/CLAUDE.md` 를 참조
 - [ ] `system/CLAUDE.md` 가 **존댓말 규칙**, **한글 응답**, **Colima** 규칙을 포함
 - [ ] `brain/CLAUDE.md` 의 `@` 참조 경로가 실제 파일과 매칭 (philosophy/coding/testing/api/writing/ai/planning/product/management)
-- [ ] `brain/templates/CLAUDE.md.template` 에 standards 자동 로드 안내 존재
+- [ ] `brain/templates/CLAUDE.md.template` 에 brain 자동 로드 안내 존재
 - [ ] `brain/` 의 5도메인(개발·기획·프로덕트·경영·AI) + 철학 구조가 README 와 일치
 
 ### §5. MCP 설정 (15점)
@@ -195,8 +195,8 @@ claude-cockpit/
 |------|------|------|------|----------|
 | §1 디렉토리 구조        | X/10 | 🟢/🟡/🔴 | 🤖 | ... |
 | §2 설치·링크 모델        | X/10 | ... | 🤖+👤 | ... |
-| §3 Skills Standards     | X/15 | ... | 🤖+👤 | ... |
-| §4 Global & Standards   | X/10 | ... | 🤖+👤 | ... |
+| §3 Skills brain     | X/15 | ... | 🤖+👤 | ... |
+| §4 Global & brain   | X/10 | ... | 🤖+👤 | ... |
 | §5 MCP 설정             | X/15 | ... | 🤖+👤 | ... |
 | §6 Hooks                | X/5  | ... | 🤖 | ... |
 | §7 Subagents            | X/5  | ... | 🤖+👤 | ... |
@@ -228,8 +228,8 @@ Claude 가 아래 커맨드를 실행해 근거 데이터를 수집한 뒤 체�
 |---|---|---|
 | §1 디렉토리 구조 | #1 | find 로 구조 스냅샷 |
 | §2 설치·링크 | #2a, #2b | 진입점 옵션 grep + 멱등성 가드 grep |
-| §3 Skills Standards | #3, #3b | frontmatter + 본문 ⚠️ 블록 |
-| §4 Global & Standards | #7 | 깨진 @ 참조 검증 |
+| §3 Skills brain | #3, #3b | frontmatter + 본문 ⚠️ 블록 |
+| §4 Global & brain | #7 | 깨진 @ 참조 검증 |
 | §5 MCP | #5, #5b | JSON 검증 + setup/clean/secrets 정적 분석 |
 | §6 Hooks | #9 | 양방향 차집합 |
 | §7 Subagents | #11 | frontmatter + name/파일 일치 |
@@ -309,7 +309,7 @@ d = json.load(open('system/mcp-shared/servers.json'))
 servers = d.get('mcpServers', d.get('servers', {}))
 required = {'github','jira','confluence','playwright'}
 missing = required - set(servers)
-print('MCP core missing:', missing or 'none')
+print('MCP system missing:', missing or 'none')
 for name, cfg in servers.items():
     args = cfg.get('args', [])
     if cfg.get('command','') == 'npx':
@@ -379,7 +379,7 @@ grep -rnoE '@[a-zA-Z][a-zA-Z0-9/_.-]*\.md' --include='*.md' system/ brain/ skill
         subagents/*) real="system/$p" ;;
         docs/*|system/*|brain/*) real="$p" ;;
         *)
-          # 컨텍스트 인식 fallback: 원본 파일 디렉토리 → standards → docs
+          # 컨텍스트 인식 fallback: 원본 파일 디렉토리 → brain → docs
           src_dir=$(dirname "$src")
           if   [ -f "$src_dir/$p"        ]; then real="$src_dir/$p"
           elif [ -f "brain/$p"  ]; then real="brain/$p"

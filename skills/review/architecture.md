@@ -32,7 +32,7 @@ $ARGUMENTS
 - 언어, 프레임워크, 빌드 도구
 - 선언된 아키텍처 스타일 (Layered / Hexagonal / Clean / DDD / Feature-based)
 - 모듈·패키지 구조
-- standards 문서 경로
+- brain 문서 경로
 
 ## Step 2: 체크리스트 (16항목)
 
@@ -66,7 +66,7 @@ $ARGUMENTS
 - Step 1 컨텍스트 한 줄 요약
 - 분석 대상 경로
 - Step 2 체크리스트 16항목 (그대로 전달)
-- standards 문서 경로
+- brain 문서 경로
 - Step 4 출력 형식 지시
 
 **빌드/테스트 실행 금지, 코드 읽기만.**

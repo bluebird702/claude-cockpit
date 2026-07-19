@@ -7,7 +7,7 @@
 #   .cockpit/scripts/project-link.sh \
 #     --with brain \
 #     --with skills/dev \
-#     --with skills/ci \
+#     --with skills/plan \
 #     --with docs/process
 #
 #   --reapply   기존 링크를 모두 재생성 (submodule 업데이트 후 사용)
@@ -46,7 +46,7 @@ Areas:
   global/CLAUDE.md   → <project>/CLAUDE.md (없을 때만 복사, 링크 아님)
 
 Examples:
-  $0 --with brain --with skills/dev --with skills/ci --with docs/process
+  $0 --with brain --with skills/dev --with skills/plan --with docs/process
 EOF
       exit 0 ;;
     *) die "알 수 없는 옵션: $1" ;;

@@ -77,9 +77,9 @@ $ARGUMENTS
 
 > Tier=objective 는 METRICS 수치로 자동 판정, evidence 는 증거+검증, advisory 는 점수 제외.
 
-### 프로젝트 표준 규칙 (@brain/testing/testing-guidelines.md — **standards 우선**)
+### 프로젝트 표준 규칙 (@brain/testing/testing-guidelines.md — **brain 우선**)
 
-testing-guidelines 의 원칙(Foundations)에만 있는 고유 규칙. 위 항목과 겹치면 standards 채택.
+testing-guidelines 의 원칙(Foundations)에만 있는 고유 규칙. 위 항목과 겹치면 brain 채택.
 
 | # | 항목 | 점검 내용 (판정 기준) | Tier | Sev |
 |---|------|----------------------|------|-----|
@@ -98,7 +98,7 @@ testing-guidelines 의 원칙(Foundations)에만 있는 고유 규칙. 위 항�
 이 파일의 체크리스트·출력 형식을 프롬프트에 그대로 실음). 프롬프트에 포함:
 - Step 1 프로파일링 결과
 - Step 2 전체 체크리스트
-- standards 문서 경로
+- brain 문서 경로
 - Step 4 출력 형식 지시
 
 **빌드/테스트 실행 금지, 코드 읽기만.**

@@ -485,7 +485,7 @@ validator.validate(password).getOrThrow()
 Before submitting:
 
 - [ ] All tests pass
-- [ ] Code coverage meets standards
+- [ ] Code coverage meets brain
 - [ ] No linting errors
 - [ ] Documentation updated
 - [ ] No hardcoded secrets

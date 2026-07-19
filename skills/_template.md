@@ -43,7 +43,7 @@ $ARGUMENTS
 ```markdown
 <thinking>
 이 스킬의 목적과 컨텍스트를 분석합니다.
-어떤 기준(Standards)을 적용해야 하는지 판단합니다.
+어떤 기준(brain)을 적용해야 하는지 판단합니다.
 발견된 문제점이나 수행할 작업의 근거를 논리적으로 전개합니다.
 </thinking>
 <plan>

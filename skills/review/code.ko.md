@@ -15,7 +15,7 @@ enforcement: required
 > ⚠️ **Brain 원칙 준수 필수** — 코드 판단 기준은 standards를 우선합니다.
 > @brain/CLAUDE.md · @brain/coding/coding-guidelines.md · @brain/hard-won-conventions.md(일반 표준과 긴장하면 이쪽 우선)
 
-SOLID 원칙, 가독성, 안티패턴, standards 위반 여부를 심층 점검합니다.
+SOLID 원칙, 가독성, 안티패턴, brain 위반 여부를 심층 점검합니다.
 
 $ARGUMENTS
 - `deep` — 심층 모드 (문제 코드 + 개선 코드 포함)
@@ -26,7 +26,7 @@ $ARGUMENTS
 ## Step 1: 컨텍스트 파악
 
 - 언어, 프레임워크, 스타일 가이드 (ktlint, eslint, rubocop 등)
-- standards 문서의 코딩 규칙
+- brain 문서의 코딩 규칙
 - 프로젝트의 지배적 패러다임 (OOP / FP / 하이브리드)
 
 ## Step 2: 체크리스트 (20항목)
@@ -73,15 +73,15 @@ $ARGUMENTS
 
 > Tier=objective 는 METRICS 수치로 자동 판정, evidence 는 증거+검증, advisory 는 점수 제외.
 
-### 프로젝트 표준 규칙 (@brain/coding/coding-guidelines.md — **standards 우선**)
+### 프로젝트 표준 규칙 (@brain/coding/coding-guidelines.md — **brain 우선**)
 
-standards 에만 있는 고유 규칙. 아래 표의 임계값이 위 일반 항목과 충돌하면 **standards 채택**
-(예: #8 CC≤10 → standards `CC<5` 로 덮어씀). 각 위반은 반드시 발견으로 방출한다.
+brain 에만 있는 고유 규칙. 아래 표의 임계값이 위 일반 항목과 충돌하면 **brain 채택**
+(예: #8 CC≤10 → brain `CC<5` 로 덮어씀). 각 위반은 반드시 발견으로 방출한다.
 
 | # | 항목 | 점검 내용 (판정 기준) | Tier | Sev |
 |---|------|----------------------|------|-----|
 | 21 | 인자 개행 규칙 | 인자 **2개 이상**인 호출/생성은 named argument + **인자별 개행** 필수. 한 줄 다중 인자·positional 다중 인자는 위반 (grep: `(\w+\s*,\s*\w+.*)` 한 줄 호출) | objective | low |
-| 22 | Cyclomatic Complexity | **CC < 5** (standards, #8보다 엄격 — 이 값 우선). when/if 분기 최소화 | objective | medium |
+| 22 | Cyclomatic Complexity | **CC < 5** (brain, #8보다 엄격 — 이 값 우선). when/if 분기 최소화 | objective | medium |
 | 23 | Null 체크 스타일 | `if (x != null)` 대신 scope function(`x?.let`)·Elvis(`?:`). `if (x != null)` grep hit = 위반 | objective | low |
 | 24 | 검증 로직 위치 | 도메인 검증이 UseCase/Service에 분산되지 않고 **엔티티/VO에 캡슐화**됐는가 (UseCase에 `if(...)throw` 반복 = 위반) | evidence | medium |
 | 25 | Controller 반환 타입 | 200 OK는 도메인/DTO **직접 반환**, `ResponseEntity.ok()` 금지 (201/204만 ResponseEntity). grep `ResponseEntity.ok` = 위반 | objective | low |
@@ -97,7 +97,7 @@ standards 에만 있는 고유 규칙. 아래 표의 임계값이 위 일반 항
 - Step 1 컨텍스트 한 줄 요약
 - 분석 대상 경로
 - Step 2 체크리스트 20항목
-- standards 문서의 규칙 우선 적용 지시
+- brain 문서의 규칙 우선 적용 지시
 - Step 4 출력 형식 지시
 
 **빌드/테스트 실행 금지, 코드 읽기만.**
