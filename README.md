@@ -125,9 +125,8 @@ cd ~/Work/claude-cockpit
 /review:security /review:performance /review:resilience /review:deps
 /review:cockpit /review:promote
 /dev:hotspot /dev:reproduce /dev:refactor
-/ci:pr-enhance /ci:release-notes /ci:flaky
-/docs:api-spec /docs:claude-docs-review /docs:migrate-standards
-/wiki:capture
+/ci:pr-enhance
+/docs:api-spec /docs:claude-docs-review
 ```
 
 **📐 기획 및 설계 (Plan & Design)**
@@ -138,12 +137,11 @@ cd ~/Work/claude-cockpit
 
 **🎯 프로덕트 운영 (Product & Prod)**
 ```
-/prod:metrics-define /prod:metrics-verdict /prod:rca
+/prod:rca
 ```
 
 **🏢 경영 (Management)**
 ```
-/mgmt:standup /mgmt:ceo-briefing /mgmt:ai-spend
 /mgmt:security-monthly /mgmt:adr-review
 ```
 
