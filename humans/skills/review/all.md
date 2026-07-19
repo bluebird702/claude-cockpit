@@ -418,6 +418,11 @@ diff·게이트를 계산한 뒤, 아래 중 하나라도 해당하면 리포트
 6개 결과 + 원장 diff를 아래 형식으로 **직접** 작성합니다. 취합 에이전트를 추가 실행하지 않습니다.
 
 ```markdown
+<thinking>
+각 영역별 점수 취합 및 주요 발견 사항, 원장 상태 변화를 분석합니다.
+스케일 티어에 따른 중점 항목을 확인합니다.
+</thinking>
+<execution>
 # 프로젝트 리뷰 결과
 
 **프로젝트**: [이름] | **범위**: [diff/full/경로] | **스택**: [언어/FW] | **모드**: 요약/심층 | **스케일 티어**: [prototype/production/hyperscale/미선언]
@@ -455,6 +460,7 @@ lint N · type N · test P/F · coverage L% · dep-audit N · secret clean · di
 ## 드릴다운 추천
 - 점수 낮은/신규 발견 많은 영역 → `/review:<영역>` 단독 실행
 - 예: 테스트 65점 → `/review:test deep platform/account`
+</execution>
 ```
 
 > 마지막에 이번 스냅샷을 `docs/review/ledger.jsonl`에 append 했음을 한 줄로 확인.

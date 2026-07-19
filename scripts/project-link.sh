@@ -148,6 +148,9 @@ for area in "${WITH[@]}"; do
   fi
 done
 
+log_step "Zero-Config Calibration"
+"$COCKPIT_ROOT/scripts/calibrate.sh" "$PROJECT_ROOT"
+
 printf '\n'
 log_ok "project-link 완료"
 log_dim "  되돌리기: .cockpit/scripts/project-unlink.sh --with ..."
