@@ -31,8 +31,15 @@ PROMOTE_THRESHOLD = 3  # 안정 키가 N개↑ 스냅샷에 open → 승격 후�
 def load_ledger(path: str) -> list[dict]:
     if not os.path.isfile(path):
         return []
+    res = []
     with open(path, encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+        for line in f:
+            if line.strip():
+                try:
+                    res.append(json.loads(line))
+                except json.JSONDecodeError:
+                    pass
+    return res
 
 
 def keys_of(snap: dict) -> set[str]:

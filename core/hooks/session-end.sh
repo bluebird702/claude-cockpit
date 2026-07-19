@@ -59,7 +59,7 @@ disown 2>/dev/null || true
 _project_hook="$cwd/.claude/hooks/post-stop.sh"
 if [[ -x "$_project_hook" ]]; then
   if [[ "${COCKPIT_ALLOW_PROJECT_HOOKS:-0}" == "1" ]]; then
-    echo "$_stop_payload" | "$_project_hook" &
+    printf '%s\n' "$_stop_payload" | "$_project_hook" &
     disown 2>/dev/null || true
   else
     # 조용히 무시하지 않고 안내 (silent fallback 금지)

@@ -55,7 +55,9 @@ if [ -d "$TARGET/.git" ]; then
   step "기존 cockpit 갱신: $TARGET"
   git -C "$TARGET" fetch --quiet origin
   git -C "$TARGET" checkout --quiet "$REF"
-  git -C "$TARGET" pull --ff-only --quiet
+  if git -C "$TARGET" symbolic-ref -q HEAD >/dev/null; then
+    git -C "$TARGET" pull --ff-only --quiet
+  fi
   ok "최신 $REF 동기화 완료"
 elif [ "$DO_CLEAN" = "1" ]; then
   warn "cockpit 클론 없음 ($TARGET) — 이미 깨끗한 상태입니다."

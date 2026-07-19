@@ -52,6 +52,8 @@ if [ "$OPT_NO_PULL" = "1" ]; then
   log_dim "  · --no-pull — 건너뜀"
 elif [ -n "$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null)" ]; then
   log_warn "  워킹트리에 변경이 있어 pull 을 건너뜁니다 — 정리 후 다시 실행하거나 --no-pull 로 진행"
+elif ! git -C "$ROOT_DIR" symbolic-ref -q HEAD >/dev/null; then
+  log_dim "  · detached HEAD (태그/특정 커밋) 상태이므로 pull 을 건너뜁니다."
 else
   before="$(git -C "$ROOT_DIR" rev-parse --short HEAD)"
   git -C "$ROOT_DIR" pull --ff-only || die "pull 실패 — 브랜치 상태를 확인하세요 (rebase 필요할 수 있음)"
