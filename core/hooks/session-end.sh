@@ -10,7 +10,12 @@ set -euo pipefail
 
 # Stop 이벤트 payload 캡처 (stdin → JSON: session_id, transcript_path 등)
 # 프로젝트별 확장 스크립트에 전달하기 위해 미리 읽어둠
-_stop_payload=$(timeout 0.5 cat 2>/dev/null || true)
+if command -v timeout >/dev/null 2>&1; then
+  _stop_payload=$(timeout 0.5 cat 2>/dev/null || true)
+else
+  # macOS 에는 기본 timeout 이 없으나, Claude Code 가 JSON 전송 후 stdin 을 닫으므로 cat 만으로 안전함
+  _stop_payload=$(cat 2>/dev/null || true)
+fi
 
 snap_dir="$HOME/.claude/session-snapshots"
 mkdir -p "$snap_dir"
