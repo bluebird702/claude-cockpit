@@ -166,8 +166,11 @@ else
   picked=""
   tui_select_multi picked "${LABELS[@]}"
   [ -z "$picked" ] && die "선택된 서버가 없습니다."
-  for idx in $picked; do
-    SELECTED_SERVERS+=("${ALL_SERVERS[$((idx-1))]}")
+  local -a picked_arr
+  read -ra picked_arr <<< "$picked"
+  for idx in "${picked_arr[@]}"; do
+    local real_idx=$((idx - 1))
+    SELECTED_SERVERS+=("${ALL_SERVERS[$real_idx]}")
   done
 fi
 

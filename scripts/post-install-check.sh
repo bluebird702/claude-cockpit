@@ -124,9 +124,10 @@ if [ -d "$ROOT/humans/subagents" ]; then
   fi
 fi
 
-log_info "── 훅 스크립트"
-for h in guard-secrets guard-bash format session-context session-end; do
-  verify_executable "$ROOT/core/hooks/$h.sh"
+log_info "── 훅 스크립트 실행 권한"
+for h in "$ROOT"/core/hooks/*.sh; do
+  [ -f "$h" ] || continue
+  verify_executable "$h"
 done
 
 log_info "── 훅 구문 검사 (bash -n)"

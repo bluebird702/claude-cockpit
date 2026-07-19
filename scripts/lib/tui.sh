@@ -129,8 +129,10 @@ tui_select_multi() {
       a|A) for ((i=0; i<n; i++)); do selected[i]=1; done ;;
       n|N) for ((i=0; i<n; i++)); do selected[i]=0; done ;;
       *)
+        local -a toks
+        read -ra toks <<< "$input"
         local tok
-        for tok in $input; do
+        for tok in "${toks[@]}"; do
           if [[ "$tok" =~ ^[0-9]+$ ]] && [ "$tok" -ge 1 ] && [ "$tok" -le "$n" ]; then
             local idx=$((tok-1))
             if [ "${selected[idx]}" = "1" ]; then selected[idx]=0; else selected[idx]=1; fi
