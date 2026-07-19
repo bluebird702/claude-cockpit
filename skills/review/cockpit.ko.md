@@ -255,7 +255,7 @@ grep -qE '\[ -L \]|readlink' scripts/project-link.sh   || echo "MISSING idempote
 # ============================================================
 # 3) §3 — skills frontmatter 검사 (awk 로 YAML 블록 정확 추출)
 # ============================================================
-find skills -type f -name '*.md' ! -name '_template.md' | while read -r f; do
+find skills -type f -name '*.md' ! -name '_template.md' ! -name '_template.ko.md' | while read -r f; do
   fm=$(awk '/^---$/{c++; if(c==2) exit; next} c==1' "$f")
   echo "$fm" | grep -q 'follows-brain'                         || echo "MISSING follows-brain: $f"
   echo "$fm" | grep -Eq 'enforcement: (required|recommended)'      || echo "MISSING enforcement: $f"
@@ -263,7 +263,7 @@ find skills -type f -name '*.md' ! -name '_template.md' | while read -r f; do
 done
 
 # 3b) §3 — 본문 "Brain 원칙 준수 필수" 블록 (⚠️ + @brain/…) 존재 검사
-find skills -type f -name '*.md' ! -name '_template.md' | while read -r f; do
+find skills -type f -name '*.md' ! -name '_template.md' ! -name '_template.ko.md' | while read -r f; do
   body=$(awk '/^---$/{c++; next} c==2' "$f" | head -10)
   echo "$body" | grep -q '⚠️'               || { echo "MISSING ⚠️ block: $f"; continue; }
   echo "$body" | grep -q '@brain/'       || echo "MISSING @brain/ in ⚠️ block: $f"
@@ -365,7 +365,6 @@ grep -rnoE '@[a-zA-Z][a-zA-Z0-9/_.-]*\.md' --include='*.md' system/ brain/ skill
   | while IFS=: read -r src line ref; do
       p="${ref#@}"
       case "$p" in
-        brain/*)  real="system/$p" ;;
         skills/*) real="$p" ;;
         subagents/*) real="system/$p" ;;
         docs/*|system/*|brain/*) real="$p" ;;
@@ -394,7 +393,7 @@ git grep -nE '(ghp_[A-Za-z0-9]{20,}|xoxb-[A-Za-z0-9-]{20,}|sk-[A-Za-z0-9]{20,}|A
 # ============================================================
 python3 <<'PY'
 import json, os, re
-s = json.load(open('system/settings.json'))
+s = json.load(open('system/settings.json.template'))
 files = {f for f in os.listdir('system/hooks') if f.endswith('.sh')}
 referenced = set()
 def walk(x):
@@ -419,10 +418,10 @@ BANMAL_RE='(?<![이위대통의견아름빠])해[.!?]|(?<!말)하자[.!?]|(?<![�
 # 자기 참조 오탐(체크리스트 본문에 예시 포함) 회피를 위해 cockpit.md 자신 제외
 if command -v rg >/dev/null 2>&1; then
   rg -nP "$BANMAL_RE" system/ brain/ skills/ docs/ \
-    --glob '*.md' --glob '!skills/review/cockpit.md' | head -30
+    --glob '*.md' --glob '!skills/review/cockpit.md' --glob '!skills/review/cockpit.ko.md' | head -30
 elif grep -rnP '' --include='*.md' system/ >/dev/null 2>&1; then
   grep -rnP "$BANMAL_RE" --include='*.md' \
-    --exclude='cockpit.md' system/ brain/ skills/ docs/ 2>/dev/null | head -30
+    --exclude='cockpit.md' --exclude='cockpit.ko.md' system/ brain/ skills/ docs/ 2>/dev/null | head -30
 else
   echo "반말 검출: rg / grep -P 모두 미지원 환경입니다. 'brew install ripgrep' 권장."
 fi
@@ -436,6 +435,7 @@ find system/subagents -type f -name '*.md' | while read -r f; do
   echo "$fm" | grep -q '^description: ' || echo "MISSING description: $f"
   name=$(echo "$fm" | awk '/^name: /{print $2; exit}')
   base=$(basename "$f" .md)
+  base=${base%.ko}
   [ "$name" = "$base" ] || echo "name/file mismatch: $f (name=$name)"
 done
 ```
