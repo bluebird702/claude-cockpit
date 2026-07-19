@@ -90,9 +90,17 @@ for cat_dir in "$ROOT"/skills/*/; do
   dst="$CLAUDE_DIR/commands/$cat_name"
   if [ -L "$dst" ]; then
     count=$(find "$cat_dir" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
-    log_ok "commands/$cat_name (${count}개 스킬)"
+    log_ok "commands/$cat_name (${count}개 스킬, 디렉토리 링크)"
+  elif [ -d "$dst" ]; then
+    linked=$(find "$dst" -maxdepth 1 -name '*.md' -type l 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$linked" -gt 0 ]; then
+      log_ok "commands/$cat_name (${linked}개 스킬, 개별 파일 링크)"
+    else
+      log_warn "commands/$cat_name 링크 없음 (비어있는 카테고리일 수 있음)"
+      warn=$((warn+1))
+    fi
   else
-    log_warn "commands/$cat_name 링크 없음 (비어있는 카테고리일 수 있음)"
+    log_warn "commands/$cat_name 링크 없음"
     warn=$((warn+1))
   fi
 done
