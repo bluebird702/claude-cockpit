@@ -100,11 +100,4 @@
 3. **Type Safety:** 파이썬 스크립트를 작성할 때는 이전 보안 패치(커밋 `2e13e01`)의 교훈을 잊지 마십시오. LLM이 생성한 JSON 데이터를 다룰 때는 맹목적으로 타입을 신뢰하지 말고 반드시 엄격한 타입 체킹(`isinstance`)을 거치십시오.
 4. **Idempotency:** 스크립트 작성 시 멱등성을 보장해야 합니다. 여러 번 실행해도 동일한 결과를 낳도록 설계하십시오 (`set -euo pipefail` 준수).
 
----
 
-## 4. The Abillity-AI Synergy (초지능 플랫폼과의 결합)
-
-**\`claude-cockpit\`은 \`abillity-ai\` 초지능 에이전트 플랫폼의 "운영체제 커널(OS Kernel)"입니다.**
-
-\`abillity-ai\` 플랫폼은 자체적인 룰을 처음부터 발명하지 않고, \`claude-cockpit\`이 제공하는 메타 인지 체계, 보안 훅(Hooks), 평가지표(Metrics), 스킬(Skills) 명세서를 100% 상속받아 구동(Runtime)됩니다. 
-즉, \`cockpit\`이 "초지능이 생각하고 행동하는 논리적 완결성과 제약조건(DNA)"을 설계하면, \`abillity-ai\`는 이를 바탕으로 도커 샌드박스를 띄우고 다중 에이전트를 스케줄링하여 물리적으로 실행하는 "초지능 실행 플랫폼(Super-Intelligence Runtime)" 역할을 수행합니다.
