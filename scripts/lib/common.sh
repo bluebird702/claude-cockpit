@@ -112,9 +112,14 @@ render_template() {
   [ -f "$src" ] || die "템플릿 원본 없음: $src"
   [ -n "${COCKPIT_HOME:-}" ] || die "detect_template_vars 를 먼저 호출하세요"
   mkdir -p "$(dirname "$dst")"
+  local safe_home
+  safe_home="$(_sanitize_tvar "$HOME")"
+  local safe_cockpit
+  safe_cockpit="$(_sanitize_tvar "$COCKPIT_HOME")"
+  
   sed \
-    -e "s|{{HOME}}|${HOME}|g" \
-    -e "s|{{COCKPIT_HOME}}|${COCKPIT_HOME}|g" \
+    -e "s|{{HOME}}|${safe_home}|g" \
+    -e "s|{{COCKPIT_HOME}}|${safe_cockpit}|g" \
     -e "s|{{USER_NAME}}|${USER_NAME}|g" \
     -e "s|{{GITHUB_ORG}}|${GITHUB_ORG}|g" \
     "$src" > "$dst"

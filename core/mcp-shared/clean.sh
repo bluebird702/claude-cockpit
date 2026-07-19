@@ -173,14 +173,18 @@ if [ "$OPT_PURGE" = "1" ]; then
     if grep -Fq "$LOADER_SH" "$rc"; then
       local tmp
       tmp="$(mktemp)"
-      # "# claude-cockpit MCP" 다음 줄이 LOADER_SH 를 포함하면 두 줄 모두 제거
       awk -v loader="$LOADER_SH" '
         {
           if ($0 ~ /# claude-cockpit MCP/) { skip_next=1; next }
-          if (skip_next && index($0, loader) > 0) { skip_next=0; next }
-          skip_next=0
+          if (skip_next) {
+            skip_next=0
+            if (index($0, loader) > 0) next
+            else print "# claude-cockpit MCP"
+          }
           print
-        }' "$rc" > "$tmp"
+        }
+        END { if (skip_next) print "# claude-cockpit MCP" }
+      ' "$rc" > "$tmp"
       mv "$tmp" "$rc"
       log_ok "  - $rc 에서 source 라인 제거"
     fi
