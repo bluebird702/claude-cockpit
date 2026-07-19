@@ -52,7 +52,7 @@ try_remove() {
 
 if [ "$OPT_ALL" = "1" ]; then
   try_remove "$PROJECT_ROOT/docs/standards"
-  for cat_dir in "$COCKPIT_ROOT"/humans/skills/*/; do
+  for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
     [ -d "$cat_dir" ] || continue
     try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
   done

@@ -6,13 +6,13 @@
 ## 새로운 스킬(Slash Command) 추가하기
 
 ### 1. 스킬 파일 작성
-당신이 한국어 화자라면, `humans/skills/` 하위의 적절한 카테고리(예: `dev/`)에 `*.ko.md` 확장자로 스킬을 작성하세요.
-*   예시: `humans/skills/dev/my-new-skill.ko.md`
+당신이 한국어 화자라면, `skills/` 하위의 적절한 카테고리(예: `dev/`)에 `*.ko.md` 확장자로 스킬을 작성하세요.
+*   예시: `skills/dev/my-new-skill.ko.md`
 *   반드시 다른 스킬 파일들의 템플릿(YAML Frontmatter 등) 형식을 지켜주세요.
 
 ### 2. (선택 사항) 코어 룰셋(Standards) 작성
-만약 당신의 스킬이 완전히 새로운 개념(예: 새로운 보안 점검 프레임워크)을 도입한다면, 지식을 스킬 파일에 다 적지 말고 `core/standards/` 아래에 독립적인 규칙 파일로 분리하세요.
-*   예: `core/standards/engineering/security-check.md`
+만약 당신의 스킬이 완전히 새로운 개념(예: 새로운 보안 점검 프레임워크)을 도입한다면, 지식을 스킬 파일에 다 적지 말고 `brain/` 아래에 독립적인 규칙 파일로 분리하세요.
+*   예: `brain/engineering/security-check.md`
 
 ### 3. 다국어(I18n) 동기화
 글로벌 기여를 위해 영어 버전은 필수입니다! 하지만 직접 번역할 필요는 없습니다.

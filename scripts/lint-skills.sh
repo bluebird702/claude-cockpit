@@ -3,8 +3,8 @@
 #
 # 검사:
 #   1) frontmatter 필수 6필드 존재 (name·description·type·category·follows-standards·enforcement)
-#   2) follows-standards 가 가리키는 표준 파일이 core/ 아래 실제 존재
-#   3) 본문 @standards/@docs 참조가 dangling 인지 (경고)
+#   2) follows-standards 가 가리키는 표준 파일이 system/ 아래 실제 존재
+#   3) 본문 @brain/@docs 참조가 dangling 인지 (경고)
 #
 # 종료코드: 0 통과 / 1 실패(필수 필드·경로 오류)
 
@@ -17,7 +17,7 @@ REQUIRED=(name description type category follows-standards enforcement)
 fail=0
 warn=0
 
-for f in humans/skills/*/*.md; do
+for f in skills/*/*.md; do
   [ -f "$f" ] || continue
 
   # frontmatter (첫 --- ~ 둘째 ---)
@@ -39,8 +39,8 @@ for f in humans/skills/*/*.md; do
   # 2) follows-standards 경로 존재
   while IFS= read -r sp; do
     [ -n "$sp" ] || continue
-    [ -f "core/$sp" ] || {
-      echo "✘ $f: follows-standards 경로 없음 → core/$sp"
+    [ -f "system/$sp" ] || {
+      echo "✘ $f: follows-standards 경로 없음 → system/$sp"
       fail=$((fail + 1))
     }
   done < <(printf '%s\n' "$fm" | awk '
@@ -53,7 +53,7 @@ for f in humans/skills/*/*.md; do
   while IFS= read -r ref; do
     [ -n "$ref" ] || continue
     case "$ref" in
-      @standards/*) tgt="core/${ref#@}" ;;
+      @brain/*) tgt="system/${ref#@}" ;;
       @docs/*) tgt="${ref#@}" ;;
       *) continue ;;
     esac

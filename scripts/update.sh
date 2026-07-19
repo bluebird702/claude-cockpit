@@ -74,10 +74,10 @@ mkdir -p "$LOCAL_DIR/memory-seed"
 detect_template_vars "$ROOT_DIR"
 log_dim "  · USER_NAME=$USER_NAME (오버라이드: COCKPIT_USER_NAME)"
 
-render_template "$ROOT_DIR/core/settings.json.template" "$LOCAL_DIR/settings.json"
+render_template "$ROOT_DIR/system/settings.json.template" "$LOCAL_DIR/settings.json"
 log_ok "  ↻ .cockpit-local/settings.json"
 
-for t in "$ROOT_DIR"/core/memory-seed/*.md.template; do
+for t in "$ROOT_DIR"/system/memory-seed/*.md.template; do
   [ -f "$t" ] || continue
   render_template "$t" "$LOCAL_DIR/memory-seed/$(basename "$t" .template)"
 done
@@ -116,7 +116,7 @@ fi
 log_step "U4 · 링크 보강"
 
 mkdir -p "$CLAUDE_DIR/commands"
-for cat_dir in "$ROOT_DIR"/humans/skills/*/; do
+for cat_dir in "$ROOT_DIR"/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
   compgen -G "${cat_dir}*.md" > /dev/null || continue
@@ -131,8 +131,8 @@ for cat_dir in "$ROOT_DIR"/humans/skills/*/; do
   fi
 done
 
-if [ ! -e "$CLAUDE_DIR/agents" ] && compgen -G "$ROOT_DIR/humans/subagents/*.md" > /dev/null; then
-  ln -s "$ROOT_DIR/humans/subagents" "$CLAUDE_DIR/agents"
+if [ ! -e "$CLAUDE_DIR/agents" ] && compgen -G "$ROOT_DIR/system/subagents/*.md" > /dev/null; then
+  ln -s "$ROOT_DIR/system/subagents" "$CLAUDE_DIR/agents"
   log_ok "  + agents 링크 복구"
 else
   log_dim "  = agents"
@@ -143,7 +143,7 @@ fi
 # ─────────────────────────────────────────────
 log_step "U5 · 훅 검증"
 
-for h in "$ROOT_DIR"/core/hooks/*.sh; do
+for h in "$ROOT_DIR"/system/hooks/*.sh; do
   [ -f "$h" ] || continue
   chmod +x "$h"
   bash -n "$h" 2>/dev/null || die "훅 구문 오류: $h"
@@ -162,7 +162,7 @@ seed_sources=()
 for src in "$LOCAL_DIR"/memory-seed/*.md; do
   [ -f "$src" ] && seed_sources+=("$src")
 done
-for src in "$ROOT_DIR"/core/memory-seed/*.md; do
+for src in "$ROOT_DIR"/system/memory-seed/*.md; do
   [ -f "$src" ] || continue
   case "$src" in *.template) continue ;; esac
   seed_sources+=("$src")

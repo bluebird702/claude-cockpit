@@ -9,7 +9,7 @@
 #   --with-mcp       settings.json 에서 cockpit 관리 MCP 서버 제거
 #   --purge-mcp      + Keychain 비밀·mcp.public.env·로더·rc source 라인 제거
 #   --stop-colima    Colima 데몬 정지 (setup.sh 가 자동 시작한 것과 대칭)
-#   --purge-memory   core/memory-seed 에 대응하는 ~/.claude/memory/*.md 제거
+#   --purge-memory   system/memory-seed 에 대응하는 ~/.claude/memory/*.md 제거
 #                    (유저가 신규 작성한 파일·MEMORY.md 는 보존)
 #   --all            위 모두 (--purge-memory 제외) + --with-mcp + --purge-mcp + --stop-colima
 #   --yes, -y        확인 자동 승인
@@ -114,7 +114,7 @@ fi
 # Phase 2: skills 카테고리
 # ─────────────────────────────────────────────
 log_step "Phase 2 · skills 카테고리"
-for cat_dir in "$ROOT_DIR"/humans/skills/*/; do
+for cat_dir in "$ROOT_DIR"/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
   remove_link "$CLAUDE_DIR/commands/$cat_name"
@@ -147,7 +147,7 @@ if [ "$OPT_WITH_MCP" = "1" ] || [ "$OPT_STOP_COLIMA" = "1" ]; then
   CLEAN_ARGS=(--yes)
   [ "$OPT_PURGE_MCP" = "1" ]   && CLEAN_ARGS+=(--purge-env)
   [ "$OPT_STOP_COLIMA" = "1" ] && CLEAN_ARGS+=(--stop-colima)
-  "$ROOT_DIR/core/mcp-shared/clean.sh" "${CLEAN_ARGS[@]}" \
+  "$ROOT_DIR/system/mcp-shared/clean.sh" "${CLEAN_ARGS[@]}" \
     || log_warn "MCP clean 중 일부 단계 실패 — 로그 확인 필요"
 else
   log_dim "  · Phase 4 (MCP) 건너뜀 — 필요 시 --with-mcp / --purge-mcp / --stop-colima"
@@ -159,12 +159,12 @@ fi
 if [ "$OPT_PURGE_MEMORY" = "1" ]; then
   log_step "Phase 5 · memory 시드 제거"
   MEMORY_DIR="$CLAUDE_DIR/memory"
-  SEED_DIR="$ROOT_DIR/core/memory-seed"
+  SEED_DIR="$ROOT_DIR/system/memory-seed"
   LOCAL_DIR="$ROOT_DIR/.cockpit-local"
   if [ -d "$MEMORY_DIR" ] && [ -d "$SEED_DIR" ]; then
     removed=0
     # install 과 대칭으로 seed 이름 수집: 렌더본(.cockpit-local/memory-seed/*.md)
-    # + 정적 원본(core/memory-seed/*.md, .template 제외). 렌더본만 존재하는 seed
+    # + 정적 원본(system/memory-seed/*.md, .template 제외). 렌더본만 존재하는 seed
     # (reference_cockpit.md·user_profile.md 등)까지 지워 고아 파일을 남기지 않는다.
     for src in "$LOCAL_DIR"/memory-seed/*.md "$SEED_DIR"/*.md; do
       [ -f "$src" ] || continue

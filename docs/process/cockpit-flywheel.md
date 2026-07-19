@@ -11,7 +11,7 @@
 
 ## 이미 강한 것 (건드리지 않는다)
 
-`humans/skills/review/` 에 **리뷰어 레벨 측정·검증**이 이미 구현돼 있다. 아래는 **재확인용**이며, 새로 만들지 말 것:
+`skills/review/` 에 **리뷰어 레벨 측정·검증**이 이미 구현돼 있다. 아래는 **재확인용**이며, 새로 만들지 말 것:
 
 - **원장** `docs/review/ledger.jsonl` — 발견을 안정 키로 정규화, 실행 간 `fixed/new/open` diff. 스칼라 점수보다 1급.
 - **결정론 점수** — 발견에서 **스크립트가** 계산(LLM 산술 금지). 게이트(불리언)가 스칼라보다 우선.
@@ -30,7 +30,7 @@
 - **실제 사고/High+ 버그**를 유발(1회로도 즉시).
 
 **승격 대상** (셋 다 하는 게 이상적):
-1. `core/standards/` 해당 규칙 추가/강화 (재발 방지의 근원).
+1. `brain/` 해당 규칙 추가/강화 (재발 방지의 근원).
 2. `fixtures/cases/` 골든셋 케이스 + `expected.jsonl` 한 줄 (리뷰어가 앞으로 반드시 잡도록).
 3. edge(비자명·실사고)면 [[hard-won-conventions]] 에 provenance 와 함께 등재.
 
@@ -71,6 +71,6 @@
 
 ---
 
-> 관련: [[hard-won-conventions]] · `humans/skills/review/all.md`(원장·점수) · `humans/review-fixtures/README.md`(골든셋)
+> 관련: [[hard-won-conventions]] · `skills/review/all.md`(원장·점수) · `system/review-fixtures/README.md`(골든셋)
 
 **버전**: 1.0.0 | **최종 업데이트**: 2026-07-05

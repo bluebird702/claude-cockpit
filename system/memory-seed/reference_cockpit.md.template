@@ -1,0 +1,45 @@
+---
+name: cockpit 레포 참조
+description: claude-cockpit 레포 위치와 주요 엔트리 포인트. 모든 Claude 설정의 단일 출처(SSOT).
+type: reference
+---
+
+## 위치
+
+- **레포**: `{{COCKPIT_HOME}}`
+- **링크 대상**: `~/.claude/` (CLAUDE.md, settings.json, keybindings.json, commands/, agents/)
+
+## 레이어
+
+- `system/` — 전사 baseline (CLAUDE.md, settings, standards, hooks, mcp-shared, memory-seed)
+- `humans/` — 사람용 대화형 도구 (skills, subagents)
+- `docs/` — 레포 문서 (dev / process / examples / writing)
+- `scripts/` — 설치·링크·진단 (lib/ 공통 라이브러리)
+
+## 주요 엔트리 포인트
+
+| 목적 | 경로 |
+|------|------|
+| 원클릭 설치 | `./install.sh` |
+| 환경 진단 | `./scripts/check-deps.sh` |
+| 설치 후 헬스체크 | `./scripts/post-install-check.sh` |
+| MCP 서버 설정 | `./system/mcp-shared/setup.sh` |
+| MCP 서버 정의 | `./system/mcp-shared/servers.json` |
+| 전역 CLAUDE.md | `./system/CLAUDE.md` |
+| 전역 권한/훅 | `./system/settings.json.template` (설치 시 렌더 → `~/.claude/settings.json`) |
+| 보안 훅 | `./system/hooks/*.sh` |
+| 스킬 | `./skills/{review,design,dev,ci,docs,wiki,mgmt,plan,prod}/` |
+| 서브에이전트 | `./system/subagents/*.md` |
+| 공통 표준 | `./brain/` |
+
+## 운영 원칙
+
+- `~/.claude/*` 는 모두 cockpit 레포의 심볼릭 링크 — **레포에서만 수정**.
+- 개인/장비별 오버라이드가 필요하면 `~/.claude/settings.local.json` 사용 (레포 밖).
+- 비밀값은 Keychain/libsecret. cockpit 은 **평문 비밀값 일체 금지**.
+
+## 적용
+
+- Claude 설정·스킬·에이전트에 대한 질문이 나오면 먼저 이 레포부터 확인.
+- "왜 이 훅이 동작하지?" → `~/.claude/settings.json`(원본: `system/settings.json.template`) 의 `hooks` 와 `system/hooks/*.sh`.
+- "이 명령이 왜 막히지?" → `~/.claude/settings.json` 의 `permissions.deny` + `system/hooks/guard-bash.sh`.

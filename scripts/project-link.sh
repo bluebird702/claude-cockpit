@@ -65,11 +65,11 @@ resolve_link() {
   local area="$1"
   case "$area" in
     standards)
-      echo "$COCKPIT_ROOT/core/standards|$PROJECT_ROOT/docs/standards"
+      echo "$COCKPIT_ROOT/brain|$PROJECT_ROOT/docs/standards"
       ;;
     skills/*)
       local cat="${area#skills/}"
-      local src="$COCKPIT_ROOT/humans/skills/$cat"
+      local src="$COCKPIT_ROOT/skills/$cat"
       [ -d "$src" ] || die "존재하지 않는 카테고리: $area"
       echo "$src|$PROJECT_ROOT/.claude/commands/$cat"
       ;;
@@ -81,7 +81,7 @@ resolve_link() {
       ;;
     global/CLAUDE.md)
       # 링크 아닌 복사 대상
-      echo "COPY|$COCKPIT_ROOT/core/standards/templates/CLAUDE.md.template|$PROJECT_ROOT/CLAUDE.md"
+      echo "COPY|$COCKPIT_ROOT/brain/templates/CLAUDE.md.template|$PROJECT_ROOT/CLAUDE.md"
       ;;
     *)
       die "알 수 없는 영역: $area"

@@ -1,7 +1,7 @@
 # claude-cockpit (프로젝트 전용 지침)
 
 > 이 파일은 **cockpit 레포 자체를 편집할 때** Claude 가 따라야 할 지침입니다.
-> 전역 지침(`core/CLAUDE.md`)은 `~/.claude/CLAUDE.md` 로 심링크되어 별도로 자동 로드됩니다 — 여기서 중복하지 않습니다.
+> 전역 지침(`system/CLAUDE.md`)은 `~/.claude/CLAUDE.md` 로 심링크되어 별도로 자동 로드됩니다 — 여기서 중복하지 않습니다.
 
 ## 이 레포의 정체성
 
@@ -15,7 +15,7 @@ claude-cockpit 은 **단일 출처(SSOT)** 입니다. `~/.claude/` 하위의 모
 
 ```
 claude-cockpit/
-├── core/                전사 baseline — 모든 사람·에이전트가 상속
+├── system/                전사 baseline — 모든 사람·에이전트가 상속
 │   ├── CLAUDE.md         전역 지침 (→ ~/.claude/CLAUDE.md 로 링크)
 │   ├── settings.json     권한·훅 baseline
 │   ├── keybindings.json
@@ -54,17 +54,17 @@ claude-cockpit/
 
 ### 편집 대상 식별
 
-- **슬래시 커맨드 고치기** → `humans/skills/<namespace>/<name>.md`. 네임스페이스는 전역 지침의 4도메인 표 참조.
-- **서브에이전트 고치기** → `humans/subagents/*.md`.
-- **전역 권한·훅 조정** → `core/settings.json.template`(설치 시 렌더→`~/.claude/settings.json`) + `core/hooks/*.sh`. 훅 추가/변경 시 `bash -n` 구문 검사와 실행 권한 확인 필수.
-- **공통 표준 변경** → `core/standards/**`. 여기가 원본이고 다른 문서에서 `@standards/...` 로 참조합니다. 복사본 만들지 말 것.
+- **슬래시 커맨드 고치기** → `skills/<namespace>/<name>.md`. 네임스페이스는 전역 지침의 4도메인 표 참조.
+- **서브에이전트 고치기** → `system/subagents/*.md`.
+- **전역 권한·훅 조정** → `system/settings.json.template`(설치 시 렌더→`~/.claude/settings.json`) + `system/hooks/*.sh`. 훅 추가/변경 시 `bash -n` 구문 검사와 실행 권한 확인 필수.
+- **공통 표준 변경** → `brain/**`. 여기가 원본이고 다른 문서에서 `@brain/...` 로 참조합니다. 복사본 만들지 말 것.
 - **워커 런타임·페르소나·회사 지식**: cockpit 에 들어가지 않습니다. cockpit 을 submodule 로 가져다 쓰는 *비공개 회사 레포* 에서 관리합니다.
 
 ### 하지 말 것
 
 - `~/.claude/` 심링크 대상 직접 편집 (변경사항이 추적되지 않음).
-- `core/standards/` 내용을 다른 파일에 복사. 반드시 `@standards/...` 로 참조.
-- 평문 시크릿 커밋. `core/hooks/guard-secrets.sh` 가 PreToolUse 로 차단하지만, 그 전에 본인이 먼저 체크.
+- `brain/` 내용을 다른 파일에 복사. 반드시 `@brain/...` 로 참조.
+- 평문 시크릿 커밋. `system/hooks/guard-secrets.sh` 가 PreToolUse 로 차단하지만, 그 전에 본인이 먼저 체크.
 - `skills/` 의 네임스페이스 규칙(4도메인: 개발 / 기획 / 프로덕트 / 경영) 위반. 새 스킬을 어디 둘지 애매하면 먼저 질문.
 - 과거 네이밍 복원: `skills/jira/` (→ `mgmt/`), `phase-doctor` (→ `check-deps`), `phase-plugins` (→ `claude-plugins`) 는 모두 리네이밍됐습니다.
 
@@ -82,5 +82,5 @@ claude-cockpit/
 
 ## 참고 문서
 
-- 표준 인덱스: `core/standards/CLAUDE.md`
+- 표준 인덱스: `brain/CLAUDE.md`
 - 설치·링크 상태: `scripts/post-install-check.sh`

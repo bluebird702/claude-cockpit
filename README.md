@@ -8,16 +8,16 @@
 > **📌 공개 레포 안내 (Open Source Notice)**
 >
 > - **타겟 독자**: 1인 창업자 ~ 소규모 팀. 대기업 조직에는 그대로 맞지 않을 수 있습니다 — 승인 프로세스·리뷰 게이트는 직접 확장하세요.
-> - **다국어 지원 (I18n)**: 모든 문서와 프롬프트는 한국어로 작성되어 있으나, AI는 **사용자가 질문하는 언어(기본값: 영어)**로 자동 번역하여 스마트하게 응답합니다. `core/CLAUDE.md`에서 글로벌 기본값을 변경할 수 있습니다.
+> - **다국어 지원 (I18n)**: 모든 문서와 프롬프트는 한국어로 작성되어 있으나, AI는 **사용자가 질문하는 언어(기본값: 영어)**로 자동 번역하여 스마트하게 응답합니다. `system/CLAUDE.md`에서 글로벌 기본값을 변경할 수 있습니다.
 > - **로컬 환경 전제**: macOS + Colima 를 권장 기본값으로 합니다. Linux·Docker Desktop·Podman 에서도 동작 가능하지만 일부 스크립트 경로는 검증되지 않았습니다.
 > - **개인 설정 치환**: 설치 시 `scripts/global-install.sh` 가 `$HOME`, GitHub 사용자명, 레포 경로 등을 감지해 `~/.claude/*` 에 반영합니다. 레포에는 템플릿 형태로만 존재합니다.
-> - **철학 교체 슬롯**: `core/standards/philosophy.md` 가 모든 표준의 최종 심판 기준입니다. 포크 시 이 파일 하나만 자신의 철학으로 교체하면 나머지 표준·스킬·훅 체계를 그대로 상속합니다.
+> - **철학 교체 슬롯**: `brain/philosophy.md` 가 모든 표준의 최종 심판 기준입니다. 포크 시 이 파일 하나만 자신의 철학으로 교체하면 나머지 표준·스킬·훅 체계를 그대로 상속합니다.
 
 ## 아키텍처 철학: 기계와 인간의 분리 (Separation of Concerns)
 
 이 레포지토리의 가장 중요한 핵심 철학은 **"타겟 독자(Target Audience)의 분리"**입니다. 지식을 잘못된 곳에 넣으면 AI는 토큰을 낭비하고, 인간은 길을 잃습니다.
 
-*   🤖 **`core/standards/` (기계용 진실 공급원 - Machine-Readable)**
+*   🤖 **`brain/` (기계용 진실 공급원 - Machine-Readable)**
     *   **타겟:** AI 에이전트 (Claude, Gemini 등)
     *   **목적:** AI가 코딩이나 기획을 할 때 컨텍스트에 주입되어 반드시 지켜야 하는 **강제적 룰셋(법전)**입니다.
     *   **특징:** 토큰 절약을 위해 친절한 설명은 빼고, 건조하고 명령적인 어조(Imperative)로 작성됩니다. (예: "ADR 작성 시 CAP 정리를 명시할 것")
@@ -32,18 +32,20 @@
 
 ```
 claude-cockpit/
-├── core/                  [기계용] 전사 baseline — 모든 사람·에이전트 공통
+├── system/                [뼈대] AI 구동 인프라 및 환경 설정
 │   ├── CLAUDE.md           전역 지침 (→ ~/.claude/CLAUDE.md)
-│   ├── standards/          AI가 읽고 따를 룰셋 (philosophy / coding / engineering / product 등)
 │   ├── hooks/              guard-bash, guard-secrets 등 보안 스크립트
-│   └── mcp-shared/         공통 MCP 설정
-│
-├── humans/                [실행부] 사람(CEO) 용 대화형 도구 (트리거)
-│   ├── skills/             슬래시 커맨드 (4도메인: 개발 / 기획 / 프로덕트 / 경영)
-│   ├── subagents/          Task 툴 서브에이전트 (리뷰 전담 8종 + 운영 5종)
+│   ├── mcp-shared/         공통 MCP 설정
+│   ├── subagents/          Task 툴 서브에이전트
 │   └── review-fixtures/    리뷰어·검증자 골든셋 (QA 데이터)
 │
-├── docs/                  [인간용] 레포 문서 (architecture / guides / playbooks)
+├── brain/                 [지능] AI의 판단 기준이 되는 지식과 사상 (법전)
+│   └── (philosophy, coding, engineering, product 등 마크다운 룰셋)
+│
+├── skills/                [행동] AI가 구사하는 슬래시 커맨드 트리거
+│   └── (개발 / 기획 / 운영 관련 .md 스킬 파일들)
+│
+├── docs/                  [설명서] 인간용 매뉴얼 (architecture / guides / playbooks)
 ├── scripts/               설치·다국어번역(I18n)·링크 유틸리티
 └── install.sh             원클릭 래퍼
 ```
@@ -106,12 +108,12 @@ cd ~/Work/claude-cockpit
 내부적으로 `scripts/global-install.sh --with-mcp` 가 실행되며 다음 Phase 를 거칩니다:
 
 1. **doctor** — 필수·권장 도구 진단 (`scripts/check-deps.sh`)
-2. **global link** — `core/CLAUDE.md`, `settings.json`, `keybindings.json` → `~/.claude/`
-3. **skills link** — `humans/skills/<cat>` → `~/.claude/commands/<cat>`
-4. **agents link** — `humans/subagents/` → `~/.claude/agents`
-5. **hooks verify** — `core/hooks/*.sh` 실행 권한·구문 검사
-6. **memory seed** — `core/memory-seed/*.md` → `~/.claude/memory/` (최초 1회만)
-7. **MCP** — `core/mcp-shared/setup.sh` (대화형 TUI)
+2. **global link** — `system/CLAUDE.md`, `settings.json`, `keybindings.json` → `~/.claude/`
+3. **skills link** — `skills/<cat>` → `~/.claude/commands/<cat>`
+4. **agents link** — `system/subagents/` → `~/.claude/agents`
+5. **hooks verify** — `system/hooks/*.sh` 실행 권한·구문 검사
+6. **memory seed** — `system/memory-seed/*.md` → `~/.claude/memory/` (최초 1회만)
+7. **MCP** — `system/mcp-shared/setup.sh` (대화형 TUI)
 8. **plugins** — GitHub 플러그인 다운로드·설치 (claude-hud 등)
 9. **post-install check** — 전체 검증 (`scripts/post-install-check.sh`)
 
@@ -138,21 +140,21 @@ cd ~/Work/claude-cockpit
 /prod:rca
 ```
 
-> Claude Code slash 는 1단계 네임스페이스만 지원하므로 `humans/skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.
+> Claude Code slash 는 1단계 네임스페이스만 지원하므로 `skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`system/CLAUDE.md`](./system/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.
 
 ### MCP 설치 (대화형)
 
 원클릭 설치를 건너뛰었거나 나중에 추가·재설정하려면:
 
 ```bash
-./core/mcp-shared/setup.sh          # 3-Phase TUI: 사전 점검 → 입력 수집 → 일괄 적용
-./core/mcp-shared/setup.sh --help
+./system/mcp-shared/setup.sh          # 3-Phase TUI: 사전 점검 → 입력 수집 → 일괄 적용
+./system/mcp-shared/setup.sh --help
 ```
 
 비밀값(GitHub PAT, Jira API 토큰 등)은 **macOS Keychain** (Linux 는 libsecret) 에 저장되며, 레포에는 평문으로 남지 않습니다. 토큰 회수는:
 
 ```bash
-./core/mcp-shared/setup.sh --purge-env    # Keychain 항목까지 모두 제거
+./system/mcp-shared/setup.sh --purge-env    # Keychain 항목까지 모두 제거
 ```
 
 ### 소비 프로젝트에 연결
@@ -163,9 +165,9 @@ cockpit 을 submodule 로 추가한 뒤 필요한 영역만 링크합니다.
 cd my-project
 git submodule add git@github.com:<YOUR_ORG>/claude-cockpit.git .cockpit
 .cockpit/scripts/project-link.sh \
-  --with core/standards \
-  --with humans/skills/dev \
-  --with humans/skills/ci \
+  --with brain \
+  --with skills/dev \
+  --with skills/ci \
   --with docs/process \
   --with docs/writing
 ```
@@ -186,15 +188,15 @@ git submodule update --remote .cockpit
 
 ## 표준 강제 준수
 
-모든 `humans/skills/**/*.md` 는 3중 장치로 `core/standards/` 준수를 강제합니다:
+모든 `skills/**/*.md` 는 3중 장치로 `brain/` 준수를 강제합니다:
 
 1. **Frontmatter** — `follows-standards: [...]`, `enforcement: required`
-2. **본문 상단** — ⚠️ "Standards 준수 필수" 블록 + `@standards/*` 참조
-3. **전역 CLAUDE.md** — `core/CLAUDE.md` 가 `@standards/CLAUDE.md` 자동 로드
+2. **본문 상단** — ⚠️ "Standards 준수 필수" 블록 + `@brain/*` 참조
+3. **전역 CLAUDE.md** — `system/CLAUDE.md` 가 `@brain/CLAUDE.md` 자동 로드
 
 이 레포 자체의 규약 준수는 `/review:cockpit` 으로 검증합니다.
 
-리뷰어 자체의 품질(탐지 P/R·검증자 confirm/refute recall)은 `humans/review-fixtures/` 골든셋으로
+리뷰어 자체의 품질(탐지 P/R·검증자 confirm/refute recall)은 `system/review-fixtures/` 골든셋으로
 측정하며, 리뷰 체계(스킬·`review-*` 에이전트·룰셋·픽스처)를 바꾸는 PR 은
 `.github/workflows/goldenset-eval.yml` 이 LLM 골든셋 평가를 자동 실행해 머지 게이트로 잡습니다.
 
@@ -202,10 +204,10 @@ git submodule update --remote .cockpit
 
 - **응답**: 한글, 존댓말 (코드 식별자는 영어)
 - **Docker 런타임**: Colima 사용 (Docker Desktop 금지) → `docs/dev/local-environment.md`
-- **시크릿**: macOS Keychain / libsecret, 레포에 평문 금지 → `core/standards/management/security.md`
-- **표준 원본**: `core/standards/` 가 모든 규칙의 원본. 스킬·프로젝트는 자동 로드만 하고 복사본을 만들지 않음.
+- **시크릿**: macOS Keychain / libsecret, 레포에 평문 금지 → `brain/management/security.md`
+- **표준 원본**: `brain/` 가 모든 규칙의 원본. 스킬·프로젝트는 자동 로드만 하고 복사본을 만들지 않음.
 
-상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 와 [`core/standards/CLAUDE.md`](./core/standards/CLAUDE.md) 참조.
+상세 규칙은 [`system/CLAUDE.md`](./system/CLAUDE.md) 와 [`brain/CLAUDE.md`](./brain/CLAUDE.md) 참조.
 
 ## 라이선스
 

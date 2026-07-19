@@ -4,7 +4,7 @@
 
 | 파일 | 내용 |
 |------|------|
-| [commit-message-guide.md](./commit-message-guide.md) | 커밋 메시지 해설·예시 (정본: `core/standards/writing/commit-message.md`) |
+| [commit-message-guide.md](./commit-message-guide.md) | 커밋 메시지 해설·예시 (정본: `brain/writing/commit-message.md`) |
 | [pr-description-guide.md](./pr-description-guide.md) | PR 제목·본문·체크리스트 작성법 |
 | [doc-style-guide.md](./doc-style-guide.md) | 한글 기술 문서 톤·구조·참조 규칙 |
 | [korean-tone-guide.md](./korean-tone-guide.md) | 존댓말·한글 응답 규칙 세부 |

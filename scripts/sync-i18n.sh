@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-TARGET="${1:-humans/skills}"
+TARGET="${1:-skills}"
 
 if ! command -v claude >/dev/null 2>&1; then
   echo "Error: 'claude' CLI is required for auto-translation."

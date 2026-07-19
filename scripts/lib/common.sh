@@ -59,7 +59,7 @@ cockpit_root() {
     fi
     dir="$(dirname "$dir")"
   done
-  die "cockpit 루트를 찾을 수 없습니다 (core/, humans/ 존재 필요)."
+  die "cockpit 루트를 찾을 수 없습니다 (system/, humans/ 존재 필요)."
 }
 
 claude_home() {

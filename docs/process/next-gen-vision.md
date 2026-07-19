@@ -22,13 +22,13 @@
 
 #### Feature 1.1: 생각의 구조화 강제 (Chain-of-Thought Protocol)
 *   **Context:** AI가 계획 없이 즉흥적으로 코드를 짜서 발생하는 퀄리티 저하 방지.
-*   **Implementation Strategy:** `humans/skills/_template.md` 및 모든 하위 스킬 프롬프트에 `<thinking>`, `<plan>`, `<execution>` XML 태그 구조를 의무적으로 사용하도록 지시문 삽입.
+*   **Implementation Strategy:** `skills/_template.md` 및 모든 하위 스킬 프롬프트에 `<thinking>`, `<plan>`, `<execution>` XML 태그 구조를 의무적으로 사용하도록 지시문 삽입.
 *   **Constraints:** `<thinking>` 과정 없이 출력된 최종 산출물은 린터(Linter) 단계에서 강제 실패 처리(Reject)되어야 함.
 *   **Definition of Done (DoD):** 임의의 `/review:all` 실행 시, 모델이 반드시 자신의 판단 근거를 `<thinking>` 블록에 명시한 후 결과를 반환하는지 자동 검증(`eval.py`).
 
 #### Feature 1.2: 환경 자동 인식 (Zero-Shot Auto-Calibration)
 *   **Context:** 사용자의 개입 없이 프로젝트의 규모와 복잡도를 파악하여 AI의 엄격도 조절.
-*   **Implementation Strategy:** `scripts/bootstrap.sh` 단계에서 LOC(Lines of Code), 쿠버네티스 매니페스트 유무, 패키지 개수를 스캔하여 `scale.tier` (prototype / production / hyperscale)를 자동 판별 후 `core/settings.json` 또는 로컬 규칙에 동적 주입.
+*   **Implementation Strategy:** `scripts/bootstrap.sh` 단계에서 LOC(Lines of Code), 쿠버네티스 매니페스트 유무, 패키지 개수를 스캔하여 `scale.tier` (prototype / production / hyperscale)를 자동 판별 후 `system/settings.json` 또는 로컬 규칙에 동적 주입.
 *   **Constraints:** 환경 감지 로직은 5초 이내에 완료되어야 하며(`jq` 및 기본 shell 명령어 활용), 오판 시 사용자가 쉽게 오버라이드 가능해야 함.
 *   **DoD:** 대규모 레포에서 설치 시 자동으로 `scale.tier: hyperscale`이 적용되어 규칙 가중치가 변경됨을 확인.
 
@@ -96,7 +96,7 @@
 (이 문서를 바탕으로 코드를 작성할 AI 에이전트 전용 지침)
 
 1. **Step-by-Step Execution:** 반드시 Phase 1부터 구현을 시작하십시오. Phase 1이 안정화되지 않은 상태에서 Phase 2를 시도하지 마십시오.
-2. **Regression Prevention:** 새로운 기능을 구현할 때마다 기존의 `bash -n`, `scripts/lint-skills.sh`, `humans/review-fixtures/eval.py` 테스트를 모두 돌려 통과(PASS)하는지 확인해야 합니다.
+2. **Regression Prevention:** 새로운 기능을 구현할 때마다 기존의 `bash -n`, `scripts/lint-skills.sh`, `system/review-fixtures/eval.py` 테스트를 모두 돌려 통과(PASS)하는지 확인해야 합니다.
 3. **Type Safety:** 파이썬 스크립트를 작성할 때는 이전 보안 패치(커밋 `2e13e01`)의 교훈을 잊지 마십시오. LLM이 생성한 JSON 데이터를 다룰 때는 맹목적으로 타입을 신뢰하지 말고 반드시 엄격한 타입 체킹(`isinstance`)을 거치십시오.
 4. **Idempotency:** 스크립트 작성 시 멱등성을 보장해야 합니다. 여러 번 실행해도 동일한 결과를 낳도록 설계하십시오 (`set -euo pipefail` 준수).
 

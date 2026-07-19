@@ -11,7 +11,7 @@
 #   ./uninstall.sh --with-mcp       # + settings.json 에서 MCP 서버 제거
 #   ./uninstall.sh --purge-mcp      # + MCP 비밀·공개 env·로더·rc 라인 제거
 #   ./uninstall.sh --stop-colima    # + Colima 데몬 정지
-#   ./uninstall.sh --purge-memory   # + core/memory-seed 대응 memory 파일 제거
+#   ./uninstall.sh --purge-memory   # + system/memory-seed 대응 memory 파일 제거
 #   ./uninstall.sh --all            # 링크 + MCP + purge-mcp + stop-colima
 #   ./uninstall.sh --yes            # 확인 생략
 

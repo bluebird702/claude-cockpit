@@ -5,12 +5,12 @@
 #
 # Phase 순서:
 #   1. doctor                — 필수·권장 도구 진단 (필수 누락 시 중단)
-#   1.5 render templates     — core/**/*.template → .cockpit-local/ (HOME·COCKPIT_HOME·USER_NAME 치환)
-#   2. global link           — CLAUDE.md, settings.json, keybindings.json  (core/)
-#   3. skills link           — humans/skills/<cat> → ~/.claude/commands/<cat>
-#   4. agents link           — humans/subagents/ → ~/.claude/agents
-#   5. hooks verify          — core/hooks/*.sh 실행 권한·구문 검사
-#   6. memory seed           — core/memory-seed/*.md(+.template 렌더본) → ~/.claude/memory/ (없을 때만)
+#   1.5 render templates     — system/**/*.template → .cockpit-local/ (HOME·COCKPIT_HOME·USER_NAME 치환)
+#   2. global link           — CLAUDE.md, settings.json, keybindings.json  (system/)
+#   3. skills link           — skills/<cat> → ~/.claude/commands/<cat>
+#   4. agents link           — system/subagents/ → ~/.claude/agents
+#   5. hooks verify          — system/hooks/*.sh 실행 권한·구문 검사
+#   6. memory seed           — system/memory-seed/*.md(+.template 렌더본) → ~/.claude/memory/ (없을 때만)
 #   7. MCP (옵션)            — mcp/setup.sh
 #   7.5 plugins              — GitHub 플러그인 다운로드·설치 (claude-hud 등)
 #   8. post-install check    — 전체 검증
@@ -84,10 +84,10 @@ log_dim "  · COCKPIT_HOME=$COCKPIT_HOME"
 log_dim "  · USER_NAME=$USER_NAME"
 log_dim "  · GITHUB_ORG=$GITHUB_ORG"
 
-render_template "$ROOT_DIR/core/settings.json.template" "$LOCAL_DIR/settings.json"
+render_template "$ROOT_DIR/system/settings.json.template" "$LOCAL_DIR/settings.json"
 log_ok "  + .cockpit-local/settings.json"
 
-for t in "$ROOT_DIR"/core/memory-seed/*.md.template; do
+for t in "$ROOT_DIR"/system/memory-seed/*.md.template; do
   [ -f "$t" ] || continue
   base="$(basename "$t" .template)"
   render_template "$t" "$LOCAL_DIR/memory-seed/$base"
@@ -119,12 +119,12 @@ link_file() {
   log_ok "  + $dst → $src"
 }
 
-link_file "$ROOT_DIR/core/CLAUDE.md"        "$CLAUDE_DIR/CLAUDE.md"
+link_file "$ROOT_DIR/system/CLAUDE.md"        "$CLAUDE_DIR/CLAUDE.md"
 link_file "$LOCAL_DIR/settings.json"        "$CLAUDE_DIR/settings.json"
-link_file "$ROOT_DIR/core/keybindings.json" "$CLAUDE_DIR/keybindings.json"
+link_file "$ROOT_DIR/system/keybindings.json" "$CLAUDE_DIR/keybindings.json"
 
-# git 커밋 메시지 템플릿 (~/.gitmessage → core/git/gitmessage)
-link_file "$ROOT_DIR/core/git/gitmessage" "$HOME/.gitmessage"
+# git 커밋 메시지 템플릿 (~/.gitmessage → system/git/gitmessage)
+link_file "$ROOT_DIR/system/git/gitmessage" "$HOME/.gitmessage"
 if command -v git > /dev/null 2>&1; then
   git config --global commit.template "$HOME/.gitmessage"
   log_ok "  + git config --global commit.template ~/.gitmessage"
@@ -135,7 +135,7 @@ fi
 # ─────────────────────────────────────────────
 log_step "Phase 3 · skills 카테고리 링크"
 
-for cat_dir in "$ROOT_DIR"/humans/skills/*/; do
+for cat_dir in "$ROOT_DIR"/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
   dst_dir="$CLAUDE_DIR/commands/$cat_name"
@@ -179,32 +179,32 @@ done
 # ─────────────────────────────────────────────
 log_step "Phase 4 · agents 링크"
 
-if [ -d "$ROOT_DIR/humans/subagents" ] && compgen -G "$ROOT_DIR/humans/subagents/*.md" > /dev/null; then
+if [ -d "$ROOT_DIR/system/subagents" ] && compgen -G "$ROOT_DIR/system/subagents/*.md" > /dev/null; then
   dst="$CLAUDE_DIR/agents"
   if [ -L "$dst" ]; then
-    if [ "$(readlink "$dst")" = "$ROOT_DIR/humans/subagents" ]; then
+    if [ "$(readlink "$dst")" = "$ROOT_DIR/system/subagents" ]; then
       log_dim "  = $dst (이미 연결됨)"
     else
       backup_path "$dst" "$BACKUP_DIR"
       rm "$dst"
-      ln -s "$ROOT_DIR/humans/subagents" "$dst"
-      log_ok "  ↻ $dst → $ROOT_DIR/humans/subagents"
+      ln -s "$ROOT_DIR/system/subagents" "$dst"
+      log_ok "  ↻ $dst → $ROOT_DIR/system/subagents"
     fi
   elif [ -d "$dst" ] && [ ! -L "$dst" ]; then
     # 실제 디렉토리가 이미 있으면 개별 파일만 링크 (기존 설정 보존)
     log_warn "  ~ $dst 는 실제 디렉토리 — 개별 에이전트 파일만 링크"
-    for f in "$ROOT_DIR"/humans/subagents/*.md; do
+    for f in "$ROOT_DIR"/system/subagents/*.md; do
       [ -f "$f" ] || continue
       link_file "$f" "$dst/$(basename "$f")"
     done
   else
-    ln -s "$ROOT_DIR/humans/subagents" "$dst"
-    log_ok "  + $dst → $ROOT_DIR/humans/subagents"
+    ln -s "$ROOT_DIR/system/subagents" "$dst"
+    log_ok "  + $dst → $ROOT_DIR/system/subagents"
   fi
-  count=$(find "$ROOT_DIR/humans/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
+  count=$(find "$ROOT_DIR/system/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
   log_dim "  · ${count}개 에이전트 로드됨"
 else
-  log_dim "  · humans/subagents/ 비어있음 (건너뜀)"
+  log_dim "  · system/subagents/ 비어있음 (건너뜀)"
 fi
 
 # ─────────────────────────────────────────────
@@ -212,8 +212,8 @@ fi
 # ─────────────────────────────────────────────
 log_step "Phase 5 · 보안 훅 검증"
 
-if [ -d "$ROOT_DIR/core/hooks" ]; then
-  for h in "$ROOT_DIR"/core/hooks/*.sh; do
+if [ -d "$ROOT_DIR/system/hooks" ]; then
+  for h in "$ROOT_DIR"/system/hooks/*.sh; do
     [ -f "$h" ] || continue
     chmod +x "$h"
     if bash -n "$h" 2>/dev/null; then
@@ -223,7 +223,7 @@ if [ -d "$ROOT_DIR/core/hooks" ]; then
     fi
   done
 else
-  log_warn "  core/hooks 디렉토리 없음"
+  log_warn "  system/hooks 디렉토리 없음"
 fi
 
 # ─────────────────────────────────────────────
@@ -234,16 +234,16 @@ log_step "Phase 6 · 메모리 시드"
 MEMORY_DIR="$CLAUDE_DIR/memory"
 mkdir -p "$MEMORY_DIR"
 
-if [ -d "$ROOT_DIR/core/memory-seed" ]; then
+if [ -d "$ROOT_DIR/system/memory-seed" ]; then
   seeded=0
   skipped=0
 
-  # 수집: 렌더본(.cockpit-local/memory-seed/*.md) + 정적 원본(core/memory-seed/*.md, .template 제외)
+  # 수집: 렌더본(.cockpit-local/memory-seed/*.md) + 정적 원본(system/memory-seed/*.md, .template 제외)
   seed_sources=()
   for src in "$LOCAL_DIR"/memory-seed/*.md; do
     [ -f "$src" ] && seed_sources+=("$src")
   done
-  for src in "$ROOT_DIR"/core/memory-seed/*.md; do
+  for src in "$ROOT_DIR"/system/memory-seed/*.md; do
     [ -f "$src" ] || continue
     case "$src" in
       *.template) continue ;;
@@ -282,7 +282,7 @@ if [ -d "$ROOT_DIR/core/memory-seed" ]; then
 
   log_dim "  · 신규 ${seeded}개 / 보존 ${skipped}개"
 else
-  log_dim "  · core/memory-seed/ 없음 (건너뜀)"
+  log_dim "  · system/memory-seed/ 없음 (건너뜀)"
 fi
 
 # ─────────────────────────────────────────────
@@ -290,9 +290,9 @@ fi
 # ─────────────────────────────────────────────
 if [ "$OPT_MCP" = "1" ]; then
   log_step "Phase 7 · MCP 설정"
-  "$ROOT_DIR/core/mcp-shared/setup.sh"
+  "$ROOT_DIR/system/mcp-shared/setup.sh"
 else
-  log_dim "  · Phase 7 (MCP) 건너뜀 — 필요 시 --with-mcp 또는 ./core/mcp-shared/setup.sh"
+  log_dim "  · Phase 7 (MCP) 건너뜀 — 필요 시 --with-mcp 또는 ./system/mcp-shared/setup.sh"
 fi
 
 # ─────────────────────────────────────────────

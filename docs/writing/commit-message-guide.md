@@ -1,8 +1,8 @@
 # 커밋 메시지 가이드 (해설·예시)
 
-> **정본은 `core/standards/writing/commit-message.md`** 입니다 — 형식·type·원칙·금지·AI 에이전트
+> **정본은 `brain/writing/commit-message.md`** 입니다 — 형식·type·원칙·금지·AI 에이전트
 > 규칙은 그쪽이 단일 출처(SSOT)이며 세션 시작 시 자동 로드됩니다. 규칙 변경은 반드시 정본에서 하세요.
-> git 에디터 템플릿은 `core/git/gitmessage` (설치 시 `~/.gitmessage` 링크 + `commit.template` 설정).
+> git 에디터 템플릿은 `system/git/gitmessage` (설치 시 `~/.gitmessage` 링크 + `commit.template` 설정).
 > 이 문서는 **배경 해설과 확장 예시만** 담습니다.
 
 ## 왜 "왜" 중심인가

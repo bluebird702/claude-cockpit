@@ -201,8 +201,8 @@ dependencies {
 
 ## 참조
 
-- [코딩 가이드라인](../../core/standards/coding/coding-guidelines.md) - 언어 스타일, UseCase 패턴
-- [API 설계 가이드](../../core/standards/api/api-design.md) - REST API 표준
+- [코딩 가이드라인](../../brain/coding/coding-guidelines.md) - 언어 스타일, UseCase 패턴
+- [API 설계 가이드](../../brain/api/api-design.md) - REST API 표준
 - 참조 구현: 프로젝트별 서비스 CLAUDE.md (각 프로젝트 레포)
 
 ---

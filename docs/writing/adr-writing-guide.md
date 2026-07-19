@@ -21,7 +21,7 @@ ADR 이 **필요 없는** 경우:
 
 ## 템플릿
 
-공식 템플릿은 `@standards/templates/adr-template.md` 를 사용합니다. 복사 후 빈칸을 채우세요.
+공식 템플릿은 `@brain/templates/adr-template.md` 를 사용합니다. 복사 후 빈칸을 채우세요.
 
 ```markdown
 # ADR-NNN: <결정 제목>
@@ -84,5 +84,5 @@ Proposed → Accepted → (Deprecated | Superseded by ADR-N)
 
 ## 예시 참고
 
-- `@standards/templates/adr-template.md` — 빈 템플릿
+- `@brain/templates/adr-template.md` — 빈 템플릿
 - `docs/examples/example-CLAUDE.md` — 마이크로서비스 플랫폼 프로젝트의 CLAUDE.md 샘플

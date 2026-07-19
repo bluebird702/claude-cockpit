@@ -55,7 +55,7 @@ verify_executable() {
 }
 
 log_info "── 전역 링크 검증"
-verify_link "$CLAUDE_DIR/CLAUDE.md"        "$ROOT/core/CLAUDE.md"
+verify_link "$CLAUDE_DIR/CLAUDE.md"        "$ROOT/system/CLAUDE.md"
 # settings.json 은 Claude Code 가 atomic write 로 심링크를 실파일로 대체할 수 있음(정상 드리프트).
 # 심링크면 OK, 실파일이면 경고 + update.sh 안내 (실패 아님).
 if [ -L "$CLAUDE_DIR/settings.json" ] && [ "$(readlink "$CLAUDE_DIR/settings.json")" = "$ROOT/.cockpit-local/settings.json" ]; then
@@ -67,7 +67,7 @@ else
   log_err "link 누락/오염: $CLAUDE_DIR/settings.json (기대 → $ROOT/.cockpit-local/settings.json)"
   FAIL=$((FAIL+1))
 fi
-verify_link "$CLAUDE_DIR/keybindings.json" "$ROOT/core/keybindings.json"
+verify_link "$CLAUDE_DIR/keybindings.json" "$ROOT/system/keybindings.json"
 
 log_info "── JSON 유효성"
 if jq empty "$ROOT/.cockpit-local/settings.json" 2>/dev/null; then
@@ -76,15 +76,15 @@ else
   log_err "settings.json JSON 파싱 실패"
   FAIL=$((FAIL+1))
 fi
-if jq empty "$ROOT/core/mcp-shared/servers.json" 2>/dev/null; then
+if jq empty "$ROOT/system/mcp-shared/servers.json" 2>/dev/null; then
   log_ok "mcp-shared/servers.json jq valid"
 else
-  log_err "core/mcp-shared/servers.json JSON 파싱 실패"
+  log_err "system/mcp-shared/servers.json JSON 파싱 실패"
   FAIL=$((FAIL+1))
 fi
 
 log_info "── 스킬 카테고리 링크"
-for cat_dir in "$ROOT"/humans/skills/*/; do
+for cat_dir in "$ROOT"/skills/*/; do
   [ -d "$cat_dir" ] || continue
   cat_name="$(basename "$cat_dir")"
   dst="$CLAUDE_DIR/commands/$cat_name"
@@ -98,14 +98,14 @@ for cat_dir in "$ROOT"/humans/skills/*/; do
 done
 
 log_info "── 서브에이전트 링크"
-if [ -d "$ROOT/humans/subagents" ]; then
-  total=$(find "$ROOT/humans/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
+if [ -d "$ROOT/system/subagents" ]; then
+  total=$(find "$ROOT/system/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
   if [ -L "$CLAUDE_DIR/agents" ]; then
     log_ok "agents (${total}개 에이전트, 디렉토리 링크)"
   elif [ -d "$CLAUDE_DIR/agents" ]; then
     # fallback: 개별 파일 심링크 모드 — cockpit 에이전트가 전부 링크되어 있는지 확인
     linked=0
-    for src in "$ROOT"/humans/subagents/*.md; do
+    for src in "$ROOT"/system/subagents/*.md; do
       [ -f "$src" ] || continue
       dst="$CLAUDE_DIR/agents/$(basename "$src")"
       if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
@@ -125,13 +125,13 @@ if [ -d "$ROOT/humans/subagents" ]; then
 fi
 
 log_info "── 훅 스크립트 실행 권한"
-for h in "$ROOT"/core/hooks/*.sh; do
+for h in "$ROOT"/system/hooks/*.sh; do
   [ -f "$h" ] || continue
   verify_executable "$h"
 done
 
 log_info "── 훅 구문 검사 (bash -n)"
-for h in "$ROOT"/core/hooks/*.sh; do
+for h in "$ROOT"/system/hooks/*.sh; do
   if bash -n "$h" 2>/dev/null; then
     log_ok "  $(basename "$h") syntax OK"
   else
@@ -163,7 +163,7 @@ mcp_count="$(jq '.mcpServers // {} | length' "$CLAUDE_DIR/settings.json" 2>/dev/
 if [ "$mcp_count" -gt 0 ]; then
   log_ok "MCP 서버 ${mcp_count}개 등록"
 else
-  log_dim "  · MCP 미설치 (./install.sh 는 기본 포함, 건너뛰었다면 ./core/mcp-shared/setup.sh)"
+  log_dim "  · MCP 미설치 (./install.sh 는 기본 포함, 건너뛰었다면 ./system/mcp-shared/setup.sh)"
 fi
 
 log_info "── Secrets 백엔드"

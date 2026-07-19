@@ -3,7 +3,7 @@
 #
 # 롤링 태그(node:20-alpine 등)는 시간이 지나면 다른 바이트를 가리켜 공급망 리스크가
 # 된다. 이 스크립트는 온라인에서 각 이미지 태그를 **불변 digest** 로 해석해
-# core/mcp-shared/servers.json 에 `img:tag@sha256:...` 형태로 고정한다.
+# system/mcp-shared/servers.json 에 `img:tag@sha256:...` 형태로 고정한다.
 #
 # 요구: docker(buildx) 또는 crane 또는 skopeo. 오프라인이면 아무 것도 바꾸지 않는다.
 # 사용:
@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FILE="$ROOT/core/mcp-shared/servers.json"
+FILE="$ROOT/system/mcp-shared/servers.json"
 CHECK_ONLY=0
 [ "${1:-}" = "--check" ] && CHECK_ONLY=1
 

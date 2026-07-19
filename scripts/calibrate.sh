@@ -52,7 +52,7 @@ cat <<EOF > "$CLAUDE_DIR/rules/scale.md"
 ---
 paths: ["**/*"]
 ---
-@standards/engineering/reliability.md
+@brain/engineering/reliability.md
 
 ## Project Auto-Calibrated Delta
 - scale.tier: $TIER
@@ -64,7 +64,7 @@ log_info "  $CLAUDE_DIR/rules/scale.md 생성 완료"
 # ==========================================
 log_step "MCP Auto-Discovery"
 
-SERVERS_JSON="$COCKPIT_ROOT/core/mcp-shared/servers.json"
+SERVERS_JSON="$COCKPIT_ROOT/system/mcp-shared/servers.json"
 FOUND_TOOLS=()
 
 if [ -d "$PROJECT_ROOT/.git" ]; then

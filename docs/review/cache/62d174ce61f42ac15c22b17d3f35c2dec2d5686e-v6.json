@@ -1,7 +1,7 @@
 {
  "commit": "ee0e758",
  "at": "2026-07-11T13:54:29Z",
- "scope": "diff:5e6bf30..HEAD (부분 무효화 — 변경 1파일 humans/skills/review/all.md 재평가, 나머지 직전 full 캐리)",
+ "scope": "diff:5e6bf30..HEAD (부분 무효화 — 변경 1파일 skills/review/all.md 재평가, 나머지 직전 full 캐리)",
  "gates": {
   "test_green": "unknown",
   "no_new_critical_high": true,
@@ -22,10 +22,10 @@
  },
  "findings": [
   {
-   "key": "security:core/hooks/guard-secrets.sh:coverage-gap-nondotfile",
+   "key": "security:system/hooks/guard-secrets.sh:coverage-gap-nondotfile",
    "severity": "low",
    "area": "security",
-   "file": "core/hooks/guard-secrets.sh:53",
+   "file": "system/hooks/guard-secrets.sh:53",
    "summary": "[신규] non-dotfile 시크릿 파일(prod.env·staging.env)은 미매칭 — 화이트리스트 순서 때문에 보류"
   },
   {
@@ -39,42 +39,42 @@
    "key": "test:fixtures/eval.py:lenient-matcher",
    "severity": "medium",
    "area": "test",
-   "file": "humans/review-fixtures/eval.py:88",
+   "file": "system/review-fixtures/eval.py:88",
    "summary": "[캐리] matcher 가 severity±1 관대 — recall 인플레 여지"
   },
   {
    "key": "test:fixtures/deps:cve-contamination",
    "severity": "medium",
    "area": "test",
-   "file": "humans/review-fixtures/cases/deps/requirements_unpinned.txt:2",
+   "file": "system/review-fixtures/cases/deps/requirements_unpinned.txt:2",
    "summary": "[캐리] clean filler requests 버전이 실제 CVE — 가짜 TP 위장"
   },
   {
-   "key": "performance:core/hooks/guard-secrets.sh:jq-fork",
+   "key": "performance:system/hooks/guard-secrets.sh:jq-fork",
    "severity": "low",
    "area": "performance",
-   "file": "core/hooks/guard-secrets.sh:28",
+   "file": "system/hooks/guard-secrets.sh:28",
    "summary": "[캐리·보류] 매 Write/Edit jq 3회 fork(보안 크리티컬 코드 회귀 위험으로 보류)"
   },
   {
-   "key": "performance:core/hooks/guard-bash.sh:jq-fork",
+   "key": "performance:system/hooks/guard-bash.sh:jq-fork",
    "severity": "low",
    "area": "performance",
-   "file": "core/hooks/guard-bash.sh:23",
+   "file": "system/hooks/guard-bash.sh:23",
    "summary": "[캐리·보류] 매 Bash jq 2회 fork"
   },
   {
-   "key": "performance:core/hooks:missing-audit-observability",
+   "key": "performance:system/hooks:missing-audit-observability",
    "severity": "low",
    "area": "performance",
-   "file": "core/hooks/guard-secrets.sh:90",
+   "file": "system/hooks/guard-secrets.sh:90",
    "summary": "[캐리·보류] 가드 발화 영속 감사로그 부재(feature)"
   },
   {
-   "key": "deps:core/mcp-shared/servers.json:mutable-tag:node-alpine",
+   "key": "deps:system/mcp-shared/servers.json:mutable-tag:node-alpine",
    "severity": "low",
    "area": "deps",
-   "file": "core/mcp-shared/servers.json:13",
+   "file": "system/mcp-shared/servers.json:13",
    "summary": "[캐리] node:20-alpine digest 미핀(pin-images.sh 온라인 수동)"
   },
   {

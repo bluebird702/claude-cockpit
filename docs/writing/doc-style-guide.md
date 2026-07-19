@@ -24,7 +24,7 @@
 ## 예시
 
 ## 관련 문서
-- @standards/CLAUDE.md
+- @brain/CLAUDE.md
 - @docs/dev/project-structure.md
 ```
 
