@@ -124,25 +124,18 @@ cd ~/Work/claude-cockpit
 /review:all /review:architecture /review:code /review:test
 /review:security /review:performance /review:resilience /review:deps
 /review:cockpit /review:promote
-/dev:hotspot /dev:reproduce /dev:refactor
-/ci:pr-enhance
-/docs:api-spec /docs:claude-docs-review
+/dev:reproduce /dev:refactor
 ```
 
 **📐 기획 및 설계 (Plan & Design)**
 ```
 /plan:ideation /plan:prd-draft
-/design:system-design /design:api
+/design:system-design
 ```
 
 **🎯 프로덕트 운영 (Product & Prod)**
 ```
 /prod:rca
-```
-
-**🏢 경영 (Management)**
-```
-/mgmt:security-monthly /mgmt:adr-review
 ```
 
 > Claude Code slash 는 1단계 네임스페이스만 지원하므로 `humans/skills/` 하위는 플랫 구조로 유지합니다. 상세 규칙은 [`core/CLAUDE.md`](./core/CLAUDE.md) 의 "Slash Command 네임스페이스" 절 참조.
