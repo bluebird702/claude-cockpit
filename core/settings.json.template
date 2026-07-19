@@ -395,7 +395,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); r=$(command -v bun 2>/dev/null || command -v node 2>/dev/null); case $(basename $r) in bun) exec \"$r\" --env-file /dev/null \"${plugin_dir}dist/index.js\";; *) exec \"$r\" \"${plugin_dir}dist/index.js\";; esac'"
+    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); r=$(command -v bun 2>/dev/null || command -v node 2>/dev/null); case \"$(basename \"$r\" 2>/dev/null)\" in bun) exec \"$r\" --env-file /dev/null \"${plugin_dir}dist/index.js\";; *) exec \"$r\" \"${plugin_dir}dist/index.js\";; esac'"
   },
   "enabledPlugins": {
     "backend-development@claude-code-workflows": true,
