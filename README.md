@@ -110,26 +110,26 @@ cd ~/Work/claude-cockpit
 
 설치 후 Claude Code 에서 즉시 호출할 수 있는 스킬은 **4도메인** 으로 나뉩니다:
 
-**🛠 개발 (Engineering)**
+**🛠 개발 및 검증 (Dev & Review)**
 ```
 /review:all /review:architecture /review:code /review:test
 /review:security /review:performance /review:resilience /review:deps
 /review:cockpit /review:promote
-/dev:hotspot /dev:reproduce
+/dev:hotspot /dev:reproduce /dev:refactor
 /ci:pr-enhance /ci:release-notes /ci:flaky
-/design:api
-/docs:claude-docs-review /docs:migrate-standards
+/docs:api-spec /docs:claude-docs-review /docs:migrate-standards
 /wiki:capture
 ```
 
-**📐 기획 (Planning)**
+**📐 기획 및 설계 (Plan & Design)**
 ```
-/plan:prd-draft
+/plan:ideation /plan:prd-draft
+/design:system-design /design:api
 ```
 
-**🎯 프로덕트 (Product)**
+**🎯 프로덕트 운영 (Product & Prod)**
 ```
-/prod:metrics-define /prod:metrics-verdict
+/prod:metrics-define /prod:metrics-verdict /prod:rca
 ```
 
 **🏢 경영 (Management)**
