@@ -36,14 +36,19 @@ def load_ledger(path: str) -> list[dict]:
         for line in f:
             if line.strip():
                 try:
-                    res.append(json.loads(line))
+                    parsed = json.loads(line)
+                    if isinstance(parsed, dict):
+                        res.append(parsed)
                 except json.JSONDecodeError:
                     pass
     return res
 
 
 def keys_of(snap: dict) -> set[str]:
-    return {f.get("key") for f in snap.get("findings", []) if f.get("key")}
+    findings = snap.get("findings", []) if isinstance(snap, dict) else []
+    if not isinstance(findings, list):
+        findings = []
+    return {f.get("key") for f in findings if isinstance(f, dict) and f.get("key")}
 
 
 def main() -> int:
@@ -93,7 +98,14 @@ def main() -> int:
     fire: Counter[str] = Counter()
     for snaps in snaps_by_ledger.values():
         for s in snaps:
-            for f in s.get("findings", []):
+            if not isinstance(s, dict):
+                continue
+            findings = s.get("findings", [])
+            if not isinstance(findings, list):
+                continue
+            for f in findings:
+                if not isinstance(f, dict):
+                    continue
                 cat = category_of(f)
                 if cat:
                     fire.update([cat])

@@ -93,7 +93,13 @@ def load_expected(path: Path) -> list[dict]:
 
 def load_findings(path: Path) -> list[dict]:
     data = json.loads(path.read_text("utf-8"))
-    return data if isinstance(data, list) else data.get("findings", [])
+    if isinstance(data, list):
+        return [f for f in data if isinstance(f, dict)]
+    if isinstance(data, dict):
+        findings = data.get("findings", [])
+        if isinstance(findings, list):
+            return [f for f in findings if isinstance(f, dict)]
+    return []
 
 
 def matches(exp: dict, f: dict) -> bool:

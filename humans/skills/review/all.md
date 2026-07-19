@@ -335,10 +335,11 @@ FLOOR=80   # 과락 기준 · 통과선
 for name,w in WEIGHTS.items():
     assert abs(sum(w.values())-1.0)<1e-9, f"가중치 합은 1.0 이어야 함: {name}"
 F=json.load(sys.stdin)
+if not isinstance(F, list): F = [F] if isinstance(F, dict) else []
 area={}
 for a in W:
-    pen=sum(P[f["severity"]]*f.get("confidence",1.0)
-            for f in F if f["area"]==a and f.get("confidence",1.0)>=0.6)
+    pen=sum(P[f.get("severity")]*f.get("confidence",1.0)
+            for f in F if isinstance(f, dict) and f.get("area")==a and f.get("confidence",1.0)>=0.6 and f.get("severity") in P)
     area[a]=max(0,min(100,round(100-pen)))
 weighted=round(sum(area[a]*w for a,w in W.items()))
 min_area=min(area,key=area.get)          # 최저 영역

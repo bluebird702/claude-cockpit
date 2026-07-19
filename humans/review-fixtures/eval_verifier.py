@@ -42,7 +42,9 @@ def load_cases(path: Path) -> dict[str, str]:
 
 
 def score(cases: dict[str, str], verdicts: list[dict]) -> dict:
-    got = {v["id"]: (v.get("verdict") or "").strip().lower() for v in verdicts}
+    if not isinstance(verdicts, list):
+        verdicts = [verdicts] if isinstance(verdicts, dict) else []
+    got = {v.get("id"): (v.get("verdict") or "").strip().lower() for v in verdicts if isinstance(v, dict) and "id" in v}
     true_ids = [i for i, e in cases.items() if e == "confirmed"]
     false_ids = [i for i, e in cases.items() if e == "refuted"]
 

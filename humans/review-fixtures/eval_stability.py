@@ -38,7 +38,13 @@ def stable_key(f: dict) -> str:
 
 def load(path: Path) -> set[str]:
     data = json.loads(path.read_text("utf-8"))
-    findings = data if isinstance(data, list) else data.get("findings", [])
+    if isinstance(data, list):
+        findings = [f for f in data if isinstance(f, dict)]
+    elif isinstance(data, dict):
+        raw = data.get("findings", [])
+        findings = [f for f in raw if isinstance(f, dict)] if isinstance(raw, list) else []
+    else:
+        findings = []
     return {stable_key(f) for f in findings}
 
 
