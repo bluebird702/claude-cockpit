@@ -20,7 +20,7 @@ jobs:
       - name: shellcheck (hooks + scripts)
         run: |
           set -euo pipefail
-          files=$(find core/hooks scripts -name '*.sh' -type f)
+          files=$(find system/hooks scripts -name '*.sh' -type f)
           echo "$files"
           # shellcheck 대상이 없으면 실패로 취급
           [ -n "$files" ] || { echo "no shell files found"; exit 1; }
@@ -41,11 +41,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: eval.py 채점기 셀프테스트
-        run: python3 humans/review-fixtures/selftest.py
+        run: python3 system/review-fixtures/selftest.py
       - name: eval_verifier.py 채점기 셀프테스트
-        run: python3 humans/review-fixtures/eval_verifier.py --selftest
+        run: python3 system/review-fixtures/eval_verifier.py --selftest
       - name: eval_stability.py 채점기 셀프테스트
-        run: python3 humans/review-fixtures/eval_stability.py --selftest
+        run: python3 system/review-fixtures/eval_stability.py --selftest
 
 # 참고: 골든셋의 실제 리뷰 P/R(리뷰어 품질) 은 LLM 이 필요하므로 CI 기본 잡에서
 # 제외. 모델·룰셋 변경 시 `/review:all fixtures/cases --full` → eval.py 를 수동/

@@ -15,9 +15,9 @@ name: goldenset-eval
 on:
   pull_request:
     paths:
-      - 'humans/skills/review/**'
-      - 'humans/subagents/review-*.md'
-      - 'humans/review-fixtures/**'
+      - 'skills/review/**'
+      - 'system/subagents/review-*.md'
+      - 'system/review-fixtures/**'
   workflow_dispatch:
 
 permissions:
@@ -62,11 +62,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/goldenset"
-          cp -R humans/review-fixtures/cases "$RUNNER_TEMP/goldenset/cases"
+          cp -R system/review-fixtures/cases "$RUNNER_TEMP/goldenset/cases"
           # 검증자 입력: 정답(expected_verdict) 필드를 제거한 사본
           python3 - <<'PY'
           import json, os
-          src = "humans/review-fixtures/verifier-cases.jsonl"
+          src = "system/review-fixtures/verifier-cases.jsonl"
           out = os.path.join(os.environ["RUNNER_TEMP"], "goldenset", "verifier_input.json")
           cases = [json.loads(l) for l in open(src, encoding="utf-8") if l.strip()]
           stripped = [{k: c[k] for k in ("id", "file", "finding")} for c in cases]
@@ -79,10 +79,10 @@ jobs:
         run: |
           set -euo pipefail
           claude -p --dangerously-skip-permissions --output-format text \
-            "당신은 코드 리뷰어다. 이 레포의 humans/skills/review/{architecture,code,test,security,performance,resilience,deps}.md 의 Step 2 체크리스트를 기준으로, $RUNNER_TEMP/goldenset/cases 아래 모든 파일을 리뷰하라.
+            "당신은 코드 리뷰어다. 이 레포의 skills/review/{architecture,code,test,security,performance,resilience,deps}.md 의 Step 2 체크리스트를 기준으로, $RUNNER_TEMP/goldenset/cases 아래 모든 파일을 리뷰하라.
           규칙:
           - 각 파일을 실제로 Read 하고 판정한다 (파일명만 보고 판단 금지).
-          - humans/review-fixtures/ 아래의 expected.jsonl, verifier-cases.jsonl, eval*.py, README.md 는 절대 읽지 않는다 (읽으면 평가 무효).
+          - system/review-fixtures/ 아래의 expected.jsonl, verifier-cases.jsonl, eval*.py, README.md 는 절대 읽지 않는다 (읽으면 평가 무효).
           - scale.tier 는 hyperscale 로 간주한다.
           - 발견을 JSON 배열로 $RUNNER_TEMP/goldenset/run_findings.json 에 Write 하라.
             스키마: [{\"area\": \"security|code|test|architecture|performance|resilience|deps\", \"category\": \"kebab-case\", \"severity\": \"critical|high|medium|low\", \"file\": \"cases/<하위경로>:<줄>\"}]
@@ -91,7 +91,7 @@ jobs:
           test -s "$RUNNER_TEMP/goldenset/run_findings.json"
 
       - name: 리뷰어 채점 (P/R 게이트)
-        run: python3 humans/review-fixtures/eval.py --findings "$RUNNER_TEMP/goldenset/run_findings.json"
+        run: python3 system/review-fixtures/eval.py --findings "$RUNNER_TEMP/goldenset/run_findings.json"
 
       - name: 검증자 실행 (verdict 방출)
         env:
@@ -99,17 +99,17 @@ jobs:
         run: |
           set -euo pipefail
           claude -p --dangerously-skip-permissions --output-format text \
-            "당신은 리뷰 발견의 적대적 검증자다 (humans/subagents/review-verifier.md 의 절차를 그대로 따른다).
+            "당신은 리뷰 발견의 적대적 검증자다 (system/subagents/review-verifier.md 의 절차를 그대로 따른다).
           $RUNNER_TEMP/goldenset/verifier_input.json 의 각 케이스에 대해:
           - $RUNNER_TEMP/goldenset/<file> 을 직접 Read 하고, finding 주장을 반증 시도하라.
           - 기본 입장은 반증이며, 반증에 실패했을 때만 confirmed.
-          - humans/review-fixtures/ 아래의 expected.jsonl, verifier-cases.jsonl 은 절대 읽지 않는다 (읽으면 평가 무효).
+          - system/review-fixtures/ 아래의 expected.jsonl, verifier-cases.jsonl 은 절대 읽지 않는다 (읽으면 평가 무효).
           판정을 JSON 배열로 $RUNNER_TEMP/goldenset/run_verdicts.json 에 Write 하라.
           스키마: [{\"id\": \"<케이스 id>\", \"verdict\": \"confirmed|refuted\"}]"
           test -s "$RUNNER_TEMP/goldenset/run_verdicts.json"
 
       - name: 검증자 채점 (confirm/refute recall 게이트)
-        run: python3 humans/review-fixtures/eval_verifier.py --verdicts "$RUNNER_TEMP/goldenset/run_verdicts.json"
+        run: python3 system/review-fixtures/eval_verifier.py --verdicts "$RUNNER_TEMP/goldenset/run_verdicts.json"
 
       - name: 결과 아티팩트 업로드
         if: always()

@@ -12,7 +12,8 @@ type: reference
 ## 레이어
 
 - `system/` — 전사 baseline (CLAUDE.md, settings, standards, hooks, mcp-shared, memory-seed)
-- `humans/` — 사람용 대화형 도구 (skills, subagents)
+- `skills/` — 슬래시 커맨드 트리거
+- `system/subagents/` — 백그라운드 AI 워커
 - `docs/` — 레포 문서 (dev / process / examples / writing)
 - `scripts/` — 설치·링크·진단 (lib/ 공통 라이브러리)
 

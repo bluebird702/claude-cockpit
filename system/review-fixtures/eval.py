@@ -6,7 +6,7 @@ LLM 리뷰 자체는 비결정적이므로, 이 스크립트로 **리뷰어의 �
 모델 교체·룰셋 변경 시 회귀(정밀도·재현율 하락)를 감지한다.
 
 사용:
-    # 1) 골든셋을 리뷰: /review:all humans/review-fixtures/cases --full
+    # 1) 골든셋을 리뷰: /review:all system/review-fixtures/cases --full
     #    → 그 findings 를 JSON 배열로 저장 (아래 스키마)
     # 2) 채점:
     python3 eval.py --findings run_findings.json [--expected expected.jsonl]

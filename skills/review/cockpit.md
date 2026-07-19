@@ -54,7 +54,7 @@ claude-cockpit/
 │   ├── standards/                   # 철학 + 5도메인 표준 (philosophy/coding/testing/api/writing/ai/planning/product/management) + templates/
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
 │   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
-├── humans/
+├── skills/
 │   ├── skills/                      # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki
 │   ├── subagents/                   # 5종 에이전트
 │   └── review-fixtures/             # 리뷰어 골든셋 (QA 데이터 — 스킬 수집 대상 아님)
@@ -367,16 +367,17 @@ grep -qE 'file|fallback' scripts/lib/secrets.sh || echo "secrets.sh: MISSING 파
 #       @brain/... → brain/...
 #       @skills/...    → skills/...
 #       @subagents/... → system/subagents/...
-#       @docs/... · @system/... · @humans/... → 그대로
+#       @docs/... · @system/... · @skills/... · @system/subagents/... → 그대로
 #       그 외 상대 참조 → 참조 원본 파일 기준 디렉토리 · brain/ · docs/ 3곳 시도
 # ============================================================
-grep -rnoE '@[a-zA-Z][a-zA-Z0-9/_.-]*\.md' --include='*.md' system/ humans/ docs/ \
+grep -rnoE '@[a-zA-Z][a-zA-Z0-9/_.-]*\.md' --include='*.md' system/ brain/ skills/ docs/ \
   | while IFS=: read -r src line ref; do
       p="${ref#@}"
       case "$p" in
         standards/*)  real="system/$p" ;;
-        skills/*|subagents/*) real="humans/$p" ;;
-        docs/*|system/*|humans/*) real="$p" ;;
+        skills/*) real="$p" ;;
+        subagents/*) real="system/$p" ;;
+        docs/*|system/*|brain/*) real="$p" ;;
         *)
           # 컨텍스트 인식 fallback: 원본 파일 디렉토리 → standards → docs
           src_dir=$(dirname "$src")
@@ -426,11 +427,11 @@ PY
 BANMAL_RE='(?<![이위대통의견아름빠])해[.!?]|(?<!말)하자[.!?]|(?<![가-힣])야[.!?]'
 # 자기 참조 오탐(체크리스트 본문에 예시 포함) 회피를 위해 cockpit.md 자신 제외
 if command -v rg >/dev/null 2>&1; then
-  rg -nP "$BANMAL_RE" system/ humans/ docs/ \
+  rg -nP "$BANMAL_RE" system/ brain/ skills/ docs/ \
     --glob '*.md' --glob '!skills/review/cockpit.md' | head -30
 elif grep -rnP '' --include='*.md' system/ >/dev/null 2>&1; then
   grep -rnP "$BANMAL_RE" --include='*.md' \
-    --exclude='cockpit.md' system/ humans/ docs/ 2>/dev/null | head -30
+    --exclude='cockpit.md' system/ brain/ skills/ docs/ 2>/dev/null | head -30
 else
   echo "반말 검출: rg / grep -P 모두 미지원 환경입니다. 'brew install ripgrep' 권장."
 fi
