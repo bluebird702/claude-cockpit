@@ -84,7 +84,7 @@ esac
 # 파이프/리다이렉션이 없어도 stdout → 모델 컨텍스트로 시크릿이 유출되기 때문
 # (ai-usage.md: 시크릿 AI 전송 금지). 무공백 리다이렉트(`cat .env>out`)도 커버.
 case "$norm" in
-  *"cat "*".ssh/id_"*|*"cat "*".aws/credentials"*|*"cat "*".env"*)
+  *"cat "*".ssh/id_"*|*"cat "*".aws/credentials"*|*"cat "*".env"*|*"head "*".env"*|*"tail "*".env"*|*"less "*".env"*|*"more "*".env"*)
     block "민감 파일 내용 출력/유출 (.env·키·자격증명)" ;;
 esac
 

@@ -38,10 +38,18 @@ _has_exec_prettier_config() {
 }
 
 case "$file" in
-  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.json|*.jsonc|*.css|*.scss|*.md)
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.json|*.jsonc)
     if command -v biome >/dev/null 2>&1; then
       run biome format --write "$file"
     elif command -v prettier >/dev/null 2>&1; then
+      if _has_exec_prettier_config "$file"; then
+        run prettier --write --log-level silent --no-config "$file"
+      else
+        run prettier --write --log-level silent "$file"
+      fi
+    fi ;;
+  *.css|*.scss|*.md)
+    if command -v prettier >/dev/null 2>&1; then
       if _has_exec_prettier_config "$file"; then
         run prettier --write --log-level silent --no-config "$file"
       else
