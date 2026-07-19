@@ -200,7 +200,7 @@ if [ -n "$OPT_ENV_FILE" ]; then
   fi
 
   log_info "env-file 로드: $OPT_ENV_FILE"
-  while IFS='=' read -r key val; do
+  while IFS='=' read -r key val || [ -n "$key" ]; do
     [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
     key="$(echo "$key" | tr -d '[:space:]')"
     val="${val%\"}"; val="${val#\"}"
