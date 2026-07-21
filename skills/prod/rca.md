@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: prod:rca
 description: 비난 없는 포스트모템(Blameless Post-mortem), MTTR 지표 기반의 세계적 수준 장애 분석
@@ -12,6 +8,10 @@ follows-brain:
   - brain/engineering/reliability.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 🚑 월드클래스 장애 분석 및 포스트모템 (Blameless RCA)
 

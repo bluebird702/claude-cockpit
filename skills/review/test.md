@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:test
 description: 테스트 구조·피라미드·커버리지·품질·효율성 종합 리뷰
@@ -12,6 +8,10 @@ follows-brain:
   - brain/testing/testing-guidelines.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 테스트 품질 리뷰
 

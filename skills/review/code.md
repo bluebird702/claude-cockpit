@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:code
 description: SOLID·가독성·네이밍·안티패턴 등 코드 품질 심층 리뷰
@@ -13,6 +9,10 @@ follows-brain:
   - brain/hard-won-conventions.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 코드 품질 리뷰
 

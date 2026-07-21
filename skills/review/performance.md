@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:performance
 description: 성능 병목·쿼리·캐싱·관측성 심층 리뷰 (회복탄력성·동시성은 review:resilience)
@@ -13,6 +9,10 @@ follows-brain:
   - brain/engineering/reliability.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 성능·관측성 리뷰
 

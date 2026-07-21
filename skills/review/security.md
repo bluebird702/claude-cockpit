@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:security
 description: OWASP Top 10·시크릿·인증/인가·프레임워크 보안 설정 심층 리뷰
@@ -15,6 +11,10 @@ follows-brain:
   - brain/api/api-design.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 보안 리뷰
 

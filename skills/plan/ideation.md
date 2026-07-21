@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: plan:ideation
 description: JTBD, RICE 프레임워크, Pre-mortem이 포함된 극한의 기획 검증
@@ -12,6 +8,10 @@ follows-brain:
   - brain/planning/product.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 🧠 월드클래스 기획 및 아이데이션 (World-Class Ideation & Pre-mortem)
 

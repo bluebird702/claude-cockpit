@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: plan:prd-draft
 description: 한 줄 아이디어를 1-페이지 PRD 초안으로 변환 (Out of Scope·롤백 기준 포함)
@@ -13,6 +9,10 @@ follows-brain:
   - brain/product/metrics.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # PRD 초안 생성기
 

@@ -1,7 +1,3 @@
-> [!NOTE]
-> This document is currently in Korean. The repository owner's translation quota was exceeded.
-> To translate it to English, run: `./scripts/sync-i18n.sh`
-
 ---
 name: review:resilience
 description: 회복탄력성·멱등성·동시성 심층 리뷰 — 타임아웃·재시도·서킷브레이커·캐시 스탬피드·race
@@ -14,6 +10,10 @@ follows-brain:
   - brain/api/api-design.md
 enforcement: required
 ---
+
+> [!NOTE]
+> This document is currently in Korean. The repository owner's translation quota was exceeded.
+> To translate it to English, run: `./scripts/sync-i18n.sh`
 
 # 회복탄력성 리뷰
 
