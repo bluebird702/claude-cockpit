@@ -241,10 +241,15 @@ link_agy_skills() {
       base_name="${file_name%.md}"
       dst="$AGY_SKILLS_DIR/$file_name"
       
+      if [ -e "$dst" ] || [ -L "$dst" ]; then
+        rm -f "$dst"
+      fi
+      
+      # AGY는 스킬명에 콜론(:) 특수문자를 지원하지 않으므로, name: review:all → name: review-all 로 변환하여 복사합니다.
       if [ "$OPT_LANG" = "ko" ] && [ -f "$(dirname "$src_file")/${base_name}.ko.md" ]; then
-        link_file "$(dirname "$src_file")/${base_name}.ko.md" "$dst"
+        sed 's/^name: \(.*\):\(.*\)/name: \1-\2/' "$(dirname "$src_file")/${base_name}.ko.md" > "$dst"
       else
-        link_file "$src_file" "$dst"
+        sed 's/^name: \(.*\):\(.*\)/name: \1-\2/' "$src_file" > "$dst"
       fi
       linked=$((linked+1))
     done

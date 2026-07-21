@@ -123,9 +123,18 @@ unlink_agy_skills() {
   log_step "Phase 2.5 · AGY(Gemini) skills"
   local AGY_SKILLS_DIR="$HOME/.gemini/antigravity-cli/skills"
   if [ -d "$AGY_SKILLS_DIR" ]; then
-    for f in "$AGY_SKILLS_DIR"/*.md; do
-      [ -L "$f" ] || continue
-      remove_link "$f"
+    for src_file in "$ROOT_DIR"/skills/*/*.md; do
+      [ -f "$src_file" ] || continue
+      [[ "$src_file" == *.ko.md ]] && continue
+      
+      local file_name
+      file_name="$(basename "$src_file")"
+      
+      if [ -f "$AGY_SKILLS_DIR/$file_name" ]; then
+        backup_path "$AGY_SKILLS_DIR/$file_name" "$BACKUP_DIR"
+        rm -f "$AGY_SKILLS_DIR/$file_name"
+        log_ok "  - $AGY_SKILLS_DIR/$file_name 제거"
+      fi
     done
   else
     log_dim "  · $AGY_SKILLS_DIR 없음"
