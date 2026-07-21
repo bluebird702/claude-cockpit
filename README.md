@@ -214,10 +214,10 @@ git submodule update --remote .cockpit
 
 이 시스템은 프로덕션 수준의 견고함을 유지하기 위해 4중 안전망을 갖추고 있습니다:
 
-1. **자동 롤백 (Safe Uninstall)**: `uninstall.sh` 실행 시, 기존 환경이 삭제되는 것에 그치지 않고 **설치 직전 가장 최근의 백업본**을 찾아 `~/.claude/` 루트로 100% 자동 원상복구(Rollback) 합니다.
-2. **백지상태 E2E 검증 (`e2e_docker.sh`)**: 의존성 하나 없는 순수한 Ubuntu 컨테이너 내부에서 `configure.sh` -> `install.sh` -> `uninstall.sh` 전체 라이프사이클을 돌리며 파일 생성/소멸을 리눅스 커널 수준(`find`, `test -L`)으로 하드 체크합니다.
-3. **Bash 단위 테스트 (`bats-core`)**: `tests/unit/` 하위에서 `scripts/lib/` 헬퍼 함수들을 엣지 케이스까지 마이크로 검증합니다.
-4. **CI/CD 및 Git 훅**: `.github/workflows/e2e.yml`을 통해 푸시마다 컨테이너 테스트와 단위 테스트가 자동 실행되며, 로컬에서는 `scripts/setup-git-hooks.sh`를 통해 커밋 전 `shellcheck` 및 `shfmt` 포맷팅 검사가 강제됩니다.
+1. **자동 롤백 및 멱등성 (Idempotency & Safe Uninstall)**: `install.sh` 를 여러 번 반복 실행해도 꼬임 현상이 없으며, `uninstall.sh` 실행 시 기존 환경 삭제 후 **설치 직전 가장 최근의 백업본**을 찾아 `~/.claude/` 루트로 100% 자동 원상복구(Rollback) 합니다.
+2. **20+ 극한 엣지 케이스 E2E 검증 (`e2e_docker.sh`)**: 순수한 Ubuntu 컨테이너 내부에서 전체 라이프사이클을 검증합니다. 단순 설치 여부가 아닌 **권한 강제 박탈(chmod 000)**, **설정 파일 파손(Corrupted JSON)**, **연속 3회 설치 스트레스 테스트**, **프로젝트 링크 무결성 검증** 등 20개 이상의 악랄한 시나리오를 통과합니다.
+3. **크로스 플랫폼 및 구형 OS 호환성**: 모든 스크립트는 모듈형(함수형)으로 철저하게 리팩토링되었으며, 최신 Linux 뿐만 아니라 macOS 에 내장된 구형 `bash 3.2` 환경에서도 호환성 에러가 발생하지 않도록(예: `declare -g` 배제 등) 문법 레벨에서 완벽히 방어되어 있습니다.
+4. **CI/CD 및 자동화**: `.github/workflows/e2e.yml`을 통해 푸시마다 macOS 및 Ubuntu 환경에서 테스트가 자동 교차 실행되며, `scripts/setup-git-hooks.sh`를 통해 `shellcheck` 및 포맷팅 검사가 커밋 전 강제됩니다.
 
 ## 라이선스
 
