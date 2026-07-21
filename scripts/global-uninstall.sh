@@ -127,13 +127,17 @@ unlink_agy_skills() {
       [ -f "$src_file" ] || continue
       [[ "$src_file" == *.ko.md ]] && continue
       
-      local file_name
+      local file_name base_name skill_name dst_dir
       file_name="$(basename "$src_file")"
+      base_name="${file_name%.md}"
+      skill_name=$(grep -E '^name: ' "$src_file" | head -n 1 | sed 's/^name: *//' | sed 's/:/-/g' | tr -d '\r')
+      if [ -z "$skill_name" ]; then skill_name="$base_name"; fi
       
-      if [ -f "$AGY_SKILLS_DIR/$file_name" ]; then
-        backup_path "$AGY_SKILLS_DIR/$file_name" "$BACKUP_DIR"
-        rm -f "$AGY_SKILLS_DIR/$file_name"
-        log_ok "  - $AGY_SKILLS_DIR/$file_name 제거"
+      dst_dir="$AGY_SKILLS_DIR/$skill_name"
+      if [ -d "$dst_dir" ]; then
+        backup_path "$dst_dir" "$BACKUP_DIR"
+        rm -rf "$dst_dir"
+        log_ok "  - $dst_dir 제거"
       fi
     done
   else

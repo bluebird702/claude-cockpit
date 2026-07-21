@@ -236,16 +236,23 @@ link_agy_skills() {
       [ -f "$src_file" ] || continue
       [[ "$src_file" == *.ko.md ]] && continue
       
-      local file_name base_name dst
+      local file_name base_name dst_dir dst
       file_name="$(basename "$src_file")"
       base_name="${file_name%.md}"
-      dst="$AGY_SKILLS_DIR/$file_name"
+      
+      # AGY는 스킬명에 콜론(:) 특수문자를 지원하지 않으며, 폴더 내 SKILL.md 형태를 권장합니다.
+      local skill_name
+      skill_name=$(grep -E '^name: ' "$src_file" | head -n 1 | sed 's/^name: *//' | sed 's/:/-/g' | tr -d '\r')
+      if [ -z "$skill_name" ]; then skill_name="$base_name"; fi
+      
+      dst_dir="$AGY_SKILLS_DIR/$skill_name"
+      mkdir -p "$dst_dir"
+      dst="$dst_dir/SKILL.md"
       
       if [ -e "$dst" ] || [ -L "$dst" ]; then
         rm -f "$dst"
       fi
       
-      # AGY는 스킬명에 콜론(:) 특수문자를 지원하지 않으므로, name: review:all → name: review-all 로 변환하여 복사합니다.
       if [ "$OPT_LANG" = "ko" ] && [ -f "$(dirname "$src_file")/${base_name}.ko.md" ]; then
         sed 's/^name: \(.*\):\(.*\)/name: \1-\2/' "$(dirname "$src_file")/${base_name}.ko.md" > "$dst"
       else
