@@ -16,7 +16,7 @@
 #   8. post-install check    — 전체 검증
 #
 # 사용법:
-#   scripts/global-install.sh [--with-mcp] [--force] [--skip-doctor] [--no-plugins]
+#   scripts/global-install.sh [--with-mcp] [--force] [--skip-configure] [--no-plugins]
 
 set -euo pipefail
 
@@ -28,76 +28,114 @@ source "$ROOT_DIR/scripts/lib/tui.sh"
 
 OPT_MCP=0
 OPT_FORCE=0
-OPT_SKIP_DOCTOR=0
+OPT_SKIP_CONFIGURE=0
 OPT_NO_PLUGINS=0
 OPT_LANG="en"
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --with-mcp)    OPT_MCP=1; shift ;;
-    --force)       OPT_FORCE=1; shift ;;
-    --skip-doctor) OPT_SKIP_DOCTOR=1; shift ;;
-    --no-plugins)  OPT_NO_PLUGINS=1; shift ;;
-    --lang=*)      OPT_LANG="${1#*=}"; shift ;;
-    -h|--help)
-      cat <<EOF
+parse_args() {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --with-mcp)    OPT_MCP=1; shift ;;
+      --force)       OPT_FORCE=1; shift ;;
+      --skip-configure) OPT_SKIP_CONFIGURE=1; shift ;;
+      --no-plugins)  OPT_NO_PLUGINS=1; shift ;;
+      --lang=*)      OPT_LANG="${1#*=}"; shift ;;
+      -h|--help)
+        cat <<EOF
 Usage: $0 [options]
   --with-mcp      Phase 7 에서 mcp/setup.sh 실행
   --force         기존 실제 파일도 백업 후 덮어씀
-  --skip-doctor   Phase 1 (환경 진단) 건너뜀
+  --skip-configure   Phase 1 (Configure) 건너뜀
   --no-plugins    Phase 7.5 (플러그인 설치) 건너뜀
   --lang=<en|ko>  스킬셋 언어 설정 (기본값: en)
 EOF
-      exit 0 ;;
-    *) die "알 수 없는 옵션: $1" ;;
-  esac
-done
+        exit 0 ;;
+      *) die "알 수 없는 옵션: $1" ;;
+    esac
+  done
+}
 
-tui_banner "Claude Cockpit · Global Install" "장비 재현 · 보안 기본값 · 생산성 확장"
+setup_globals() {
+  CLAUDE_DIR="$(claude_home)"
+  mkdir -p "$CLAUDE_DIR/commands" "$CLAUDE_DIR/memory"
 
-# ─────────────────────────────────────────────
-# Phase 1: Doctor
-# ─────────────────────────────────────────────
-if [ "$OPT_SKIP_DOCTOR" = "0" ]; then
-  "$ROOT_DIR/scripts/check-deps.sh" || die "환경 진단 실패 — 필수 도구 설치 후 다시 실행"
-else
-  log_warn "Phase 1 (doctor) 건너뜀"
-fi
+  BACKUP_DIR="$(make_backup_dir global)"
+  log_ok "백업 디렉토리: $BACKUP_DIR"
+  
+  trap rollback ERR
+}
 
-require_cmd jq
-CLAUDE_DIR="$(claude_home)"
-mkdir -p "$CLAUDE_DIR/commands" "$CLAUDE_DIR/memory"
+# 설치 중 에러 발생 시 자동 롤백 (Trap)
+rollback() {
+  local exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    log_warn "설치 도중 오류($exit_code) 발생! 원래 상태로 롤백합니다..."
+    if [ -d "$BACKUP_DIR" ] && [ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]; then
+      cp -af "$BACKUP_DIR/"* "$CLAUDE_DIR/" 2>/dev/null || true
+      log_ok "백업 복구 완료 ($BACKUP_DIR -> $CLAUDE_DIR)"
+    else
+      log_dim "복구할 기존 백업 파일이 없습니다."
+    fi
+  fi
+  exit $exit_code
+}
 
-BACKUP_DIR="$(make_backup_dir global)"
-log_ok "백업 디렉토리: $BACKUP_DIR"
+run_system_configure() {
+  if [ "$OPT_SKIP_CONFIGURE" = "0" ]; then
+    "$ROOT_DIR/scripts/configure.sh" || die "Configure 단계 실패 — 필수 도구 설치 후 다시 실행"
+  else
+    log_warn "Phase 1 (configure) 건너뜀"
+  fi
 
-# ─────────────────────────────────────────────
-# Phase 1.5: 템플릿 렌더 (.cockpit-local/)
-# ─────────────────────────────────────────────
-log_step "Phase 1.5 · 템플릿 렌더"
+  mkdir -p "$ROOT_DIR/.cockpit-local"
+  echo "export COCKPIT_LANG=\"$OPT_LANG\"" >> "$ROOT_DIR/.cockpit-local/.cockpit-env"
 
-LOCAL_DIR="$ROOT_DIR/.cockpit-local"
-mkdir -p "$LOCAL_DIR/memory-seed"
+  # 설정된 환경 변수 로드
+  if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
+    source "$ROOT_DIR/.cockpit-local/.cockpit-env"
+  fi
 
-detect_template_vars "$ROOT_DIR"
-log_dim "  · COCKPIT_HOME=$COCKPIT_HOME"
-log_dim "  · USER_NAME=$USER_NAME"
-log_dim "  · GITHUB_ORG=$GITHUB_ORG"
+  require_cmd jq
+}
 
-render_template "$ROOT_DIR/system/settings.json.template" "$LOCAL_DIR/settings.json"
-log_ok "  + .cockpit-local/settings.json"
+render_all_templates() {
+  log_step "Phase 1.5 · 템플릿 렌더"
 
-for t in "$ROOT_DIR"/system/memory-seed/*.md.template; do
-  [ -f "$t" ] || continue
-  base="$(basename "$t" .template)"
-  render_template "$t" "$LOCAL_DIR/memory-seed/$base"
-  log_ok "  + .cockpit-local/memory-seed/$base"
-done
+  LOCAL_DIR="$ROOT_DIR/.cockpit-local"
+  mkdir -p "$LOCAL_DIR/memory-seed"
 
-# ─────────────────────────────────────────────
-# Phase 2: global 파일 링크
-# ─────────────────────────────────────────────
-log_step "Phase 2 · global 파일 링크"
+  detect_template_vars "$ROOT_DIR"
+  log_dim "  · COCKPIT_HOME=$COCKPIT_HOME"
+  log_dim "  · USER_NAME=$USER_NAME"
+  log_dim "  · GITHUB_ORG=$GITHUB_ORG"
+
+  local tmp_settings
+  tmp_settings="$(mktemp)"
+  render_template "$ROOT_DIR/system/settings.json.template" "$tmp_settings"
+  if [ -f "$LOCAL_DIR/settings.json" ]; then
+    local merged
+    merged="$(mktemp)"
+    if jq -s '.[0] * .[1]' "$LOCAL_DIR/settings.json" "$tmp_settings" > "$merged" 2>/dev/null \
+       && jq empty "$merged" 2>/dev/null; then
+      mv "$merged" "$LOCAL_DIR/settings.json"
+    else
+      rm -f "$merged"
+      mv "$tmp_settings" "$LOCAL_DIR/settings.json"
+    fi
+  else
+    mv "$tmp_settings" "$LOCAL_DIR/settings.json"
+  fi
+  rm -f "$tmp_settings"
+  log_ok "  + .cockpit-local/settings.json (딥머지 완료)"
+
+  for t in "$ROOT_DIR"/system/memory-seed/*.md.template; do
+    [ -f "$t" ] || continue
+    local base
+    base="$(basename "$t" .template)"
+    render_template "$t" "$LOCAL_DIR/memory-seed/$base"
+    log_ok "  + .cockpit-local/memory-seed/$base"
+  done
+}
 
 link_file() {
   local src="$1" dst="$2"
@@ -119,209 +157,227 @@ link_file() {
   log_ok "  + $dst → $src"
 }
 
-link_file "$ROOT_DIR/system/CLAUDE.md"        "$CLAUDE_DIR/CLAUDE.md"
-link_file "$LOCAL_DIR/settings.json"        "$CLAUDE_DIR/settings.json"
-link_file "$ROOT_DIR/system/keybindings.json" "$CLAUDE_DIR/keybindings.json"
+create_global_links() {
+  log_step "Phase 2 · global 파일 링크"
 
-# git 커밋 메시지 템플릿 (~/.gitmessage → system/git/gitmessage)
-link_file "$ROOT_DIR/system/git/gitmessage" "$HOME/.gitmessage"
-if command -v git > /dev/null 2>&1; then
-  git config --global commit.template "$HOME/.gitmessage"
-  log_ok "  + git config --global commit.template ~/.gitmessage"
-fi
+  link_file "$ROOT_DIR/system/CLAUDE.md"        "$CLAUDE_DIR/CLAUDE.md"
+  link_file "$ROOT_DIR/.cockpit-local/settings.json"        "$CLAUDE_DIR/settings.json"
+  link_file "$ROOT_DIR/system/keybindings.json" "$CLAUDE_DIR/keybindings.json"
 
-# ─────────────────────────────────────────────
-# Phase 3: skills 카테고리 링크
-# ─────────────────────────────────────────────
-log_step "Phase 3 · skills 카테고리 링크"
-
-# 기존 설치 후 삭제된 카테고리 등 깨진 symlink 자동 청소
-find "$CLAUDE_DIR/commands" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
-find "$CLAUDE_DIR/commands" -type d -empty -delete 2>/dev/null || true
-
-for cat_dir in "$ROOT_DIR"/skills/*/; do
-  [ -d "$cat_dir" ] || continue
-  cat_name="$(basename "$cat_dir")"
-  dst_dir="$CLAUDE_DIR/commands/$cat_name"
-  
-  if [ -e "$dst_dir" ] || [ -L "$dst_dir" ]; then
-    backup_path "$dst_dir" "$BACKUP_DIR"
-    rm -rf "$dst_dir"
+  # git 커밋 메시지 템플릿 (~/.gitmessage → system/git/gitmessage)
+  link_file "$ROOT_DIR/system/git/gitmessage" "$HOME/.gitmessage"
+  if command -v git > /dev/null 2>&1; then
+    git config --global commit.template "$HOME/.gitmessage"
+    log_ok "  + git config --global commit.template ~/.gitmessage"
   fi
-  
-  mkdir -p "$dst_dir"
-  linked=0
-  
-  for src_file in "$cat_dir"*.md; do
-    [ -f "$src_file" ] || continue
-    file_name="$(basename "$src_file")"
+}
+
+link_skill_categories() {
+  log_step "Phase 3 · skills 카테고리 링크"
+
+  # 기존 설치 후 삭제된 카테고리 등 깨진 symlink 자동 청소
+  find "$CLAUDE_DIR/commands" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+  find "$CLAUDE_DIR/commands" -type d -empty -delete 2>/dev/null || true
+
+  for cat_dir in "$ROOT_DIR"/skills/*/; do
+    [ -d "$cat_dir" ] || continue
+    local cat_name dst_dir linked file_name base_name
+    cat_name="$(basename "$cat_dir")"
+    dst_dir="$CLAUDE_DIR/commands/$cat_name"
     
-    if [ "$OPT_LANG" = "ko" ]; then
-      if [[ "$file_name" == *.ko.md ]]; then
-        base_name="${file_name%.ko.md}.md"
-        ln -s "$src_file" "$dst_dir/$base_name"
+    if [ -e "$dst_dir" ] || [ -L "$dst_dir" ]; then
+      backup_path "$dst_dir" "$BACKUP_DIR"
+      rm -rf "$dst_dir"
+    fi
+    
+    mkdir -p "$dst_dir"
+    linked=0
+    
+    for src_file in "$cat_dir"*.md; do
+      [ -f "$src_file" ] || continue
+      # .ko.md 파일은 원본 .md 파일 처리 시 함께 묶어서 처리하므로 루프에서는 건너뜀
+      [[ "$src_file" == *.ko.md ]] && continue
+      
+      file_name="$(basename "$src_file")"
+      base_name="${file_name%.md}"
+      
+      if [ "$OPT_LANG" = "ko" ] && [ -f "${cat_dir}${base_name}.ko.md" ]; then
+        ln -s "${cat_dir}${base_name}.ko.md" "$dst_dir/$file_name"
         linked=$((linked+1))
-      fi
-    else
-      if [[ "$file_name" != *.ko.md ]]; then
+      else
         ln -s "$src_file" "$dst_dir/$file_name"
         linked=$((linked+1))
       fi
+    done
+    
+    if [ "$linked" -gt 0 ]; then
+      log_ok "  + $dst_dir (${linked}개 스킬, 언어: $OPT_LANG)"
+    else
+      log_dim "  · $cat_name 비어있음 (건너뜀)"
+      rm -rf "$dst_dir"
     fi
   done
-  
-  if [ "$linked" -gt 0 ]; then
-    log_ok "  + $dst_dir (${linked}개 스킬, 언어: $OPT_LANG)"
-  else
-    log_dim "  · $cat_name 비어있음 (건너뜀)"
-    rm -rf "$dst_dir"
-  fi
-done
+}
 
-# ─────────────────────────────────────────────
-# Phase 4: agents 링크
-# ─────────────────────────────────────────────
-log_step "Phase 4 · agents 링크"
+link_subagents() {
+  log_step "Phase 4 · agents 링크"
 
-# 기존 설치 후 삭제된 에이전트 등 깨진 symlink 자동 청소
-find "$CLAUDE_DIR/agents" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+  # 기존 설치 후 삭제된 에이전트 등 깨진 symlink 자동 청소
+  find "$CLAUDE_DIR/agents" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
 
-if [ -d "$ROOT_DIR/system/subagents" ] && compgen -G "$ROOT_DIR/system/subagents/*.md" > /dev/null; then
-  dst="$CLAUDE_DIR/agents"
-  if [ -L "$dst" ]; then
-    if [ "$(readlink "$dst")" = "$ROOT_DIR/system/subagents" ]; then
-      log_dim "  = $dst (이미 연결됨)"
+  if [ -d "$ROOT_DIR/system/subagents" ] && compgen -G "$ROOT_DIR/system/subagents/*.md" > /dev/null; then
+    local dst="$CLAUDE_DIR/agents"
+    if [ -L "$dst" ]; then
+      if [ "$(readlink "$dst")" = "$ROOT_DIR/system/subagents" ]; then
+        log_dim "  = $dst (이미 연결됨)"
+      else
+        backup_path "$dst" "$BACKUP_DIR"
+        rm "$dst"
+        ln -s "$ROOT_DIR/system/subagents" "$dst"
+        log_ok "  ↻ $dst → $ROOT_DIR/system/subagents"
+      fi
+    elif [ -d "$dst" ] && [ ! -L "$dst" ]; then
+      # 실제 디렉토리가 이미 있으면 개별 파일만 링크 (기존 설정 보존)
+      log_warn "  ~ $dst 는 실제 디렉토리 — 개별 에이전트 파일만 링크"
+      for f in "$ROOT_DIR"/system/subagents/*.md; do
+        [ -f "$f" ] || continue
+        link_file "$f" "$dst/$(basename "$f")"
+      done
     else
-      backup_path "$dst" "$BACKUP_DIR"
-      rm "$dst"
       ln -s "$ROOT_DIR/system/subagents" "$dst"
-      log_ok "  ↻ $dst → $ROOT_DIR/system/subagents"
+      log_ok "  + $dst → $ROOT_DIR/system/subagents"
     fi
-  elif [ -d "$dst" ] && [ ! -L "$dst" ]; then
-    # 실제 디렉토리가 이미 있으면 개별 파일만 링크 (기존 설정 보존)
-    log_warn "  ~ $dst 는 실제 디렉토리 — 개별 에이전트 파일만 링크"
-    for f in "$ROOT_DIR"/system/subagents/*.md; do
-      [ -f "$f" ] || continue
-      link_file "$f" "$dst/$(basename "$f")"
+    local count
+    count=$(find "$ROOT_DIR/system/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
+    log_dim "  · ${count}개 에이전트 로드됨"
+  else
+    log_dim "  · system/subagents/ 비어있음 (건너뜀)"
+  fi
+}
+
+verify_security_hooks() {
+  log_step "Phase 5 · 보안 훅 검증"
+
+  if [ -d "$ROOT_DIR/system/hooks" ]; then
+    for h in "$ROOT_DIR"/system/hooks/*.sh; do
+      [ -f "$h" ] || continue
+      chmod +x "$h"
+      if bash -n "$h" 2>/dev/null; then
+        log_ok "  $(basename "$h")"
+      else
+        die "훅 구문 오류: $h"
+      fi
     done
   else
-    ln -s "$ROOT_DIR/system/subagents" "$dst"
-    log_ok "  + $dst → $ROOT_DIR/system/subagents"
+    log_warn "  system/hooks 디렉토리 없음"
   fi
-  count=$(find "$ROOT_DIR/system/subagents" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
-  log_dim "  · ${count}개 에이전트 로드됨"
-else
-  log_dim "  · system/subagents/ 비어있음 (건너뜀)"
-fi
+}
 
-# ─────────────────────────────────────────────
-# Phase 5: hooks 검증
-# ─────────────────────────────────────────────
-log_step "Phase 5 · 보안 훅 검증"
+seed_memory_files() {
+  log_step "Phase 6 · 메모리 시드"
 
-if [ -d "$ROOT_DIR/system/hooks" ]; then
-  for h in "$ROOT_DIR"/system/hooks/*.sh; do
-    [ -f "$h" ] || continue
-    chmod +x "$h"
-    if bash -n "$h" 2>/dev/null; then
-      log_ok "  $(basename "$h")"
+  local MEMORY_DIR="$CLAUDE_DIR/memory"
+  local LOCAL_DIR="$ROOT_DIR/.cockpit-local"
+  mkdir -p "$MEMORY_DIR"
+
+  if [ -d "$ROOT_DIR/system/memory-seed" ]; then
+    local seeded=0 skipped=0 seed_sources=()
+
+    # 수집: 렌더본(.cockpit-local/memory-seed/*.md) + 정적 원본(system/memory-seed/*.md, .template 제외)
+    for src in "$LOCAL_DIR"/memory-seed/*.md; do
+      [ -f "$src" ] && seed_sources+=("$src")
+    done
+    for src in "$ROOT_DIR"/system/memory-seed/*.md; do
+      [ -f "$src" ] || continue
+      case "$src" in
+        *.template) continue ;;
+      esac
+      seed_sources+=("$src")
+    done
+
+    for src in ${seed_sources[@]+"${seed_sources[@]}"}; do
+      local name dst
+      name="$(basename "$src")"
+      dst="$MEMORY_DIR/$name"
+      if [ -e "$dst" ]; then
+        skipped=$((skipped+1))
+        log_dim "  = $name (이미 존재, 보존)"
+      else
+        cp "$src" "$dst"
+        seeded=$((seeded+1))
+        log_ok "  + $name"
+      fi
+    done
+
+    local INDEX="$MEMORY_DIR/MEMORY.md"
+    if [ ! -f "$INDEX" ]; then
+      {
+        echo "# Memory Index"
+        echo ""
+        for src in ${seed_sources[@]+"${seed_sources[@]}"}; do
+          local name desc
+          name="$(basename "$src")"
+          desc="$(awk -F': ' '/^description:/ {sub(/^description: */, ""); print; exit}' "$src")"
+          echo "- [${name%.md}]($name) — $desc"
+        done
+      } > "$INDEX"
+      log_ok "  + MEMORY.md 인덱스 생성"
     else
-      die "훅 구문 오류: $h"
+      log_dim "  = MEMORY.md (이미 존재, 보존)"
     fi
-  done
-else
-  log_warn "  system/hooks 디렉토리 없음"
-fi
 
-# ─────────────────────────────────────────────
-# Phase 6: 메모리 시드
-# ─────────────────────────────────────────────
-log_step "Phase 6 · 메모리 시드"
-
-MEMORY_DIR="$CLAUDE_DIR/memory"
-mkdir -p "$MEMORY_DIR"
-
-if [ -d "$ROOT_DIR/system/memory-seed" ]; then
-  seeded=0
-  skipped=0
-
-  # 수집: 렌더본(.cockpit-local/memory-seed/*.md) + 정적 원본(system/memory-seed/*.md, .template 제외)
-  seed_sources=()
-  for src in "$LOCAL_DIR"/memory-seed/*.md; do
-    [ -f "$src" ] && seed_sources+=("$src")
-  done
-  for src in "$ROOT_DIR"/system/memory-seed/*.md; do
-    [ -f "$src" ] || continue
-    case "$src" in
-      *.template) continue ;;
-    esac
-    seed_sources+=("$src")
-  done
-
-  for src in ${seed_sources[@]+"${seed_sources[@]}"}; do
-    name="$(basename "$src")"
-    dst="$MEMORY_DIR/$name"
-    if [ -e "$dst" ]; then
-      skipped=$((skipped+1))
-      log_dim "  = $name (이미 존재, 보존)"
-    else
-      cp "$src" "$dst"
-      seeded=$((seeded+1))
-      log_ok "  + $name"
-    fi
-  done
-
-  INDEX="$MEMORY_DIR/MEMORY.md"
-  if [ ! -f "$INDEX" ]; then
-    {
-      echo "# Memory Index"
-      echo ""
-      for src in ${seed_sources[@]+"${seed_sources[@]}"}; do
-        name="$(basename "$src")"
-        desc="$(awk -F': ' '/^description:/ {sub(/^description: */, ""); print; exit}' "$src")"
-        echo "- [${name%.md}]($name) — $desc"
-      done
-    } > "$INDEX"
-    log_ok "  + MEMORY.md 인덱스 생성"
+    log_dim "  · 신규 ${seeded}개 / 보존 ${skipped}개"
   else
-    log_dim "  = MEMORY.md (이미 존재, 보존)"
+    log_dim "  · system/memory-seed/ 없음 (건너뜀)"
   fi
+}
 
-  log_dim "  · 신규 ${seeded}개 / 보존 ${skipped}개"
-else
-  log_dim "  · system/memory-seed/ 없음 (건너뜀)"
-fi
+setup_mcp_servers() {
+  if [ "$OPT_MCP" = "1" ]; then
+    log_step "Phase 7 · MCP 설정"
+    "$ROOT_DIR/system/mcp-shared/setup.sh"
+  else
+    log_dim "  · Phase 7 (MCP) 건너뜀 — 필요 시 --with-mcp 또는 ./system/mcp-shared/setup.sh"
+  fi
+}
 
-# ─────────────────────────────────────────────
-# Phase 7: MCP (옵션)
-# ─────────────────────────────────────────────
-if [ "$OPT_MCP" = "1" ]; then
-  log_step "Phase 7 · MCP 설정"
-  "$ROOT_DIR/system/mcp-shared/setup.sh"
-else
-  log_dim "  · Phase 7 (MCP) 건너뜀 — 필요 시 --with-mcp 또는 ./system/mcp-shared/setup.sh"
-fi
+install_claude_plugins() {
+  if [ "$OPT_NO_PLUGINS" = "0" ]; then
+    local PLUGIN_ARGS=()
+    [ "$OPT_FORCE" = "1" ] && PLUGIN_ARGS+=(--force)
+    "$ROOT_DIR/scripts/claude-plugins.sh" "${PLUGIN_ARGS[@]+"${PLUGIN_ARGS[@]}"}" \
+      || log_warn "플러그인 설치 실패 — 네트워크 없이도 Claude Code 는 동작합니다"
+  else
+    log_dim "  · Phase 7.5 (plugins) 건너뜀 — --no-plugins"
+  fi
+}
 
-# ─────────────────────────────────────────────
-# Phase 7.5: 플러그인 설치
-# ─────────────────────────────────────────────
-if [ "$OPT_NO_PLUGINS" = "0" ]; then
-  PLUGIN_ARGS=()
-  [ "$OPT_FORCE" = "1" ] && PLUGIN_ARGS+=(--force)
-  "$ROOT_DIR/scripts/claude-plugins.sh" "${PLUGIN_ARGS[@]+"${PLUGIN_ARGS[@]}"}" \
-    || log_warn "플러그인 설치 실패 — 네트워크 없이도 Claude Code 는 동작합니다"
-else
-  log_dim "  · Phase 7.5 (plugins) 건너뜀 — --no-plugins"
-fi
+run_post_install_healthcheck() {
+  "$ROOT_DIR/scripts/post-install-check.sh" || die "헬스체크 실패"
 
-# ─────────────────────────────────────────────
-# Phase 8: 헬스체크
-# ─────────────────────────────────────────────
-"$ROOT_DIR/scripts/post-install-check.sh" || die "헬스체크 실패"
+  printf '\n'
+  log_ok "전역 설치 완료"
+  log_dim "  백업:  $BACKUP_DIR"
+  log_dim "  확인:  ls -la $CLAUDE_DIR"
+  printf '\n  %sClaude Code 재시작 후 %s/review:all%s, %s/plan:ideation%s, %s/dev:refactor%s 등을 사용해 보세요.%s\n\n' \
+    "$C_BOLD" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_RESET"
+}
 
-printf '\n'
-log_ok "전역 설치 완료"
-log_dim "  백업:  $BACKUP_DIR"
-log_dim "  확인:  ls -la $CLAUDE_DIR"
-printf '\n  %sClaude Code 재시작 후 %s/review:all%s, %s/plan:ideation%s, %s/dev:refactor%s 등을 사용해 보세요.%s\n\n' \
-  "$C_BOLD" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_CYAN" "$C_RESET" "$C_RESET"
+main() {
+  parse_args "$@"
+  tui_banner "Claude Cockpit · Global Install" "장비 재현 · 보안 기본값 · 생산성 확장"
+
+  run_system_configure
+  setup_globals
+  render_all_templates
+  create_global_links
+  link_skill_categories
+  link_subagents
+  verify_security_hooks
+  seed_memory_files
+  setup_mcp_servers
+  install_claude_plugins
+  run_post_install_healthcheck
+}
+
+main "$@"

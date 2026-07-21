@@ -108,7 +108,7 @@ cd ~/Work/claude-cockpit
 
 내부적으로 `scripts/global-install.sh --with-mcp` 가 실행되며 다음 Phase 를 거칩니다:
 
-1. **doctor** — 필수·권장 도구 진단 (`scripts/check-deps.sh`)
+1. **configure** — OS 감지 및 환경 진단 (`scripts/configure.sh`)
 2. **global link** — `system/CLAUDE.md`, `settings.json`, `keybindings.json` → `~/.claude/`
 3. **skills link** — `skills/<cat>` → `~/.claude/commands/<cat>`
 4. **agents link** — `system/subagents/` → `~/.claude/agents`
@@ -209,6 +209,15 @@ git submodule update --remote .cockpit
 - **표준 원본**: `brain/` 가 모든 규칙의 원본. 스킬·프로젝트는 자동 로드만 하고 복사본을 만들지 않음.
 
 상세 규칙은 [`system/CLAUDE.md`](./system/CLAUDE.md) 와 [`brain/CLAUDE.md`](./brain/CLAUDE.md) 참조.
+
+## 품질 및 무결성 보장 (Quality & Integrity)
+
+이 시스템은 프로덕션 수준의 견고함을 유지하기 위해 4중 안전망을 갖추고 있습니다:
+
+1. **자동 롤백 (Safe Uninstall)**: `uninstall.sh` 실행 시, 기존 환경이 삭제되는 것에 그치지 않고 **설치 직전 가장 최근의 백업본**을 찾아 `~/.claude/` 루트로 100% 자동 원상복구(Rollback) 합니다.
+2. **백지상태 E2E 검증 (`e2e_docker.sh`)**: 의존성 하나 없는 순수한 Ubuntu 컨테이너 내부에서 `configure.sh` -> `install.sh` -> `uninstall.sh` 전체 라이프사이클을 돌리며 파일 생성/소멸을 리눅스 커널 수준(`find`, `test -L`)으로 하드 체크합니다.
+3. **Bash 단위 테스트 (`bats-core`)**: `tests/unit/` 하위에서 `scripts/lib/` 헬퍼 함수들을 엣지 케이스까지 마이크로 검증합니다.
+4. **CI/CD 및 Git 훅**: `.github/workflows/e2e.yml`을 통해 푸시마다 컨테이너 테스트와 단위 테스트가 자동 실행되며, 로컬에서는 `scripts/setup-git-hooks.sh`를 통해 커밋 전 `shellcheck` 및 `shfmt` 포맷팅 검사가 강제됩니다.
 
 ## 라이선스
 

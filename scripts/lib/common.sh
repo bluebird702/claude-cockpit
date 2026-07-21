@@ -15,10 +15,13 @@ if [ -t 1 ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null |
   C_GREEN=$(tput setaf 2)
   C_YELLOW=$(tput setaf 3)
   C_BLUE=$(tput setaf 4)
+  # shellcheck disable=SC2034
   C_MAGENTA=$(tput setaf 5)
   C_CYAN=$(tput setaf 6)
 else
+  # shellcheck disable=SC2034
   C_RESET=''; C_BOLD=''; C_DIM=''
+  # shellcheck disable=SC2034
   C_RED=''; C_GREEN=''; C_YELLOW=''; C_BLUE=''; C_MAGENTA=''; C_CYAN=''
 fi
 
@@ -86,17 +89,17 @@ detect_template_vars() {
     USER_NAME="${COCKPIT_USER_NAME:-${USER:-}}"
     [ -z "$USER_NAME" ] && USER_NAME="$(git config --get user.name 2>/dev/null || true)"
     [ -z "$USER_NAME" ] && USER_NAME="user"
-    USER_NAME="$(_sanitize_tvar "$USER_NAME")"
-    export USER_NAME
   fi
+  USER_NAME="$(_sanitize_tvar "$USER_NAME")"
+  export USER_NAME
   if [ -z "${GITHUB_ORG:-}" ]; then
     GITHUB_ORG="$(gh api user --jq .login 2>/dev/null || true)"
-    GITHUB_ORG="$(_sanitize_tvar "$GITHUB_ORG")"
     # gh 가 에러 본문(JSON 등)을 뱉는 경우가 있어 GitHub 계정명 형식만 수용
     printf '%s' "$GITHUB_ORG" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$' || GITHUB_ORG=""
     [ -z "$GITHUB_ORG" ] && GITHUB_ORG="<YOUR_ORG>"
-    export GITHUB_ORG
   fi
+  GITHUB_ORG="$(_sanitize_tvar "$GITHUB_ORG")"
+  export GITHUB_ORG
 }
 
 # _sanitize_tvar — 템플릿 치환값 정화: CR/개행 제거 + sed 메타문자(| & \) 이스케이프

@@ -1,0 +1,32 @@
+name: E2E and Unit Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats shellcheck
+
+      - name: Run Unit Tests (Bats)
+        run: |
+          if command -v bats >/dev/null 2>&1; then
+            bats tests/unit/
+          else
+            echo "bats is not installed, skipping unit tests"
+          fi
+
+      - name: Run E2E Container Test
+        run: |
+          chmod +x tests/e2e_docker.sh
+          ./tests/e2e_docker.sh

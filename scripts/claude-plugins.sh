@@ -17,31 +17,35 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/tui.sh"
 
-OPT_FORCE=0
-OPT_ALLOW_UNPINNED=0
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --force) OPT_FORCE=1; shift ;;
-    --allow-unpinned) OPT_ALLOW_UNPINNED=1; shift ;;
-    --help)
-      echo "Usage: claude-plugins.sh [--force] [--allow-unpinned]"
-      echo "  settings.json 의 enabledPlugins 에 선언된 GitHub 마켓플레이스 플러그인을 설치합니다."
-      echo "  --force            이미 설치된 버전도 최신으로 재설치"
-      echo "  --allow-unpinned   태그/SHA 미고정 플러그인 설치 허용(기본은 fail-closed 차단)"
-      exit 0 ;;
-    *)       shift ;;
-  esac
-done
+parse_arguments() {
+  OPT_FORCE=0
+  OPT_ALLOW_UNPINNED=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force) OPT_FORCE=1; shift ;;
+      --allow-unpinned) OPT_ALLOW_UNPINNED=1; shift ;;
+      --help)
+        echo "Usage: claude-plugins.sh [--force] [--allow-unpinned]"
+        echo "  settings.json 의 enabledPlugins 에 선언된 GitHub 마켓플레이스 플러그인을 설치합니다."
+        echo "  --force            이미 설치된 버전도 최신으로 재설치"
+        echo "  --allow-unpinned   태그/SHA 미고정 플러그인 설치 허용(기본은 fail-closed 차단)"
+        exit 0 ;;
+      *)       shift ;;
+    esac
+  done
+}
 
-require_cmd curl jq tar
+setup_registry() {
+  require_cmd curl jq tar
 
-CLAUDE_DIR="$(claude_home)"
-REGISTRY="$CLAUDE_DIR/plugins/installed_plugins.json"
+  CLAUDE_DIR="$(claude_home)"
+  REGISTRY="$CLAUDE_DIR/plugins/installed_plugins.json"
 
-if [ ! -f "$REGISTRY" ]; then
-  mkdir -p "$(dirname "$REGISTRY")"
-  echo '{"version": 2, "plugins": {}}' > "$REGISTRY"
-fi
+  if [ ! -f "$REGISTRY" ]; then
+    mkdir -p "$(dirname "$REGISTRY")"
+    echo '{"version": 2, "plugins": {}}' > "$REGISTRY"
+  fi
+}
 
 # ─────────────────────────────────────────────
 # install_github_plugin <plugin_key> <marketplace_id> <plugin_name> <github_repo>
@@ -179,15 +183,22 @@ install_github_plugin() {
   log_ok "  + $plugin_key v${version} 설치 완료"
 }
 
-# ─────────────────────────────────────────────
-# 설치할 플러그인 목록
-# ─────────────────────────────────────────────
-log_step "Phase 7.5 · Claude Code 플러그인 설치"
+install_configured_plugins() {
+  log_step "Phase 7.5 · Claude Code 플러그인 설치"
 
-install_github_plugin \
-  "claude-hud@claude-hud" \
-  "claude-hud" \
-  "claude-hud" \
-  "jarrodwatts/claude-hud" \
-  "v0.3.0" \
-  "b83b44593af24de1db6183788a51d08715501c02"
+  install_github_plugin \
+    "claude-hud@claude-hud" \
+    "claude-hud" \
+    "claude-hud" \
+    "jarrodwatts/claude-hud" \
+    "v0.3.0" \
+    "b83b44593af24de1db6183788a51d08715501c02"
+}
+
+main() {
+  parse_arguments "$@"
+  setup_registry
+  install_configured_plugins
+}
+
+main "$@"

@@ -49,7 +49,7 @@ claude-cockpit/
 - `brain/` 내용을 다른 파일에 복사. 반드시 `@brain/...` 로 참조.
 - 평문 시크릿 커밋. `system/hooks/guard-secrets.sh` 가 PreToolUse 로 차단하지만, 그 전에 본인이 먼저 체크.
 - `skills/` 의 네임스페이스 규칙(4도메인: 개발 / 기획 / 프로덕트 / 경영) 위반. 새 스킬을 어디 둘지 애매하면 먼저 질문.
-- 과거 네이밍 복원: `skills/jira/` (→ `mgmt/`), `phase-doctor` (→ `check-deps`), `phase-plugins` (→ `claude-plugins`) 는 모두 리네이밍됐습니다.
+- 과거 네이밍 복원: `skills/jira/` (→ `mgmt/`), `check-deps` (→ `configure`), `phase-plugins` (→ `claude-plugins`) 는 모두 리네이밍됐습니다.
 
 ### 쉘 스크립트 작성
 

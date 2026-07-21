@@ -24,19 +24,21 @@ source "$COCKPIT_ROOT/scripts/lib/tui.sh"
 # 프로젝트 루트 = cockpit 의 부모 (submodule 로 .cockpit 에 들어 있다고 가정)
 PROJECT_ROOT="$(cd "$COCKPIT_ROOT/.." && pwd)"
 
-declare -a WITH=()
-OPT_REAPPLY=0
-OPT_DRY_RUN=0
+WITH=()
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --with)      WITH+=("$2"); shift 2 ;;
-    --with=*)    WITH+=("${1#*=}"); shift ;;
-    --reapply)   OPT_REAPPLY=1; shift ;;
-    --dry-run)   OPT_DRY_RUN=1; shift ;;
-    --project)   PROJECT_ROOT="$2"; shift 2 ;;
-    -h|--help)
-      cat <<EOF
+parse_arguments() {
+  OPT_REAPPLY=0
+  OPT_DRY_RUN=0
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --with)      WITH+=("$2"); shift 2 ;;
+      --with=*)    WITH+=("${1#*=}"); shift ;;
+      --reapply)   OPT_REAPPLY=1; shift ;;
+      --dry-run)   OPT_DRY_RUN=1; shift ;;
+      --project)   PROJECT_ROOT="$2"; shift 2 ;;
+      -h|--help)
+        cat <<EOF
 Usage: $0 --with <area> [--with <area>...] [--reapply] [--dry-run]
 
 Areas:
@@ -48,16 +50,16 @@ Areas:
 Examples:
   $0 --with brain --with skills/dev --with skills/plan --with docs/process
 EOF
-      exit 0 ;;
-    *) die "알 수 없는 옵션: $1" ;;
-  esac
-done
+        exit 0 ;;
+      *) die "알 수 없는 옵션: $1" ;;
+    esac
+  done
 
-[ ${#WITH[@]} -eq 0 ] && die "--with 옵션이 하나 이상 필요합니다 (--help 참조)"
-
-tui_banner "Claude Cockpit · Project Link" "프로젝트: $PROJECT_ROOT"
-log_ok "cockpit root: $COCKPIT_ROOT"
-log_ok "project root: $PROJECT_ROOT"
+  if [ ${#WITH[@]} -eq 0 ]; then
+    die "--with 옵션이 하나 이상 필요합니다 (--help 참조)"
+  fi
+  return 0
+}
 
 # 대상 매핑
 # area → [src_abs, dst_abs]
@@ -136,21 +138,39 @@ do_copy_if_absent() {
   fi
 }
 
-log_step "링크 생성"
-for area in "${WITH[@]}"; do
-  mapping="$(resolve_link "$area")"
-  if [[ "$mapping" == COPY\|* ]]; then
-    IFS='|' read -r _ src dst <<< "$mapping"
-    do_copy_if_absent "$src" "$dst"
-  else
-    IFS='|' read -r src dst <<< "$mapping"
-    do_link "$src" "$dst"
-  fi
-done
+create_links() {
+  log_step "링크 생성"
+  for area in ${WITH[@]+"${WITH[@]}"}; do
+    local mapping
+    mapping="$(resolve_link "$area")"
+    if [[ "$mapping" == COPY\|* ]]; then
+      IFS='|' read -r _ src dst <<< "$mapping"
+      do_copy_if_absent "$src" "$dst"
+    else
+      IFS='|' read -r src dst <<< "$mapping"
+      do_link "$src" "$dst"
+    fi
+  done
+}
 
-log_step "Zero-Config Calibration"
-"$COCKPIT_ROOT/scripts/calibrate.sh" "$PROJECT_ROOT"
+run_calibration() {
+  log_step "Zero-Config Calibration"
+  "$COCKPIT_ROOT/scripts/calibrate.sh" "$PROJECT_ROOT"
+}
 
-printf '\n'
-log_ok "project-link 완료"
-log_dim "  되돌리기: .cockpit/scripts/project-unlink.sh --with ..."
+main() {
+  parse_arguments "$@"
+
+  tui_banner "Claude Cockpit · Project Link" "프로젝트: $PROJECT_ROOT"
+  log_ok "cockpit root: $COCKPIT_ROOT"
+  log_ok "project root: $PROJECT_ROOT"
+
+  create_links
+  run_calibration
+
+  printf '\n'
+  log_ok "project-link 완료"
+  log_dim "  되돌리기: .cockpit/scripts/project-unlink.sh --with ..."
+}
+
+main "$@"

@@ -59,6 +59,7 @@ printf '    · ~/.claude/agents (cockpit 링크만)\n'
 [ "$OPT_PURGE_MCP" = "1" ]    && printf '    · MCP 비밀·공개 env·로더·rc source 라인\n'
 [ "$OPT_STOP_COLIMA" = "1" ]  && printf '    · Colima 데몬 정지\n'
 [ "$OPT_PURGE_MEMORY" = "1" ] && printf '    · ~/.claude/memory/ 시드 파일 (유저 신규 파일은 보존)\n'
+printf '    · 가장 최근 설치(global-*) 시점의 백업본으로 롤백 (Colima, MCP 등 제외)\n'
 
 printf '\n  %s보존:%s\n' "$C_BOLD" "$C_RESET"
 printf '    · ~/.claude/backups/ (복구 자산)\n'
@@ -96,97 +97,125 @@ remove_link() {
   fi
 }
 
-# ─────────────────────────────────────────────
-# Phase 1: global 파일
-# ─────────────────────────────────────────────
-log_step "Phase 1 · global 파일"
-remove_link "$CLAUDE_DIR/CLAUDE.md"
-remove_link "$CLAUDE_DIR/settings.json"
-remove_link "$CLAUDE_DIR/keybindings.json"
-remove_link "$HOME/.gitmessage"
-if command -v git > /dev/null 2>&1 \
-   && [ "$(git config --global --get commit.template 2>/dev/null)" = "$HOME/.gitmessage" ]; then
-  git config --global --unset commit.template
-  log_ok "  - git commit.template 설정 해제"
-fi
-
-# ─────────────────────────────────────────────
-# Phase 2: skills 카테고리
-# ─────────────────────────────────────────────
-log_step "Phase 2 · skills 카테고리"
-for cat_dir in "$ROOT_DIR"/skills/*/; do
-  [ -d "$cat_dir" ] || continue
-  cat_name="$(basename "$cat_dir")"
-  remove_link "$CLAUDE_DIR/commands/$cat_name"
-done
-
-# ─────────────────────────────────────────────
-# Phase 3: agents 링크
-# ─────────────────────────────────────────────
-log_step "Phase 3 · agents 링크"
-AGENTS_DST="$CLAUDE_DIR/agents"
-if [ -L "$AGENTS_DST" ]; then
-  # 디렉토리 통째로 링크된 경우
-  remove_link "$AGENTS_DST"
-elif [ -d "$AGENTS_DST" ] && [ ! -L "$AGENTS_DST" ]; then
-  # 실제 디렉토리 + 개별 파일 링크된 경우 (install.sh Phase 4 분기)
-  log_dim "  · $AGENTS_DST 는 실제 디렉토리 — 개별 cockpit 링크만 제거"
-  for f in "$AGENTS_DST"/*.md; do
-    [ -L "$f" ] || continue
-    remove_link "$f"
-  done
-else
-  log_dim "  · $AGENTS_DST 없음"
-fi
-
-# ─────────────────────────────────────────────
-# Phase 4: MCP (옵션)
-# ─────────────────────────────────────────────
-if [ "$OPT_WITH_MCP" = "1" ] || [ "$OPT_STOP_COLIMA" = "1" ]; then
-  log_step "Phase 4 · MCP"
-  CLEAN_ARGS=(--yes)
-  [ "$OPT_PURGE_MCP" = "1" ]   && CLEAN_ARGS+=(--purge-env)
-  [ "$OPT_STOP_COLIMA" = "1" ] && CLEAN_ARGS+=(--stop-colima)
-  "$ROOT_DIR/system/mcp-shared/clean.sh" "${CLEAN_ARGS[@]}" \
-    || log_warn "MCP clean 중 일부 단계 실패 — 로그 확인 필요"
-else
-  log_dim "  · Phase 4 (MCP) 건너뜀 — 필요 시 --with-mcp / --purge-mcp / --stop-colima"
-fi
-
-# ─────────────────────────────────────────────
-# Phase 5: memory 시드 (옵션)
-# ─────────────────────────────────────────────
-if [ "$OPT_PURGE_MEMORY" = "1" ]; then
-  log_step "Phase 5 · memory 시드 제거"
-  MEMORY_DIR="$CLAUDE_DIR/memory"
-  SEED_DIR="$ROOT_DIR/system/memory-seed"
-  LOCAL_DIR="$ROOT_DIR/.cockpit-local"
-  if [ -d "$MEMORY_DIR" ] && [ -d "$SEED_DIR" ]; then
-    removed=0
-    # install 과 대칭으로 seed 이름 수집: 렌더본(.cockpit-local/memory-seed/*.md)
-    # + 정적 원본(system/memory-seed/*.md, .template 제외). 렌더본만 존재하는 seed
-    # (reference_cockpit.md·user_profile.md 등)까지 지워 고아 파일을 남기지 않는다.
-    for src in "$LOCAL_DIR"/memory-seed/*.md "$SEED_DIR"/*.md; do
-      [ -f "$src" ] || continue
-      case "$src" in *.template) continue ;; esac
-      name="$(basename "$src")"
-      dst="$MEMORY_DIR/$name"
-      if [ -f "$dst" ]; then
-        backup_path "$dst" "$BACKUP_DIR"
-        rm "$dst"
-        log_ok "  - $name 제거 (백업됨)"
-        removed=$((removed+1))
-      fi
-    done
-    log_dim "  · ${removed}개 시드 파일 제거. MEMORY.md 및 유저 신규 파일은 보존"
-  else
-    log_dim "  · memory 또는 seed 디렉토리 없음 (건너뜀)"
+remove_global_files() {
+  log_step "Phase 1 · global 파일"
+  remove_link "$CLAUDE_DIR/CLAUDE.md"
+  remove_link "$CLAUDE_DIR/settings.json"
+  remove_link "$CLAUDE_DIR/keybindings.json"
+  remove_link "$HOME/.gitmessage"
+  if command -v git > /dev/null 2>&1 \
+     && [ "$(git config --global --get commit.template 2>/dev/null)" = "$HOME/.gitmessage" ]; then
+    git config --global --unset commit.template
+    log_ok "  - git commit.template 설정 해제"
   fi
-else
-  log_dim "  · Phase 5 (memory) 건너뜀 — 필요 시 --purge-memory"
-fi
+}
 
-printf '\n'
-log_ok "제거 완료"
-log_dim "  백업: $BACKUP_DIR"
-[ "$OPT_WITH_MCP" = "0" ] && log_dim "  MCP 는 그대로입니다 — 필요 시 uninstall.sh --with-mcp 또는 --purge-mcp"
+unlink_skill_categories() {
+  log_step "Phase 2 · skills 카테고리"
+  for cat_dir in "$ROOT_DIR"/skills/*/; do
+    [ -d "$cat_dir" ] || continue
+    cat_name="$(basename "$cat_dir")"
+    remove_link "$CLAUDE_DIR/commands/$cat_name"
+  done
+}
+
+unlink_subagents() {
+  log_step "Phase 3 · agents 링크"
+  local AGENTS_DST="$CLAUDE_DIR/agents"
+  if [ -L "$AGENTS_DST" ]; then
+    remove_link "$AGENTS_DST"
+  elif [ -d "$AGENTS_DST" ] && [ ! -L "$AGENTS_DST" ]; then
+    log_dim "  · $AGENTS_DST 는 실제 디렉토리 — 개별 cockpit 링크만 제거"
+    for f in "$AGENTS_DST"/*.md; do
+      [ -L "$f" ] || continue
+      remove_link "$f"
+    done
+  else
+    log_dim "  · $AGENTS_DST 없음"
+  fi
+}
+
+clean_mcp_servers() {
+  if [ "$OPT_WITH_MCP" = "1" ] || [ "$OPT_STOP_COLIMA" = "1" ]; then
+    log_step "Phase 4 · MCP"
+    local CLEAN_ARGS=(--yes)
+    [ "$OPT_PURGE_MCP" = "1" ]   && CLEAN_ARGS+=(--purge-env)
+    [ "$OPT_STOP_COLIMA" = "1" ] && CLEAN_ARGS+=(--stop-colima)
+    "$ROOT_DIR/system/mcp-shared/clean.sh" "${CLEAN_ARGS[@]}" \
+      || log_warn "MCP clean 중 일부 단계 실패 — 로그 확인 필요"
+  else
+    log_dim "  · Phase 4 (MCP) 건너뜀 — 필요 시 --with-mcp / --purge-mcp / --stop-colima"
+  fi
+}
+
+purge_memory_seeds() {
+  if [ "$OPT_PURGE_MEMORY" = "1" ]; then
+    log_step "Phase 5 · memory 시드 제거"
+    local MEMORY_DIR="$CLAUDE_DIR/memory"
+    local SEED_DIR="$ROOT_DIR/system/memory-seed"
+    local LOCAL_DIR="$ROOT_DIR/.cockpit-local"
+    if [ -d "$MEMORY_DIR" ] && [ -d "$SEED_DIR" ]; then
+      local removed=0
+      for src in "$LOCAL_DIR"/memory-seed/*.md "$SEED_DIR"/*.md; do
+        [ -f "$src" ] || continue
+        case "$src" in *.template) continue ;; esac
+        local name dst
+        name="$(basename "$src")"
+        dst="$MEMORY_DIR/$name"
+        if [ -f "$dst" ]; then
+          backup_path "$dst" "$BACKUP_DIR"
+          rm "$dst"
+          log_ok "  - $name 제거 (백업됨)"
+          removed=$((removed+1))
+        fi
+      done
+      log_dim "  · ${removed}개 시드 파일 제거. MEMORY.md 및 유저 신규 파일은 보존"
+    else
+      log_dim "  · memory 또는 seed 디렉토리 없음 (건너뜀)"
+    fi
+  else
+    log_dim "  · Phase 5 (memory) 건너뜀 — 필요 시 --purge-memory"
+  fi
+}
+
+rollback_to_latest_backup() {
+  log_step "Phase 6 · 이전 설치 상태 롤백"
+  local LATEST_BACKUP
+  LATEST_BACKUP="$(find "$CLAUDE_DIR/backups" -maxdepth 1 -type d -name "global-[0-9]*" 2>/dev/null | sort -r | head -n 1 || true)"
+
+  if [ -n "$LATEST_BACKUP" ]; then
+    if [ "$OPT_YES" = "1" ] || tui_confirm "최근 설치 시점의 백업($LATEST_BACKUP)으로 롤백하시겠습니까?" Y; then
+      log_info "롤백 진행 중..."
+      if [ "$(ls -A "$LATEST_BACKUP")" ]; then
+        cp -a "$LATEST_BACKUP/"* "$CLAUDE_DIR/" 2>/dev/null || log_warn "일부 파일 롤백 실패"
+        log_ok "  - 롤백 성공: $LATEST_BACKUP 의 내용을 복원했습니다."
+      else
+        log_dim "  · 백업본이 비어있어 롤백할 내용이 없습니다."
+      fi
+    else
+      log_dim "  · 사용자가 롤백을 건너뛰었습니다."
+    fi
+  else
+    log_dim "  · 이전 백업을 찾을 수 없어 롤백을 생략합니다."
+  fi
+}
+
+summary() {
+  printf '\n'
+  log_ok "제거 완료"
+  log_dim "  백업: $BACKUP_DIR"
+  [ "$OPT_WITH_MCP" = "0" ] && log_dim "  MCP 는 그대로입니다 — 필요 시 uninstall.sh --with-mcp 또는 --purge-mcp" || true
+  exit 0
+}
+
+main() {
+  remove_global_files
+  unlink_skill_categories
+  unlink_subagents
+  clean_mcp_servers
+  purge_memory_seeds
+  rollback_to_latest_backup
+  summary
+}
+
+main "$@"

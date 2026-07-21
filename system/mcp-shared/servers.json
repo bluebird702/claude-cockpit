@@ -1,18 +1,23 @@
 {
   "$schema": "./servers.schema.json",
   "_comment": "cockpit이 관리하는 MCP 서버 템플릿. setup.sh 가 이 파일의 inputs 를 읽어 Phase 2 에서 사용자 입력을 받고, env 에 채워 ~/.claude/settings.json 에 머지합니다. 모든 서버는 Colima 기반 Docker 로 실행됩니다. 공급망: npx 패키지는 버전 핀(@x.y.z), Docker 이미지는 태그 핀이다. 단 node:20-alpine 같은 롤링 태그는 완전 불변이 아니므로 최대 강도로는 digest(@sha256) 핀이 필요하다 — `scripts/pin-images.sh` 로 온라인에서 태그→digest 를 해석해 이 파일에 고정한다(오프라인 부트스트랩에선 태그 핀으로 동작).",
-
   "servers": {
     "github": {
       "label": "GitHub",
       "description": "GitHub Issues / PR / Code 검색",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "node:20-alpine",
-        "npx", "-y", "@modelcontextprotocol/server-github@2025.4.8"
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github@2025.4.8"
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
@@ -26,19 +31,26 @@
         }
       ]
     },
-
     "jira": {
       "label": "Jira",
       "description": "Atlassian Jira 이슈·프로젝트",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "JIRA_URL",
-        "-e", "JIRA_EMAIL",
-        "-e", "JIRA_API_TOKEN",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "node:20-alpine",
-        "npx", "-y", "@modelcontextprotocol/server-atlassian-jira@1.4.0"
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "JIRA_URL",
+        "-e",
+        "JIRA_EMAIL",
+        "-e",
+        "JIRA_API_TOKEN",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-atlassian-jira@1.4.0"
       ],
       "env": {
         "JIRA_URL": "${JIRA_URL}",
@@ -46,24 +58,47 @@
         "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
       },
       "inputs": [
-        { "name": "JIRA_URL",       "prompt": "Jira URL", "default": "https://your.atlassian.net", "secret": false, "validate": "url" },
-        { "name": "JIRA_EMAIL",     "prompt": "Jira 로그인 이메일", "secret": false, "validate": "email" },
-        { "name": "JIRA_API_TOKEN", "prompt": "Jira API Token",     "secret": true, "validate": "token" }
+        {
+          "name": "JIRA_URL",
+          "prompt": "Jira URL",
+          "default": "https://your.atlassian.net",
+          "secret": false,
+          "validate": "url"
+        },
+        {
+          "name": "JIRA_EMAIL",
+          "prompt": "Jira 로그인 이메일",
+          "secret": false,
+          "validate": "email"
+        },
+        {
+          "name": "JIRA_API_TOKEN",
+          "prompt": "Jira API Token",
+          "secret": true,
+          "validate": "token"
+        }
       ]
     },
-
     "confluence": {
       "label": "Confluence",
       "description": "Atlassian Confluence 페이지/위키",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "CONFLUENCE_URL",
-        "-e", "CONFLUENCE_EMAIL",
-        "-e", "CONFLUENCE_API_TOKEN",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "node:20-alpine",
-        "npx", "-y", "@modelcontextprotocol/server-atlassian-confluence@1.4.0"
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "CONFLUENCE_URL",
+        "-e",
+        "CONFLUENCE_EMAIL",
+        "-e",
+        "CONFLUENCE_API_TOKEN",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-atlassian-confluence@1.4.0"
       ],
       "env": {
         "CONFLUENCE_URL": "${CONFLUENCE_URL}",
@@ -71,63 +106,101 @@
         "CONFLUENCE_API_TOKEN": "${CONFLUENCE_API_TOKEN}"
       },
       "inputs": [
-        { "name": "CONFLUENCE_URL",       "prompt": "Confluence URL", "default": "https://your.atlassian.net/wiki", "secret": false, "validate": "url" },
-        { "name": "CONFLUENCE_EMAIL",     "prompt": "Confluence 로그인 이메일", "secret": false, "validate": "email" },
-        { "name": "CONFLUENCE_API_TOKEN", "prompt": "Confluence API Token",     "secret": true, "validate": "token" }
+        {
+          "name": "CONFLUENCE_URL",
+          "prompt": "Confluence URL",
+          "default": "https://your.atlassian.net/wiki",
+          "secret": false,
+          "validate": "url"
+        },
+        {
+          "name": "CONFLUENCE_EMAIL",
+          "prompt": "Confluence 로그인 이메일",
+          "secret": false,
+          "validate": "email"
+        },
+        {
+          "name": "CONFLUENCE_API_TOKEN",
+          "prompt": "Confluence API Token",
+          "secret": true,
+          "validate": "token"
+        }
       ]
     },
-
     "playwright": {
       "label": "Playwright",
       "description": "Playwright 브라우저 자동화 (E2E 시나리오, 스크린샷, 로그인 플로우 확인) — 브라우저 포함 이미지 약 1.5 GB",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i", "--init",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "mcr.microsoft.com/playwright:v1.50.0-jammy",
-        "npx", "-y", "@playwright/mcp@0.0.40", "--headless"
+        "run",
+        "--rm",
+        "-i",
+        "--init",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "mcr.microsoft.com/playwright:v1.50.0-jammy@sha256:86d37a5870b524ad1359121ad76a4268410d034e2a3864aaeec8c34c4c8f0ee7",
+        "npx",
+        "-y",
+        "@playwright/mcp@0.0.40",
+        "--headless"
       ],
       "env": {},
       "inputs": []
     },
-
     "slack": {
       "label": "Slack (공식 원격 MCP)",
       "description": "Slack 공식 MCP — 채널 조회·히스토리·검색·메시지 작성·Canvas (OAuth 브라우저 인증, 토큰 입력 불필요)",
       "type": "url",
       "url": "https://mcp.slack.com/mcp",
-      "inputs": []
+      "inputs": [],
+      "args": null
     },
-
     "figma": {
       "label": "Figma",
       "description": "Figma 디자인 파일·노드·컴포넌트 조회 (Personal Access Token)",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "FIGMA_API_KEY",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "node:20-alpine",
-        "npx", "-y", "figma-developer-mcp@0.6.2", "--stdio"
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "FIGMA_API_KEY",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
+        "npx",
+        "-y",
+        "figma-developer-mcp@0.6.2",
+        "--stdio"
       ],
       "env": {
         "FIGMA_API_KEY": "${FIGMA_API_KEY}"
       },
       "inputs": [
-        { "name": "FIGMA_API_KEY", "prompt": "Figma Personal Access Token (figd_...)", "secret": true, "validate": "token" }
+        {
+          "name": "FIGMA_API_KEY",
+          "prompt": "Figma Personal Access Token (figd_...)",
+          "secret": true,
+          "validate": "token"
+        }
       ]
     },
-
     "context7": {
       "label": "Context7",
       "description": "라이브러리 최신·버전 특정 docs (resolve-library-id + query-docs). 익명 사용 가능; API 키 발급 시 rate limit 상향 — context7.com/dashboard 에서 무료 발급 후 inputs 활성화.",
       "command": "docker",
       "args": [
-        "run", "--rm", "-i",
-        "-e", "CONTEXT7_API_KEY",
-        "-v", "mcp_npm_cache:/root/.npm",
-        "node:20-alpine",
-        "npx", "-y", "@upstash/context7-mcp@3.0.0"
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "CONTEXT7_API_KEY",
+        "-v",
+        "mcp_npm_cache:/root/.npm",
+        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
+        "npx",
+        "-y",
+        "@upstash/context7-mcp@3.0.0"
       ],
       "env": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY:-}"

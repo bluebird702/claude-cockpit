@@ -6,11 +6,13 @@
 
 Docker Desktop 대신 **Colima** 를 사용합니다. 라이선스 제약이 없고, 리소스 사용량이 가볍습니다.
 
-### 설치
+### 설치 (macOS)
 
 ```bash
 brew install colima docker docker-compose
 ```
+
+*(참고: Linux 환경에서는 호스트의 네이티브 `docker` 데몬을 그대로 사용하므로 Colima가 필요하지 않습니다.)*
 
 ### 시작 / 종료
 

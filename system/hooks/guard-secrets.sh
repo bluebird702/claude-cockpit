@@ -50,9 +50,9 @@ case "$file_path" in
     echo "[cockpit:guard-secrets] 민감 파일 쓰기 차단: $file_path" >&2
     exit 2 ;;
   *.env.example|*.env.sample|*.env.dist|*.env.template) ;;  # 템플릿 허용 (실값 없음) — .env.* 차단보다 먼저
-  .env|.env.*|*/.env|*/.env.*)
+  .env|.env.*|*/.env|*/.env.*|*.env)
     # bare 상대경로 `.env` + 모든 변형(.env.local·.env.production·.env.staging 등).
-    # 이전 `*/.env` 패턴은 leading slash 를 요구해 상대경로·비표준 변형이 새었음.
+    # non-dotfile 변형(prod.env 등) 포함.
     echo "[cockpit:guard-secrets] .env 파일 쓰기는 사용자 승인이 필요합니다: $file_path" >&2
     echo "ask 권한으로 다시 시도하거나, 사용자에게 직접 편집을 요청하세요." >&2
     exit 2 ;;

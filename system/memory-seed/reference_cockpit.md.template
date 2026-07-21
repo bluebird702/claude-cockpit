@@ -22,7 +22,7 @@ type: reference
 | 목적 | 경로 |
 |------|------|
 | 원클릭 설치 | `./install.sh` |
-| 환경 진단 | `./scripts/check-deps.sh` |
+| 환경 진단 | `./scripts/configure.sh` |
 | 설치 후 헬스체크 | `./scripts/post-install-check.sh` |
 | MCP 서버 설정 | `./system/mcp-shared/setup.sh` |
 | MCP 서버 정의 | `./system/mcp-shared/servers.json` |

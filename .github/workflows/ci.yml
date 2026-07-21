@@ -11,6 +11,27 @@ permissions:
   contents: read
 
 jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+      - name: Lint brain and skills docs
+        # 처음 도입 시 기존 문서들의 오류로 인해 CI가 막히는 것을 방지하기 위해 || true 처리
+        run: markdownlint "brain/**/*.md" "skills/**/*.md" || echo "Markdownlint warnings found!"
+
   shellcheck:
     runs-on: ubuntu-latest
     steps:

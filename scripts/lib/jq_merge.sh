@@ -26,7 +26,8 @@ json_merge_mcp_server() {
      '.mcpServers = (.mcpServers // {}) | .mcpServers[$name] = $server' \
      "$settings" > "$tmp" || { rm -f "$tmp"; die "jq 머지 실패: $settings"; }
   jq empty "$tmp" 2>/dev/null || { rm -f "$tmp"; die "머지 결과 JSON이 유효하지 않습니다."; }
-  mv "$tmp" "$settings"
+  cat "$tmp" > "$settings"
+  rm -f "$tmp"
 }
 
 # json_delete_mcp_server <settings_path> <name>
@@ -38,7 +39,8 @@ json_delete_mcp_server() {
   jq --arg name "$name" 'if .mcpServers then .mcpServers |= del(.[$name]) else . end' \
      "$settings" > "$tmp" || { rm -f "$tmp"; die "jq 삭제 실패: $settings"; }
   jq empty "$tmp" 2>/dev/null || { rm -f "$tmp"; die "삭제 결과 JSON이 유효하지 않습니다."; }
-  mv "$tmp" "$settings"
+  cat "$tmp" > "$settings"
+  rm -f "$tmp"
 }
 
 # json_list_mcp_servers <settings_path>

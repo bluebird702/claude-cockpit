@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Git pre-commit hook for Claude Cockpit
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Shellcheck (정적 분석)
+if ! command -v shellcheck >/dev/null 2>&1; then
+  echo "⚠️ shellcheck 가 설치되어 있지 않습니다. 구문 분석을 건너뜁니다."
+else
+  # 변경된(Staged) .sh 파일 찾기
+  staged_scripts=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true)
+  if [ -n "$staged_scripts" ]; then
+    echo "Running shellcheck..."
+    # shellcheck disable=SC2086
+    echo "$staged_scripts" | xargs shellcheck
+  fi
+fi
+
+# 2. shfmt (포맷팅 검사)
+if ! command -v shfmt >/dev/null 2>&1; then
+  echo "⚠️ shfmt 가 설치되어 있지 않습니다. 포맷팅 검사를 건너뜁니다."
+else
+  staged_scripts=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true)
+  if [ -n "$staged_scripts" ]; then
+    echo "Running shfmt check..."
+    # -d 플래그는 차이점만 출력하고 에러 코드를 반환합니다.
+    echo "$staged_scripts" | xargs shfmt -d
+  fi
+fi
+
+# 3. bats (단위 테스트)
+if ! command -v bats >/dev/null 2>&1; then
+  echo "⚠️ bats 가 설치되어 있지 않습니다. 단위 테스트를 건너뜁니다."
+else
+  if [ -d "tests/unit" ]; then
+    echo "Running bats unit tests..."
+    bats tests/unit/
+  fi
+fi
+
+echo "✅ Pre-commit checks passed!"

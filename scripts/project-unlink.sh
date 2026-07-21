@@ -10,26 +10,27 @@ source "$COCKPIT_ROOT/scripts/lib/common.sh"
 source "$COCKPIT_ROOT/scripts/lib/tui.sh"
 
 PROJECT_ROOT="$(cd "$COCKPIT_ROOT/.." && pwd)"
-declare -a WITH=()
-OPT_ALL=0
+WITH=()
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --with)    WITH+=("$2"); shift 2 ;;
-    --with=*)  WITH+=("${1#*=}"); shift ;;
-    --all)     OPT_ALL=1; shift ;;
-    --project) PROJECT_ROOT="$2"; shift 2 ;;
-    -h|--help)
-      cat <<EOF
+parse_arguments() {
+  OPT_ALL=0
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --with)    WITH+=("$2"); shift 2 ;;
+      --with=*)  WITH+=("${1#*=}"); shift ;;
+      --all)     OPT_ALL=1; shift ;;
+      --project) PROJECT_ROOT="$2"; shift 2 ;;
+      -h|--help)
+        cat <<EOF
 Usage: $0 [--with <area>... | --all]
   --all  cockpit 소유의 모든 링크 제거 (brain, skills/*, docs/*)
 EOF
-      exit 0 ;;
-    *) die "알 수 없는 옵션: $1" ;;
-  esac
-done
-
-tui_banner "Claude Cockpit · Project Unlink" "프로젝트: $PROJECT_ROOT"
+        exit 0 ;;
+      *) die "알 수 없는 옵션: $1" ;;
+    esac
+  done
+}
 
 try_remove() {
   local dst="$1"
@@ -50,27 +51,36 @@ try_remove() {
   fi
 }
 
-if [ "$OPT_ALL" = "1" ]; then
-  try_remove "$PROJECT_ROOT/docs/brain"
-  for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
-    [ -d "$cat_dir" ] || continue
-    try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
-  done
-  for d in "$COCKPIT_ROOT"/docs/*/; do
-    [ -d "$d" ] || continue
-    try_remove "$PROJECT_ROOT/docs/$(basename "$d")"
-  done
-else
-  [ ${#WITH[@]} -eq 0 ] && die "--with 또는 --all 이 필요합니다"
-  for area in "${WITH[@]}"; do
-    case "$area" in
-      brain)    try_remove "$PROJECT_ROOT/docs/brain" ;;
-      skills/*)     try_remove "$PROJECT_ROOT/.claude/commands/${area#skills/}" ;;
-      docs/*)       try_remove "$PROJECT_ROOT/docs/${area#docs/}" ;;
-      *) log_warn "알 수 없는 영역: $area" ;;
-    esac
-  done
-fi
+remove_links() {
+  if [ "$OPT_ALL" = "1" ]; then
+    try_remove "$PROJECT_ROOT/docs/brain"
+    for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
+      [ -d "$cat_dir" ] || continue
+      try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
+    done
+    for d in "$COCKPIT_ROOT"/docs/*/; do
+      [ -d "$d" ] || continue
+      try_remove "$PROJECT_ROOT/docs/$(basename "$d")"
+    done
+  else
+    [ ${#WITH[@]} -eq 0 ] && die "--with 또는 --all 이 필요합니다"
+    for area in ${WITH[@]+"${WITH[@]}"}; do
+      case "$area" in
+        brain)    try_remove "$PROJECT_ROOT/docs/brain" ;;
+        skills/*)     try_remove "$PROJECT_ROOT/.claude/commands/${area#skills/}" ;;
+        docs/*)       try_remove "$PROJECT_ROOT/docs/${area#docs/}" ;;
+        *) log_warn "알 수 없는 영역: $area" ;;
+      esac
+    done
+  fi
+}
 
-printf '\n'
-log_ok "project-unlink 완료"
+main() {
+  parse_arguments "$@"
+  tui_banner "Claude Cockpit · Project Unlink" "프로젝트: $PROJECT_ROOT"
+  remove_links
+  printf '\n'
+  log_ok "project-unlink 완료"
+}
+
+main "$@"

@@ -54,7 +54,7 @@ claude-cockpit/
 │   ├── skills/                      # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki
 │   ├── subagents/                   # 5종 에이전트
 │   └── review-fixtures/             # 리뷰어 골든셋 (QA 데이터 — 스킬 수집 대상 아님)
-├── scripts/                         # global-install, project-link, check-deps, post-install-check, lib/
+├── scripts/                         # global-install, project-link, configure, post-install-check, lib/
 └── docs/                            # dev/examples/process/writing
 ```
 
@@ -68,7 +68,7 @@ claude-cockpit/
 - [ ] `system/mcp-shared/` — `servers.json`, `setup.sh`, `clean.sh`, `README.md`, `.env.example`
 - [ ] `skills/` — 9 카테고리 (`ci`, `design`, `dev`, `docs`, `mgmt`, `plan`, `prod`, `review`, `wiki`) + `_template.md`
 - [ ] `system/subagents/` — 최소 5개 `*.md`
-- [ ] `scripts/` — `global-install.sh`, `global-uninstall.sh`, `project-link.sh`, `project-unlink.sh`, `check-deps.sh`, `post-install-check.sh`
+- [ ] `scripts/` — `global-install.sh`, `global-uninstall.sh`, `project-link.sh`, `project-unlink.sh`, `configure.sh`, `post-install-check.sh`
 - [ ] `scripts/lib/` — `common.sh`, `tui.sh`, `jq_merge.sh`, `secrets.sh`
 - [ ] `docs/` — `dev/`, `examples/`, `process/`, `writing/`
 - [ ] `install.sh` 가 레포 루트에 존재하고 실행 권한 보유
@@ -76,7 +76,7 @@ claude-cockpit/
 ### §2. 설치·링크 모델 (10점)
 
 - [ ] `install.sh` 가 단일 진입점으로 동작 (Phase 구조 + `--help` 지원)
-- [ ] `scripts/check-deps.sh` 와 `scripts/post-install-check.sh` 가 존재하고 `bash -n` 통과
+- [ ] `scripts/configure.sh` 와 `scripts/post-install-check.sh` 가 존재하고 `bash -n` 통과
 - [ ] `scripts/global-install.sh` 가 `--force`, `--with-mcp` 옵션 지원
 - [ ] `scripts/project-link.sh` 가 `--with brain|skills/*|docs/*` 영역 지원
 - [ ] `skills/<category>/` 가 카테고리 단위로 `~/.claude/commands/<category>` 디렉토리 링크 가능
