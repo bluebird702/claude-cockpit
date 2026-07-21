@@ -119,6 +119,19 @@ unlink_skill_categories() {
   done
 }
 
+unlink_agy_skills() {
+  log_step "Phase 2.5 · AGY(Gemini) skills"
+  local AGY_SKILLS_DIR="$HOME/.gemini/antigravity-cli/skills"
+  if [ -d "$AGY_SKILLS_DIR" ]; then
+    for f in "$AGY_SKILLS_DIR"/*.md; do
+      [ -L "$f" ] || continue
+      remove_link "$f"
+    done
+  else
+    log_dim "  · $AGY_SKILLS_DIR 없음"
+  fi
+}
+
 unlink_subagents() {
   log_step "Phase 3 · agents 링크"
   local AGENTS_DST="$CLAUDE_DIR/agents"
@@ -211,6 +224,7 @@ summary() {
 main() {
   remove_global_files
   unlink_skill_categories
+  unlink_agy_skills
   unlink_subagents
   clean_mcp_servers
   purge_memory_seeds

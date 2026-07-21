@@ -219,6 +219,46 @@ link_skill_categories() {
   done
 }
 
+link_agy_skills() {
+  log_step "Phase 3.5 · AGY(Gemini) skills 링크"
+  
+  local AGY_SKILLS_DIR="$HOME/.gemini/antigravity-cli/skills"
+  
+  # ~/.gemini/antigravity-cli 폴더가 존재할 때만 자동 링크
+  if [ -d "$HOME/.gemini/antigravity-cli" ]; then
+    mkdir -p "$AGY_SKILLS_DIR"
+    
+    # 기존 설치 후 삭제된 카테고리 등 깨진 symlink 자동 청소
+    find "$AGY_SKILLS_DIR" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+    
+    local linked=0
+    for src_file in "$ROOT_DIR"/skills/*/*.md; do
+      [ -f "$src_file" ] || continue
+      [[ "$src_file" == *.ko.md ]] && continue
+      
+      local file_name base_name dst
+      file_name="$(basename "$src_file")"
+      base_name="${file_name%.md}"
+      dst="$AGY_SKILLS_DIR/$file_name"
+      
+      if [ "$OPT_LANG" = "ko" ] && [ -f "$(dirname "$src_file")/${base_name}.ko.md" ]; then
+        link_file "$(dirname "$src_file")/${base_name}.ko.md" "$dst"
+      else
+        link_file "$src_file" "$dst"
+      fi
+      linked=$((linked+1))
+    done
+    
+    if [ "$linked" -gt 0 ]; then
+      log_ok "  + $AGY_SKILLS_DIR (${linked}개 스킬, 언어: $OPT_LANG)"
+    else
+      log_dim "  · AGY 스킬 비어있음 (건너뜀)"
+    fi
+  else
+    log_dim "  · AGY(Gemini) CLI 미설치 상태 — 건너뜀"
+  fi
+}
+
 link_subagents() {
   log_step "Phase 4 · agents 링크"
 
@@ -372,6 +412,7 @@ main() {
   render_all_templates
   create_global_links
   link_skill_categories
+  link_agy_skills
   link_subagents
   verify_security_hooks
   seed_memory_files
