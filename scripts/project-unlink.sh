@@ -6,81 +6,111 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COCKPIT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# shellcheck disable=SC1091
 source "$COCKPIT_ROOT/scripts/lib/common.sh"
+# shellcheck disable=SC1091
 source "$COCKPIT_ROOT/scripts/lib/tui.sh"
 
 PROJECT_ROOT="$(cd "$COCKPIT_ROOT/.." && pwd)"
 WITH=()
 
 parse_arguments() {
-  OPT_ALL=0
+	OPT_ALL=0
 
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --with)    WITH+=("$2"); shift 2 ;;
-      --with=*)  WITH+=("${1#*=}"); shift ;;
-      --all)     OPT_ALL=1; shift ;;
-      --project) PROJECT_ROOT="$2"; shift 2 ;;
-      -h|--help)
-        cat <<EOF
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--with)
+			WITH+=("$2")
+			shift 2
+			;;
+		--with=*)
+			WITH+=("${1#*=}")
+			shift
+			;;
+		--all)
+			OPT_ALL=1
+			shift
+			;;
+		--project)
+			PROJECT_ROOT="$2"
+			shift 2
+			;;
+		-h | --help)
+			cat <<EOF
 Usage: $0 [--with <area>... | --all]
   --all  cockpit 소유의 모든 링크 제거 (brain, skills/*, docs/*)
 EOF
-        exit 0 ;;
-      *) die "알 수 없는 옵션: $1" ;;
-    esac
-  done
+			exit 0
+			;;
+		*) die "알 수 없는 옵션: $1" ;;
+		esac
+	done
 }
 
 try_remove() {
-  local dst="$1"
-  if [ -L "$dst" ]; then
-    local target
-    target="$(readlink "$dst")"
-    case "$target" in
-      "$COCKPIT_ROOT"/*)
-        rm "$dst"
-        log_ok "  - $dst (→ $target)"
-        ;;
-      *)
-        log_dim "  ~ $dst 는 cockpit 소유가 아님"
-        ;;
-    esac
-  else
-    log_dim "  · $dst 링크 아님/없음"
-  fi
+	local dst="$1"
+	if [ -L "$dst" ]; then
+		local target
+		target="$(readlink "$dst")"
+		case "$target" in
+		"$COCKPIT_ROOT"/*)
+			rm "$dst"
+			log_ok "  - $dst (→ $target)"
+			;;
+		*)
+			log_dim "  ~ $dst 는 cockpit 소유가 아님"
+			;;
+		esac
+	else
+		log_dim "  · $dst 링크 아님/없음"
+	fi
+}
+
+try_remove_copy() {
+	local dst="$1"
+	if [ -f "$dst" ] && [ ! -L "$dst" ]; then
+		rm "$dst"
+		log_ok "  - $dst (복사본 제거됨)"
+	else
+		log_dim "  · $dst 파일 아님/없음"
+	fi
 }
 
 remove_links() {
-  if [ "$OPT_ALL" = "1" ]; then
-    try_remove "$PROJECT_ROOT/docs/brain"
-    for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
-      [ -d "$cat_dir" ] || continue
-      try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
-    done
-    for d in "$COCKPIT_ROOT"/docs/*/; do
-      [ -d "$d" ] || continue
-      try_remove "$PROJECT_ROOT/docs/$(basename "$d")"
-    done
-  else
-    [ ${#WITH[@]} -eq 0 ] && die "--with 또는 --all 이 필요합니다"
-    for area in ${WITH[@]+"${WITH[@]}"}; do
-      case "$area" in
-        brain)    try_remove "$PROJECT_ROOT/docs/brain" ;;
-        skills/*)     try_remove "$PROJECT_ROOT/.claude/commands/${area#skills/}" ;;
-        docs/*)       try_remove "$PROJECT_ROOT/docs/${area#docs/}" ;;
-        *) log_warn "알 수 없는 영역: $area" ;;
-      esac
-    done
-  fi
+	if [ "$OPT_ALL" = "1" ]; then
+		try_remove "$PROJECT_ROOT/docs/brain"
+		try_remove_copy "$PROJECT_ROOT/CLAUDE.md"
+		for cat_dir in "$COCKPIT_ROOT"/skills/*/; do
+			[ -d "$cat_dir" ] || continue
+			try_remove "$PROJECT_ROOT/.claude/commands/$(basename "$cat_dir")"
+		done
+		for d in "$COCKPIT_ROOT"/docs/*/; do
+			[ -d "$d" ] || continue
+			try_remove "$PROJECT_ROOT/docs/$(basename "$d")"
+		done
+	else
+		[ ${#WITH[@]} -eq 0 ] && die "--with 또는 --all 이 필요합니다"
+		for area in ${WITH[@]+"${WITH[@]}"}; do
+			case "$area" in
+			brain)
+				try_remove "$PROJECT_ROOT/docs/brain"
+				try_remove_copy "$PROJECT_ROOT/CLAUDE.md"
+				;;
+			skills/*) try_remove "$PROJECT_ROOT/.claude/commands/${area#skills/}" ;;
+			docs/*) try_remove "$PROJECT_ROOT/docs/${area#docs/}" ;;
+			global/CLAUDE.md) try_remove_copy "$PROJECT_ROOT/CLAUDE.md" ;;
+			*) log_warn "알 수 없는 영역: $area" ;;
+			esac
+		done
+	fi
 }
 
 main() {
-  parse_arguments "$@"
-  tui_banner "Claude Cockpit · Project Unlink" "프로젝트: $PROJECT_ROOT"
-  remove_links
-  printf '\n'
-  log_ok "project-unlink 완료"
+	parse_arguments "$@"
+	tui_banner "Claude Cockpit · Project Unlink" "프로젝트: $PROJECT_ROOT"
+	remove_links
+	printf '\n'
+	log_ok "project-unlink 완료"
 }
 
 main "$@"
