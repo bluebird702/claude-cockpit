@@ -43,7 +43,7 @@
 
 ## Slash Command 네임스페이스
 
-cockpit 스킬은 역할을 기준으로 네임스페이스가 나뉩니다. 현재 엄선된 16개의 코어 스킬만 제공합니다.
+cockpit 스킬은 역할을 기준으로 네임스페이스가 나뉩니다. 현재 20개(코어 16종 + 신규 4종)의 스킬을 제공합니다.
 
 ### 🛠 개발 및 리뷰 (Engineering & Review)
 
@@ -64,3 +64,18 @@ cockpit 스킬은 역할을 기준으로 네임스페이스가 나뉩니다. 현
 | 카테고리 | 호출 예시 |
 |---------|----------|
 | `skills/prod/*` | `/prod:rca` |
+| `skills/mgmt/*` | `/mgmt:status` |
+
+### 📚 문서 및 지식 (Documentation & Wiki)
+
+| 카테고리 | 호출 예시 |
+|---------|----------|
+| `skills/docs/*` | `/docs:generate` |
+| `skills/wiki/*` | `/wiki:search` |
+
+### ⚙️ CI/CD (Continuous Integration)
+
+| 카테고리 | 호출 예시 |
+|---------|----------|
+| `skills/ci/*` | `/ci:check` |
+
