@@ -55,6 +55,7 @@ tui_ask_secret() {
   # 원래 tty 설정 저장 (중단돼도 복원 보장)
   local _stty_orig
   _stty_orig="$(stty -g </dev/tty 2>/dev/null || true)"
+  # shellcheck disable=SC2016
   local _restore='stty "$_stty_orig" </dev/tty 2>/dev/null || stty echo icanon </dev/tty 2>/dev/null || true'
   # shellcheck disable=SC2064
   trap "$_restore; trap - INT TERM; kill -INT \$\$" INT TERM

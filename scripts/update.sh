@@ -42,6 +42,7 @@ parse_args() {
 
 setup_globals() {
   if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
+    # shellcheck disable=SC1091
     source "$ROOT_DIR/.cockpit-local/.cockpit-env"
   fi
 

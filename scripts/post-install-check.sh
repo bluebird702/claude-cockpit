@@ -14,6 +14,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
   exit 0
 fi
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/common.sh"
 
 ROOT="$(cockpit_root)"
@@ -181,6 +182,7 @@ verify_mcp_config() {
 
 verify_secrets_backend_status() {
   log_info "── Secrets 백엔드"
+  # shellcheck disable=SC1091
   source "$ROOT/scripts/lib/secrets.sh"
   log_ok "백엔드: $(secrets_backend_label)"
 }

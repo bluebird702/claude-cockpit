@@ -92,6 +92,7 @@ run_system_configure() {
 
   # 설정된 환경 변수 로드
   if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
+    # shellcheck disable=SC1091
     source "$ROOT_DIR/.cockpit-local/.cockpit-env"
   fi
 

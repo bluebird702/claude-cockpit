@@ -22,7 +22,7 @@ else
   # shellcheck disable=SC2034
   C_RESET=''; C_BOLD=''; C_DIM=''
   # shellcheck disable=SC2034
-  C_RED=''; C_GREEN=''; C_YELLOW=''; C_BLUE=''; C_MAGENTA=''; C_CYAN=''
+  C_RED=''; C_GREEN=''; C_YELLOW=''; C_BLUE=''; C_MAGENTA=''; C_CYAN=''; export C_RED C_GREEN C_YELLOW C_BLUE C_MAGENTA C_CYAN
 fi
 
 # ─────────────────────────────────────────────

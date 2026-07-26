@@ -10,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # lib/common.sh 에는 tui 관련 함수가 없거나 다를 수 있어 스크립트 안에 tui_banner를 선언
+# shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || true
 tui_banner() { printf '\n\033[1m\033[36m%s\033[0m\n' "$*"; }
 
