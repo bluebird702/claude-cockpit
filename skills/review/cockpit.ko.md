@@ -264,7 +264,7 @@ done
 
 # 3b) §3 — 본문 "Brain 원칙 준수 필수" 블록 (⚠️ + @brain/…) 존재 검사
 find skills -type f -name '*.md' ! -name '_template.md' ! -name '_template.ko.md' | while read -r f; do
-  body=$(awk '/^---$/{c++; next} c==2' "$f" | head -20)
+  body=$(awk '/^---$/{c++; next} c==2' "$f" | head -10)
   echo "$body" | grep -q '⚠️'               || { echo "MISSING ⚠️ block: $f"; continue; }
   echo "$body" | grep -q '@brain/'       || echo "MISSING @brain/ in ⚠️ block: $f"
 done
