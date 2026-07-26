@@ -20,8 +20,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
-  sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
-  exit 0
+	sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
+	exit 0
 fi
 
 exec "$SCRIPT_DIR/scripts/global-uninstall.sh" "$@"

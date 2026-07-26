@@ -4,5 +4,5 @@ set -euo pipefail
 
 project_hook="$PWD/.claude/hooks/post-stop.sh"
 if [[ -x "$project_hook" ]]; then
-  "$project_hook"
+	"$project_hook"
 fi

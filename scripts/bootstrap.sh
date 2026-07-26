@@ -27,64 +27,77 @@
 set -euo pipefail
 
 parse_arguments() {
-  OPT_CLEAN=0
-  OPT_ALL=0
-  OPT_NO_MCP=0
+	OPT_CLEAN=0
+	OPT_ALL=0
+	OPT_NO_MCP=0
 
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --clean)  OPT_CLEAN=1; shift ;;
-      --all)    OPT_ALL=1; shift ;;
-      --no-mcp) OPT_NO_MCP=1; shift ;;
-      *)        shift ;;
-    esac
-  done
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--clean)
+			OPT_CLEAN=1
+			shift
+			;;
+		--all)
+			OPT_ALL=1
+			shift
+			;;
+		--no-mcp)
+			OPT_NO_MCP=1
+			shift
+			;;
+		*) shift ;;
+		esac
+	done
 }
 
 setup_env() {
-  COCKPIT_HOME="${COCKPIT_HOME:-$HOME/Work/claude-cockpit}"
-  COCKPIT_REPO="${COCKPIT_REPO:-https://github.com/bluebird702/claude-cockpit.git}"
+	command -v git >/dev/null 2>&1 || {
+		echo "Error: git 필요"
+		exit 1
+	}
+	COCKPIT_HOME="${COCKPIT_HOME:-$HOME/Work/claude-cockpit}"
+	COCKPIT_REPO="${COCKPIT_REPO:-https://github.com/bluebird702/claude-cockpit.git}"
 }
 
 clone_or_pull_repo() {
-  if [ ! -d "$COCKPIT_HOME/.git" ]; then
-    if [ "$OPT_CLEAN" = "1" ]; then
-      echo "이미 설치된 cockpit 레포지토리가 없습니다: $COCKPIT_HOME"
-      exit 0
-    fi
-    echo "▶ Claude Cockpit 저장소 클론 ($COCKPIT_HOME)..."
-    mkdir -p "$(dirname "$COCKPIT_HOME")"
-    git clone "$COCKPIT_REPO" "$COCKPIT_HOME"
-    cd "$COCKPIT_HOME"
-  else
-    echo "▶ 기존 저장소 감지됨. 최신화 중..."
-    cd "$COCKPIT_HOME"
-    git fetch origin main
-    git reset --hard origin/main
-  fi
+	if [ ! -d "$COCKPIT_HOME/.git" ]; then
+		if [ "$OPT_CLEAN" = "1" ]; then
+			echo "이미 설치된 cockpit 레포지토리가 없습니다: $COCKPIT_HOME"
+			exit 0
+		fi
+		echo "▶ Claude Cockpit 저장소 클론 ($COCKPIT_HOME)..."
+		mkdir -p "$(dirname "$COCKPIT_HOME")"
+		git clone "$COCKPIT_REPO" "$COCKPIT_HOME"
+		cd "$COCKPIT_HOME"
+	else
+		echo "▶ 기존 저장소 감지됨. 최신화 중..."
+		cd "$COCKPIT_HOME"
+		git fetch origin main
+		git reset --hard origin/main
+	fi
 }
 
 run_action() {
-  if [ "$OPT_CLEAN" = "1" ]; then
-    echo "▶ uninstall.sh 실행..."
-    local args=()
-    [ "$OPT_ALL" = "1" ] && args+=("--all")
-    bash scripts/global-uninstall.sh "${args[@]:-}"
-    echo "✓ 삭제 성공. (레포지토리 폴더는 보존됨: $COCKPIT_HOME)"
-  else
-    echo "▶ install.sh 실행..."
-    local args=()
-    [ "$OPT_NO_MCP" = "1" ] && args+=("--no-mcp")
-    bash install.sh "${args[@]:-}"
-    echo "✓ 설치 성공. Claude Code 를 재시작하세요."
-  fi
+	if [ "$OPT_CLEAN" = "1" ]; then
+		echo "▶ uninstall.sh 실행..."
+		local args=()
+		[ "$OPT_ALL" = "1" ] && args+=("--all")
+		bash scripts/global-uninstall.sh "${args[@]:-}"
+		echo "✓ 삭제 성공. (레포지토리 폴더는 보존됨: $COCKPIT_HOME)"
+	else
+		echo "▶ install.sh 실행..."
+		local args=()
+		[ "$OPT_NO_MCP" = "1" ] && args+=("--no-mcp")
+		bash install.sh "${args[@]:-}"
+		echo "✓ 설치 성공. Claude Code 를 재시작하세요."
+	fi
 }
 
 main() {
-  parse_arguments "$@"
-  setup_env
-  clone_or_pull_repo
-  run_action
+	parse_arguments "$@"
+	setup_env
+	clone_or_pull_repo
+	run_action
 }
 
 main "$@"

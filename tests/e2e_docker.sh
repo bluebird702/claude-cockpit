@@ -13,11 +13,11 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 echo "🚀 컨테이너 기반 E2E 설치 테스트 시작"
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "❌ docker 명령을 찾을 수 없습니다."
-  exit 1
+	echo "❌ docker 명령을 찾을 수 없습니다."
+	exit 1
 fi
 
-docker run --rm -v "$ROOT_DIR:/host_src:ro" -i ubuntu:22.04 /bin/bash << 'EOF'
+docker run --rm -v "$ROOT_DIR:/host_src:ro" -i ubuntu:22.04 /bin/bash <<'EOF'
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
