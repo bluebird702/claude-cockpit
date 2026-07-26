@@ -7,9 +7,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+# shellcheck disable=SC1091
 source "$ROOT_DIR/scripts/lib/common.sh"
+# shellcheck disable=SC1091
 source "$ROOT_DIR/scripts/lib/tui.sh"
+# shellcheck disable=SC1091
 source "$ROOT_DIR/scripts/lib/jq_merge.sh"
+# shellcheck disable=SC1091
 source "$ROOT_DIR/scripts/lib/secrets.sh"
 
 SERVERS_JSON="$SCRIPT_DIR/servers.json"
@@ -57,6 +61,7 @@ HELP
 
 ensure_colima_runtime() {
   if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
+    # shellcheck disable=SC1091
     source "$ROOT_DIR/.cockpit-local/.cockpit-env"
   fi
   local os="${OS_TYPE:-$(uname -s)}"
