@@ -13,15 +13,14 @@ enforcement: recommended
 > This document is currently in Korean. The repository owner's translation quota was exceeded.
 > To translate it to English, run: `./scripts/sync-i18n.sh`
 
+> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 brain 가 우선합니다.
+> @brain/CLAUDE.md · @brain/management/security.md
+
 # claude-cockpit 자가 검증 (메타 리뷰)
 
 <!-- enforcement 주석: 이 스킬은 수동 호출 검증 도구입니다. `recommended` 는 "실행 시
      brain 기준으로 판정" 을 의미하며, 다른 스킬의 `required` (작업 시 반드시 준수)
      와 의미가 다릅니다. -->
-
-
-> ⚠️ **Brain 원칙 준수 필수** — 판단 기준은 brain 가 우선합니다.
-> @brain/CLAUDE.md · @brain/management/security.md
 
 > 이 스킬은 cockpit 레포 **자체의** 품질(구조·규약·문서 일관성)을 확인하는 체크리스트입니다.
 > 프로젝트 코드 품질 리뷰는 `/review:all` 을 사용하세요. 경계:
@@ -268,7 +267,7 @@ done
 
 # 3b) §3 — 본문 "Brain 원칙 준수 필수" 블록 (⚠️ + @brain/…) 존재 검사
 find skills -type f -name '*.md' ! -name '_template.md' ! -name '_template.ko.md' | while read -r f; do
-  body=$(awk '/^---$/{c++; next} c==2' "$f" | head -10)
+  body=$(awk '/^---$/{c++; next} c==2' "$f" | head -20)
   echo "$body" | grep -q '⚠️'               || { echo "MISSING ⚠️ block: $f"; continue; }
   echo "$body" | grep -q '@brain/'       || echo "MISSING @brain/ in ⚠️ block: $f"
 done

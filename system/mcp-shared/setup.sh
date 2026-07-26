@@ -96,6 +96,7 @@ ensure_colima_runtime() {
   fi
 }
 
+# Phase 1
 run_preflight_checks() {
   tui_step 1 3 "사전 점검"
   require_cmd jq
@@ -259,6 +260,7 @@ mask_secret() {
   fi
 }
 
+# Phase 2
 collect_user_inputs() {
   tui_step 3 3 "입력 수집 (모든 입력을 먼저 받고, 이후 일괄 적용)"
   ALL_INPUT_KEYS=()
@@ -317,6 +319,7 @@ append_source_line() {
   log_ok "  + $rc 에 source 라인 추가 (--export-rc)"
 }
 
+# Phase 3
 apply_mcp_configurations() {
   printf '\n'
   log_step "Phase 3 · 일괄 적용"
