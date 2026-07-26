@@ -219,6 +219,11 @@ if [ ! -L /home/testuser/dummy_project/docs/brain ]; then
 fi
 
 /home/testuser/cockpit/scripts/project-unlink.sh --project /home/testuser/dummy_project --with global/CLAUDE.md --with brain >/dev/null 2>&1 || { echo "❌ project-unlink.sh 실패!"; exit 1; }
+if [ -f /home/testuser/dummy_project/CLAUDE.md ]; then
+  echo '❌ 로컬 CLAUDE.md 가 제거되지 않았습니다!'
+  exit 1
+fi
+
 if [ -L /home/testuser/dummy_project/docs/brain ]; then
   echo '❌ 로컬 docs/brain 가 제거되지 않았습니다!'
   exit 1
