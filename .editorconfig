@@ -1,0 +1,8 @@
+root = true
+
+# 셸 스크립트 포맷 기준의 단일 출처 — shfmt 는 포맷 플래그가 없으면 이 파일을 읽는다.
+#   · pre-commit 의 'shfmt -d'
+#   · system/hooks/format.sh (조상에 .editorconfig 가 있으면 플래그 없이 실행)
+# 둘 다 여기를 따르므로 들여쓰기 기준이 어긋나지 않는다.
+[{*.sh,*.bash,*.bats,system/git/pre-commit}]
+indent_style = tab

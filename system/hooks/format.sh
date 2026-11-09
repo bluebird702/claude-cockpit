@@ -22,19 +22,28 @@ size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
 
 run() { command -v "$1" >/dev/null 2>&1 && "$@" >/dev/null 2>&1 || true; }
 
-# 보안: prettier 는 레포 로컬 JS 설정(.prettierrc.js·prettier.config.js 등)을
-# 자기 프로세스에서 실행한다 → 신뢰되지 않은 레포를 편집만 해도 임의 코드 실행.
-# JS 설정이 조상 경로에 있으면 --no-config 로 실행(선언적 JSON/YAML 설정·무설정은 그대로).
-_has_exec_prettier_config() {
-	local d
+# 파일의 디렉토리부터 루트 직전까지 올라가며 이름 목록 중 하나라도 있으면 성공
+# 사용: _has_ancestor_file <file> <name>...
+_has_ancestor_file() {
+	local d name
 	d="$(cd "$(dirname "$1")" 2>/dev/null && pwd)" || return 1
+	shift
 	while [ -n "$d" ] && [ "$d" != "/" ]; do
-		for c in .prettierrc.js prettier.config.js .prettierrc.cjs .prettierrc.mjs prettier.config.cjs prettier.config.mjs; do
-			[ -f "$d/$c" ] && return 0
+		for name in "$@"; do
+			[ -f "$d/$name" ] && return 0
 		done
 		d="$(dirname "$d")"
 	done
 	return 1
+}
+
+# 보안: prettier 는 레포 로컬 JS 설정(.prettierrc.js·prettier.config.js 등)을
+# 자기 프로세스에서 실행한다 → 신뢰되지 않은 레포를 편집만 해도 임의 코드 실행.
+# JS 설정이 조상 경로에 있으면 --no-config 로 실행(선언적 JSON/YAML 설정·무설정은 그대로).
+_has_exec_prettier_config() {
+	_has_ancestor_file "$1" \
+		.prettierrc.js prettier.config.js .prettierrc.cjs \
+		.prettierrc.mjs prettier.config.cjs prettier.config.mjs
 }
 
 case "$file" in
@@ -74,7 +83,14 @@ case "$file" in
 	run rustfmt --edition 2021 "$file"
 	;;
 *.sh | *.bash)
-	run shfmt -w -i 2 -ci "$file"
+	# shfmt 는 포맷 플래그를 받으면 .editorconfig 를 무시한다.
+	# 프로젝트에 .editorconfig 가 있으면 그 규칙(=프로젝트 CI·pre-commit 기준)을 따르고,
+	# 없을 때만 개인 기본값(2칸·case 들여쓰기)을 적용한다.
+	if _has_ancestor_file "$file" .editorconfig; then
+		run shfmt -w "$file"
+	else
+		run shfmt -w -i 2 -ci "$file"
+	fi
 	;;
 *.sql)
 	run sqlfluff fix --disable-progress-bar "$file"
