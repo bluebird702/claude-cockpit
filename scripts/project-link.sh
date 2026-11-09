@@ -27,18 +27,33 @@ PROJECT_ROOT="$(cd "$COCKPIT_ROOT/.." && pwd)"
 WITH=()
 
 parse_arguments() {
-  OPT_REAPPLY=0
-  OPT_DRY_RUN=0
+	OPT_REAPPLY=0
+	OPT_DRY_RUN=0
 
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --with)      WITH+=("$2"); shift 2 ;;
-      --with=*)    WITH+=("${1#*=}"); shift ;;
-      --reapply)   OPT_REAPPLY=1; shift ;;
-      --dry-run)   OPT_DRY_RUN=1; shift ;;
-      --project)   PROJECT_ROOT="$2"; shift 2 ;;
-      -h|--help)
-        cat <<EOF
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--with)
+			WITH+=("$2")
+			shift 2
+			;;
+		--with=*)
+			WITH+=("${1#*=}")
+			shift
+			;;
+		--reapply)
+			OPT_REAPPLY=1
+			shift
+			;;
+		--dry-run)
+			OPT_DRY_RUN=1
+			shift
+			;;
+		--project)
+			PROJECT_ROOT="$2"
+			shift 2
+			;;
+		-h | --help)
+			cat <<EOF
 Usage: $0 --with <area> [--with <area>...] [--reapply] [--dry-run]
 
 Areas:
@@ -50,127 +65,128 @@ Areas:
 Examples:
   $0 --with brain --with skills/dev --with skills/plan --with docs/process
 EOF
-        exit 0 ;;
-      *) die "알 수 없는 옵션: $1" ;;
-    esac
-  done
+			exit 0
+			;;
+		*) die "알 수 없는 옵션: $1" ;;
+		esac
+	done
 
-  if [ ${#WITH[@]} -eq 0 ]; then
-    die "--with 옵션이 하나 이상 필요합니다 (--help 참조)"
-  fi
-  return 0
+	if [ ${#WITH[@]} -eq 0 ]; then
+		die "--with 옵션이 하나 이상 필요합니다 (--help 참조)"
+	fi
+	return 0
 }
 
 # 대상 매핑
 # area → [src_abs, dst_abs]
 resolve_link() {
-  local area="$1"
-  case "$area" in
-    brain)
-      echo "$COCKPIT_ROOT/brain|$PROJECT_ROOT/docs/brain"
-      ;;
-    skills/*)
-      local cat="${area#skills/}"
-      local src="$COCKPIT_ROOT/skills/$cat"
-      [ -d "$src" ] || die "존재하지 않는 카테고리: $area"
-      echo "$src|$PROJECT_ROOT/.claude/commands/$cat"
-      ;;
-    docs/*)
-      local name="${area#docs/}"
-      local src="$COCKPIT_ROOT/docs/$name"
-      [ -d "$src" ] || die "존재하지 않는 docs 영역: $area"
-      echo "$src|$PROJECT_ROOT/docs/$name"
-      ;;
-    global/CLAUDE.md)
-      # 링크 아닌 복사 대상
-      echo "COPY|$COCKPIT_ROOT/brain/templates/CLAUDE.md.template|$PROJECT_ROOT/CLAUDE.md"
-      ;;
-    *)
-      die "알 수 없는 영역: $area"
-      ;;
-  esac
+	local area="$1"
+	case "$area" in
+	brain)
+		echo "$COCKPIT_ROOT/brain|$PROJECT_ROOT/docs/brain"
+		;;
+	skills/*)
+		local cat="${area#skills/}"
+		local src="$COCKPIT_ROOT/skills/$cat"
+		[ -d "$src" ] || die "존재하지 않는 카테고리: $area"
+		echo "$src|$PROJECT_ROOT/.claude/commands/$cat"
+		;;
+	docs/*)
+		local name="${area#docs/}"
+		local src="$COCKPIT_ROOT/docs/$name"
+		[ -d "$src" ] || die "존재하지 않는 docs 영역: $area"
+		echo "$src|$PROJECT_ROOT/docs/$name"
+		;;
+	global/CLAUDE.md)
+		# 링크 아닌 복사 대상
+		echo "COPY|$COCKPIT_ROOT/brain/templates/CLAUDE.md.template|$PROJECT_ROOT/CLAUDE.md"
+		;;
+	*)
+		die "알 수 없는 영역: $area"
+		;;
+	esac
 }
 
 do_link() {
-  local src="$1" dst="$2"
-  if [ ! -e "$src" ]; then
-    log_warn "  원본 없음: $src (건너뜀)"
-    return 0
-  fi
-  mkdir -p "$(dirname "$dst")"
+	local src="$1" dst="$2"
+	if [ ! -e "$src" ]; then
+		log_warn "  원본 없음: $src (건너뜀)"
+		return 0
+	fi
+	mkdir -p "$(dirname "$dst")"
 
-  if [ -L "$dst" ]; then
-    local current
-    current="$(readlink "$dst")"
-    if [ "$current" = "$src" ]; then
-      log_dim "  = $dst → $src (이미 연결됨)"
-      return 0
-    fi
-    if [ "$OPT_REAPPLY" = "1" ]; then
-      [ "$OPT_DRY_RUN" = "1" ] || rm "$dst"
-      log_dim "  ↻ $dst (재생성)"
-    else
-      die "다른 링크가 이미 존재합니다: $dst → $current (--reapply 필요)"
-    fi
-  elif [ -e "$dst" ]; then
-    die "실제 파일/디렉토리가 이미 존재합니다: $dst"
-  fi
+	if [ -L "$dst" ]; then
+		local current
+		current="$(readlink "$dst")"
+		if [ "$current" = "$src" ]; then
+			log_dim "  = $dst → $src (이미 연결됨)"
+			return 0
+		fi
+		if [ "$OPT_REAPPLY" = "1" ]; then
+			[ "$OPT_DRY_RUN" = "1" ] || rm "$dst"
+			log_dim "  ↻ $dst (재생성)"
+		else
+			die "다른 링크가 이미 존재합니다: $dst → $current (--reapply 필요)"
+		fi
+	elif [ -e "$dst" ]; then
+		die "실제 파일/디렉토리가 이미 존재합니다: $dst"
+	fi
 
-  if [ "$OPT_DRY_RUN" = "1" ]; then
-    log_info "  [dry-run] ln -s $src $dst"
-  else
-    ln -s "$src" "$dst"
-    log_ok "  + $dst → $src"
-  fi
+	if [ "$OPT_DRY_RUN" = "1" ]; then
+		log_info "  [dry-run] ln -s $src $dst"
+	else
+		ln -s "$src" "$dst"
+		log_ok "  + $dst → $src"
+	fi
 }
 
 do_copy_if_absent() {
-  local src="$1" dst="$2"
-  if [ -e "$dst" ]; then
-    log_dim "  = $dst 이미 존재 (건너뜀)"
-    return 0
-  fi
-  if [ "$OPT_DRY_RUN" = "1" ]; then
-    log_info "  [dry-run] cp $src $dst"
-  else
-    cp "$src" "$dst"
-    log_ok "  + $dst (복사)"
-  fi
+	local src="$1" dst="$2"
+	if [ -e "$dst" ]; then
+		log_dim "  = $dst 이미 존재 (건너뜀)"
+		return 0
+	fi
+	if [ "$OPT_DRY_RUN" = "1" ]; then
+		log_info "  [dry-run] cp $src $dst"
+	else
+		cp "$src" "$dst"
+		log_ok "  + $dst (복사)"
+	fi
 }
 
 create_links() {
-  log_step "링크 생성"
-  for area in ${WITH[@]+"${WITH[@]}"}; do
-    local mapping
-    mapping="$(resolve_link "$area")"
-    if [[ "$mapping" == COPY\|* ]]; then
-      IFS='|' read -r _ src dst <<< "$mapping"
-      do_copy_if_absent "$src" "$dst"
-    else
-      IFS='|' read -r src dst <<< "$mapping"
-      do_link "$src" "$dst"
-    fi
-  done
+	log_step "링크 생성"
+	for area in ${WITH[@]+"${WITH[@]}"}; do
+		local mapping
+		mapping="$(resolve_link "$area")"
+		if [[ "$mapping" == COPY\|* ]]; then
+			IFS='|' read -r _ src dst <<<"$mapping"
+			do_copy_if_absent "$src" "$dst"
+		else
+			IFS='|' read -r src dst <<<"$mapping"
+			do_link "$src" "$dst"
+		fi
+	done
 }
 
 run_calibration() {
-  log_step "Zero-Config Calibration"
-  "$COCKPIT_ROOT/scripts/calibrate.sh" "$PROJECT_ROOT"
+	log_step "Zero-Config Calibration"
+	"$COCKPIT_ROOT/scripts/calibrate.sh" "$PROJECT_ROOT"
 }
 
 main() {
-  parse_arguments "$@"
+	parse_arguments "$@"
 
-  tui_banner "Claude Cockpit · Project Link" "프로젝트: $PROJECT_ROOT"
-  log_ok "cockpit root: $COCKPIT_ROOT"
-  log_ok "project root: $PROJECT_ROOT"
+	tui_banner "Claude Cockpit · Project Link" "프로젝트: $PROJECT_ROOT"
+	log_ok "cockpit root: $COCKPIT_ROOT"
+	log_ok "project root: $PROJECT_ROOT"
 
-  create_links
-  run_calibration
+	create_links
+	run_calibration
 
-  printf '\n'
-  log_ok "project-link 완료"
-  log_dim "  되돌리기: .cockpit/scripts/project-unlink.sh --with ..."
+	printf '\n'
+	log_ok "project-link 완료"
+	log_dim "  되돌리기: .cockpit/scripts/project-unlink.sh --with ..."
 }
 
 main "$@"

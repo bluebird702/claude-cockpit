@@ -11,10 +11,10 @@ set -euo pipefail
 # Stop 이벤트 payload 캡처 (stdin → JSON: session_id, transcript_path 등)
 # 프로젝트별 확장 스크립트에 전달하기 위해 미리 읽어둠
 if command -v timeout >/dev/null 2>&1; then
-  _stop_payload=$(timeout 0.5 cat 2>/dev/null || true)
+	_stop_payload=$(timeout 0.5 cat 2>/dev/null || true)
 else
-  # macOS 에는 기본 timeout 이 없으나, Claude Code 가 JSON 전송 후 stdin 을 닫으므로 cat 만으로 안전함
-  _stop_payload=$(cat 2>/dev/null || true)
+	# macOS 에는 기본 timeout 이 없으나, Claude Code 가 JSON 전송 후 stdin 을 닫으므로 cat 만으로 안전함
+	_stop_payload=$(cat 2>/dev/null || true)
 fi
 
 snap_dir="$HOME/.claude/session-snapshots"
@@ -26,26 +26,26 @@ repo_tag="$(basename "$cwd")"
 snap_file="$snap_dir/${repo_tag}-${ts}.md"
 
 {
-  echo "# 세션 종료 스냅샷 — $repo_tag"
-  echo
-  echo "- **시각**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
-  echo "- **CWD**: \`$cwd\`"
+	echo "# 세션 종료 스냅샷 — $repo_tag"
+	echo
+	echo "- **시각**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+	echo "- **CWD**: \`$cwd\`"
 
-  if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "- **브랜치**: \`$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)\`"
-    echo "- **HEAD**: \`$(git -C "$cwd" rev-parse --short HEAD 2>/dev/null)\`"
-    echo
-    echo '## git status'
-    echo '```'
-    git -C "$cwd" status --short 2>/dev/null || true
-    echo '```'
-    echo
-    echo '## 마지막 커밋 3건'
-    echo '```'
-    git -C "$cwd" log --oneline -3 2>/dev/null || true
-    echo '```'
-  fi
-} > "$snap_file" 2>/dev/null &
+	if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+		echo "- **브랜치**: \`$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)\`"
+		echo "- **HEAD**: \`$(git -C "$cwd" rev-parse --short HEAD 2>/dev/null)\`"
+		echo
+		echo '## git status'
+		echo '```'
+		git -C "$cwd" status --short 2>/dev/null || true
+		echo '```'
+		echo
+		echo '## 마지막 커밋 3건'
+		echo '```'
+		git -C "$cwd" log --oneline -3 2>/dev/null || true
+		echo '```'
+	fi
+} >"$snap_file" 2>/dev/null &
 disown 2>/dev/null || true
 
 # 오래된 스냅샷 정리 (30일 초과)
@@ -58,13 +58,13 @@ disown 2>/dev/null || true
 # (COCKPIT_ALLOW_PROJECT_HOOKS=1 — 레포가 아니라 사용자가 설정하는 값)
 _project_hook="$cwd/.claude/hooks/post-stop.sh"
 if [[ -x "$_project_hook" ]]; then
-  if [[ "${COCKPIT_ALLOW_PROJECT_HOOKS:-0}" == "1" ]]; then
-    printf '%s\n' "$_stop_payload" | "$_project_hook" &
-    disown 2>/dev/null || true
-  else
-    # 조용히 무시하지 않고 안내 (silent fallback 금지)
-    printf '[cockpit:session-end] 프로젝트 post-stop.sh 발견 — 미실행(신뢰되지 않은 레포 코드). 실행하려면 COCKPIT_ALLOW_PROJECT_HOOKS=1 로 옵트인.\n' >&2
-  fi
+	if [[ "${COCKPIT_ALLOW_PROJECT_HOOKS:-0}" == "1" ]]; then
+		printf '%s\n' "$_stop_payload" | "$_project_hook" &
+		disown 2>/dev/null || true
+	else
+		# 조용히 무시하지 않고 안내 (silent fallback 금지)
+		printf '[cockpit:session-end] 프로젝트 post-stop.sh 발견 — 미실행(신뢰되지 않은 레포 코드). 실행하려면 COCKPIT_ALLOW_PROJECT_HOOKS=1 로 옵트인.\n' >&2
+	fi
 fi
 
 exit 0

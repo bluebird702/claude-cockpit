@@ -16,13 +16,13 @@ set -euo pipefail
 # jq 미설치 시 fail-safe 축소 스캔 (fail-open 금지 — security.md § 안전 기본값·fail-closed).
 # 원문(JSON) 전체를 grep 으로 훑어 고신호 시크릿을 차단하고, 축소 모드임을 알린다.
 if ! command -v jq >/dev/null 2>&1; then
-  raw="$(cat)"
-  if printf '%s' "$raw" | grep -Eq 'BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|gh[oprsu]_[A-Za-z0-9]{30,}|glpat-[A-Za-z0-9_-]{20,}|xox[abpr]-[A-Za-z0-9-]{10,}|sk-ant-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{35}'; then
-    echo "[cockpit:guard-secrets] jq 미설치 — 축소 스캔에서 시크릿 패턴 감지, 쓰기 차단" >&2
-    exit 2
-  fi
-  echo "[cockpit:guard-secrets] ⚠ jq 미설치 — 가드가 축소 모드로 동작합니다(정밀도↓). jq 설치를 권장합니다." >&2
-  exit 0
+	raw="$(cat)"
+	if printf '%s' "$raw" | grep -Eq 'BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|gh[oprsu]_[A-Za-z0-9]{30,}|glpat-[A-Za-z0-9_-]{20,}|xox[abpr]-[A-Za-z0-9-]{10,}|sk-ant-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{35}'; then
+		echo "[cockpit:guard-secrets] jq 미설치 — 축소 스캔에서 시크릿 패턴 감지, 쓰기 차단" >&2
+		exit 2
+	fi
+	echo "[cockpit:guard-secrets] ⚠ jq 미설치 — 가드가 축소 모드로 동작합니다(정밀도↓). jq 설치를 권장합니다." >&2
+	exit 0
 fi
 
 payload="$(cat)"
@@ -30,8 +30,8 @@ payload="$(cat)"
 
 tool="$(printf '%s' "$payload" | jq -r '.tool_name // empty')"
 case "$tool" in
-  Write|Edit|MultiEdit) ;;
-  *) exit 0 ;;
+Write | Edit | MultiEdit) ;;
+*) exit 0 ;;
 esac
 
 file_path="$(printf '%s' "$payload" | jq -r '.tool_input.file_path // empty')"
@@ -46,23 +46,27 @@ content="$(printf '%s' "$payload" | jq -r '
 # 1) 금지된 대상 경로 (민감 디렉토리·파일명 자체를 편집 시도)
 # ─────────────────────────────────────────────
 case "$file_path" in
-  */.ssh/id_*|*/.ssh/*_rsa|*/.ssh/*_ed25519|*/.aws/credentials|*/.kube/config)
-    echo "[cockpit:guard-secrets] 민감 파일 쓰기 차단: $file_path" >&2
-    exit 2 ;;
-  *.env.example|*.env.sample|*.env.dist|*.env.template) ;;  # 템플릿 허용 (실값 없음) — .env.* 차단보다 먼저
-  .env|.env.*|*/.env|*/.env.*|*.env)
-    # bare 상대경로 `.env` + 모든 변형(.env.local·.env.production·.env.staging 등).
-    # non-dotfile 변형(prod.env 등) 포함.
-    echo "[cockpit:guard-secrets] .env 파일 쓰기는 사용자 승인이 필요합니다: $file_path" >&2
-    echo "ask 권한으로 다시 시도하거나, 사용자에게 직접 편집을 요청하세요." >&2
-    exit 2 ;;
-  *.pem|*.key|*.p12|*.pfx)
-    echo "[cockpit:guard-secrets] 인증서/키 파일 쓰기 차단: $file_path" >&2
-    exit 2 ;;
-  *credentials.json|*service-account*.json)
-    # security.md § 시크릿 관리의 커밋 금지 목록과 정합 (GCP service account 등)
-    echo "[cockpit:guard-secrets] 자격증명 파일 쓰기 차단: $file_path" >&2
-    exit 2 ;;
+*/.ssh/id_* | */.ssh/*_rsa | */.ssh/*_ed25519 | */.aws/credentials | */.kube/config)
+	echo "[cockpit:guard-secrets] 민감 파일 쓰기 차단: $file_path" >&2
+	exit 2
+	;;
+*.env.example | *.env.sample | *.env.dist | *.env.template) ;; # 템플릿 허용 (실값 없음) — .env.* 차단보다 먼저
+.env | .env.* | */.env | */.env.* | *.env)
+	# bare 상대경로 `.env` + 모든 변형(.env.local·.env.production·.env.staging 등).
+	# non-dotfile 변형(prod.env 등) 포함.
+	echo "[cockpit:guard-secrets] .env 파일 쓰기는 사용자 승인이 필요합니다: $file_path" >&2
+	echo "ask 권한으로 다시 시도하거나, 사용자에게 직접 편집을 요청하세요." >&2
+	exit 2
+	;;
+*.pem | *.key | *.p12 | *.pfx)
+	echo "[cockpit:guard-secrets] 인증서/키 파일 쓰기 차단: $file_path" >&2
+	exit 2
+	;;
+*credentials.json | *service-account*.json)
+	# security.md § 시크릿 관리의 커밋 금지 목록과 정합 (GCP service account 등)
+	echo "[cockpit:guard-secrets] 자격증명 파일 쓰기 차단: $file_path" >&2
+	exit 2
+	;;
 esac
 
 # ─────────────────────────────────────────────
@@ -94,12 +98,12 @@ hit="$(printf '%s' "$content" | awk '
 ')"
 
 if [ -n "$hit" ]; then
-  echo "[cockpit:guard-secrets] 시크릿 패턴 감지 — 쓰기 차단" >&2
-  echo "파일      : $file_path" >&2
-  echo "패턴      : $hit" >&2
-  echo "해결 방법 : 값을 환경변수/Keychain 참조로 치환한 뒤 다시 시도하세요." >&2
-  echo "          (예: process.env.GITHUB_TOKEN, os.environ[\"GITHUB_TOKEN\"])" >&2
-  exit 2
+	echo "[cockpit:guard-secrets] 시크릿 패턴 감지 — 쓰기 차단" >&2
+	echo "파일      : $file_path" >&2
+	echo "패턴      : $hit" >&2
+	echo "해결 방법 : 값을 환경변수/Keychain 참조로 치환한 뒤 다시 시도하세요." >&2
+	echo "          (예: process.env.GITHUB_TOKEN, os.environ[\"GITHUB_TOKEN\"])" >&2
+	exit 2
 fi
 
 exit 0

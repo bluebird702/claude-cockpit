@@ -36,25 +36,25 @@ EOF
 
 # 변경 파일이 있으면 간단히 나열 (최대 15줄)
 if [ "$dirty_count" -gt 0 ]; then
-  echo
-  echo "### 변경된 파일"
-  echo '```'
-  git -C "$cwd" status --short 2>/dev/null | head -15
-  echo '```'
+	echo
+	echo "### 변경된 파일"
+	echo '```'
+	git -C "$cwd" status --short 2>/dev/null | head -15
+	echo '```'
 fi
 
 # 레포별 CLAUDE.md 가 있으면 존재만 알림 (로딩은 Claude Code 본체가 담당)
 if [ -f "$cwd/.claude/CLAUDE.md" ] || [ -f "$cwd/CLAUDE.md" ]; then
-  echo
-  echo "_프로젝트 CLAUDE.md 가 로드되어 있습니다._"
+	echo
+	echo "_프로젝트 CLAUDE.md 가 로드되어 있습니다._"
 fi
 
 # cockpit 템플릿이 렌더본보다 최신이면 업데이트 넛지 (훅 위치 기준으로 레포 탐색, mtime 비교만 — 저비용)
 COCKPIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-if [ -f "$COCKPIT_ROOT/system/settings.json.template" ] \
-   && [ "$COCKPIT_ROOT/system/settings.json.template" -nt "$COCKPIT_ROOT/.cockpit-local/settings.json" ]; then
-  echo
-  echo "⚠️ _cockpit 설정 템플릿이 렌더본보다 최신입니다 — \`$COCKPIT_ROOT/scripts/update.sh\` 실행을 권장합니다._"
+if [ -f "$COCKPIT_ROOT/system/settings.json.template" ] &&
+	[ "$COCKPIT_ROOT/system/settings.json.template" -nt "$COCKPIT_ROOT/.cockpit-local/settings.json" ]; then
+	echo
+	echo "⚠️ _cockpit 설정 템플릿이 렌더본보다 최신입니다 — \`$COCKPIT_ROOT/scripts/update.sh\` 실행을 권장합니다._"
 fi
 
 exit 0

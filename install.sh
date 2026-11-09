@@ -18,17 +18,24 @@ WITH_MCP=1
 PASS_ARGS=()
 
 while [ $# -gt 0 ]; do
-  case "$1" in
-    --no-mcp) WITH_MCP=0; shift ;;
-    -h|--help)
-      sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
-      exit 0 ;;
-    *) PASS_ARGS+=("$1"); shift ;;
-  esac
+	case "$1" in
+	--no-mcp)
+		WITH_MCP=0
+		shift
+		;;
+	-h | --help)
+		sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+		exit 0
+		;;
+	*)
+		PASS_ARGS+=("$1")
+		shift
+		;;
+	esac
 done
 
 if [ "$WITH_MCP" = "1" ]; then
-  exec "$SCRIPT_DIR/scripts/global-install.sh" --with-mcp ${PASS_ARGS[@]+"${PASS_ARGS[@]}"}
+	exec "$SCRIPT_DIR/scripts/global-install.sh" --with-mcp ${PASS_ARGS[@]+"${PASS_ARGS[@]}"}
 else
-  exec "$SCRIPT_DIR/scripts/global-install.sh" ${PASS_ARGS[@]+"${PASS_ARGS[@]}"}
+	exec "$SCRIPT_DIR/scripts/global-install.sh" ${PASS_ARGS[@]+"${PASS_ARGS[@]}"}
 fi
