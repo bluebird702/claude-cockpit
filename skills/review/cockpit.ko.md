@@ -22,7 +22,7 @@ enforcement: recommended
 
 > 이 스킬은 cockpit 레포 **자체의** 품질(구조·규약·문서 일관성)을 확인하는 체크리스트입니다.
 > 프로젝트 코드 품질 리뷰는 `/review:all` 을 사용하세요. 경계:
-> - **`/review:all`** — 임의 프로젝트의 아키/코드/테스트/보안/성능/의존성 6도메인 리뷰
+> - **`/review:all`** — 임의 프로젝트의 아키텍처/코드/테스트/보안/성능/회복탄력성/의존성 7개 영역 리뷰
 > - **`/review:cockpit`** — claude-cockpit 레포 한정, 리팩토링 이후 구조·링크·규약 일관성 검증
 
 ## 실행 방법
@@ -40,23 +40,24 @@ Claude 가 이 문서를 읽고 지정된 섹션을 순서대로 검사한 뒤, 
 - `N` 또는 `N,M` → 해당 섹션 번호만 부분 재검사 (수정 후 회귀 검증용)
 - `--section N[,M…]` → 위와 동일, 명시 플래그 형태
 
-## 레포 상위 구조 (2026-05 기준)
+## 레포 상위 구조 (2026-11 기준)
 
 ```
 claude-cockpit/
-├── install.sh                       # 단일 진입점
-├── system/                            # Claude Code 전역 설정 원본
+├── install.sh  uninstall.sh         # 단일 진입점 (설치 / 제거)
+├── brain/                           # 철학 + 표준 (philosophy·hard-won-conventions + coding/engineering/testing/api/writing/ai/planning/product/management) + templates/
+├── system/                          # Claude Code 전역 설정 원본
 │   ├── CLAUDE.md  settings.json.template  keybindings.json
 │   ├── hooks/                       # format, guard-bash, guard-secrets, guard-prompt-injection, session-*
-│   ├── brain/                   # 철학 + 5도메인 표준 (philosophy/coding/testing/api/writing/ai/planning/product/management) + templates/
 │   ├── mcp-shared/                  # servers.json, setup.sh, clean.sh, .env.example
-│   └── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
-├── skills/
-│   ├── skills/                      # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki
-│   ├── subagents/                   # 5종 에이전트
-│   └── review-fixtures/             # 리뷰어 골든셋 (QA 데이터 — 스킬 수집 대상 아님)
-├── scripts/                         # global-install, project-link, configure, post-install-check, lib/
-└── docs/                            # dev/examples/process/writing
+│   ├── memory-seed/                 # 초기 메모리 시드 (user/feedback/reference)
+│   ├── subagents/                   # 에이전트 정의 (리뷰 영역별 + verifier)
+│   ├── review-fixtures/             # 리뷰어 골든셋·채점기 (QA 데이터 — 스킬 수집 대상 아님)
+│   └── git/                         # pre-commit 훅, gitmessage 템플릿
+├── skills/                          # 9카테고리: ci/design/dev/docs/mgmt/plan/prod/review/wiki + _template.md
+├── scripts/                         # global-install, project-link, configure, post-install-check, update, lib/
+├── tests/                           # unit/ (bats), test_bootstrap.bats, e2e_docker.sh
+└── docs/                            # architecture/dev/examples/guides/playbooks/process/review/writing
 ```
 
 ## 검증 절차
@@ -98,7 +99,7 @@ claude-cockpit/
 ### §4. Global 및 brain 자동 로드 (10점)
 
 - [ ] `system/CLAUDE.md` 가 `@brain/CLAUDE.md` 를 참조
-- [ ] `system/CLAUDE.md` 가 **존댓말 규칙**, **한글 응답**, **Colima** 규칙을 포함
+- [ ] `system/CLAUDE.md` 가 **존댓말 규칙**, **응답 언어 규칙**(질문 언어로 응답 · 한국어 질문엔 한글 — 언어 정책의 단일 출처), **Colima** 규칙을 포함
 - [ ] `brain/CLAUDE.md` 의 `@` 참조 경로가 실제 파일과 매칭 (philosophy/coding/testing/api/writing/ai/planning/product/management)
 - [ ] `brain/templates/CLAUDE.md.template` 에 brain 자동 로드 안내 존재
 - [ ] `brain/` 의 5도메인(개발·기획·프로덕트·경영·AI) + 철학 구조가 README 와 일치
@@ -109,7 +110,7 @@ claude-cockpit/
 - [ ] **핵심 4종 필수 등록**: `github`, `jira`, `confluence`, `playwright`
 - [ ] **선택 등록 서버**(`servers.json` 의 핵심 4종 이외 나머지) 는 등록 여부는 자유지만 **등록 시 동일 규칙**(inputs 배열 · secret flag · 버전 핀) 을 전부 준수
 - [ ] 등록된 **모든 서버**에 `inputs` 배열이 있고 `secret: true` 항목은 Keychain 대상
-- [ ] 등록된 **모든 서버**의 `npx` 실행 인자가 **버전 핀** (`@x.y.z`) 되어 있음 (공급망 리스크 방어)
+- [ ] 등록된 **모든 서버**의 `npx` 패키지가 **버전 핀** (`@x.y.z`) 되고, Docker 이미지는 **digest 핀** (`@sha256:`) 되어 있음 — `command: docker` 안에서 실행하는 npx 도 포함 (공급망 리스크 방어)
 - [ ] `system/mcp-shared/setup.sh` 에 `# Phase 1`, `# Phase 2`, `# Phase 3` 주석이 이 순서로 존재하고, Phase 3 앞에 `OPT_DRY_RUN` 분기 종료 로직 포함
 - [ ] `system/mcp-shared/setup.sh` 가 `--dry-run` 옵션을 파싱하고 `OPT_DRY_RUN` 변수로 분기 처리
 - [ ] `system/mcp-shared/clean.sh` 가 `--purge-env` 옵션을 파싱하고 `security delete-generic-password` 또는 `secret-tool` 포함
@@ -304,13 +305,29 @@ servers = d.get('mcpServers', d.get('servers', {}))
 required = {'github','jira','confluence','playwright'}
 missing = required - set(servers)
 print('MCP system missing:', missing or 'none')
+# docker run 에서 값을 하나 받는 옵션 — 이 값은 이미지로 오인하지 않는다
+DOCKER_VALUE_FLAGS = {'-e','--env','-v','--volume','--name','--network','-w','--workdir','-u','--user','--env-file','--mount','-p','--publish'}
 for name, cfg in servers.items():
-    args = cfg.get('args', [])
-    if cfg.get('command','') == 'npx':
-        # -y 와 그 외 플래그를 건너뛴 첫 번째 패키지 스펙
-        pkg = next((a for a in args if not a.startswith('-') and a != 'y'), '')
-        if not re.search(r'@\d', pkg):
-            print(f'UNPINNED: {name} ({pkg!r})')
+    args = [str(a) for a in (cfg.get('args') or [])]  # url 타입은 args 가 null
+    cmd = cfg.get('command', '')
+    # (1) npx 패키지 버전 핀 — 직접 실행(command=npx)과 컨테이너 안 실행(args 의 npx) 모두
+    npx_args = args if cmd == 'npx' else (args[args.index('npx') + 1:] if 'npx' in args else None)
+    if npx_args is not None:
+        pkg = next((a for a in npx_args if not a.startswith('-')), '')
+        if not re.search(r'.@\d', pkg):
+            print(f'UNPINNED npx: {name} ({pkg!r})')
+    # (2) docker 이미지 digest 핀 — run 뒤 첫 비옵션 인자가 이미지
+    if cmd == 'docker':
+        it = iter(args[1:] if args[:1] == ['run'] else args)
+        image = ''
+        for a in it:
+            if a in DOCKER_VALUE_FLAGS:
+                next(it, None)
+            elif not a.startswith('-'):
+                image = a
+                break
+        if '@sha256:' not in image:
+            print(f'UNPINNED image: {name} ({image!r})')
     inputs = cfg.get('inputs', None)
     if inputs is None:
         print(f'NO inputs: {name}')
