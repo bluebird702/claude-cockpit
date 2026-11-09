@@ -12,25 +12,44 @@
 
 set -euo pipefail
 
+# shellcheck source=scripts/lib/common.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+
 parse_arguments() {
-  CHECK_ONLY=0
-  if [ "${1:-}" = "--check" ]; then
-    CHECK_ONLY=1
-  fi
+	CHECK_ONLY=0
+	case "${1:-}" in
+	--check) CHECK_ONLY=1 ;;
+	-h | --help)
+		cat <<EOF
+Usage: $0 [--check]
+
+system/mcp-shared/servers.json 의 Docker 이미지를 불변 digest(@sha256)로 고정합니다.
+롤링 태그는 시간이 지나면 다른 바이트를 가리켜 공급망 리스크가 됩니다.
+
+  (옵션 없음)  servers.json 을 in-place 로 digest 핀
+  --check      핀이 필요한 이미지만 출력 (변경 없음)
+
+요구: jq + (docker | crane | skopeo). 오프라인이면 아무 것도 바꾸지 않습니다.
+EOF
+		exit 0
+		;;
+	"") ;;
+	*) die "알 수 없는 옵션: $1" ;;
+	esac
 }
 
 check_dependencies() {
-  command -v jq >/dev/null 2>&1 || { echo "jq 필요"; exit 1; }
-  [ -f "$FILE" ] || { echo "없음: $FILE"; exit 1; }
+	require_cmd jq
+	[ -f "$FILE" ] || die "없음: $FILE"
 }
 
 find_unpinned_images() {
-  # 이미지 ref 추출: 태그(:) 는 있고 digest(@) 는 없는 args 문자열.
-  # (bash 3.2 호환 — mapfile 미사용)
-  IMAGES=()
-  while IFS= read -r _img; do
-    [ -n "$_img" ] && IMAGES+=("$_img")
-  done < <(jq -r '
+	# 이미지 ref 추출: 태그(:) 는 있고 digest(@) 는 없는 args 문자열.
+	# (bash 3.2 호환 — mapfile 미사용)
+	IMAGES=()
+	while IFS= read -r _img; do
+		[ -n "$_img" ] && IMAGES+=("$_img")
+	done < <(jq -r '
     [.servers[].args[]?]
     | map(select(type=="string"
           and test("^[a-z0-9.]+([/][a-z0-9._-]+)*:[a-zA-Z0-9._-]+$")
@@ -39,69 +58,69 @@ find_unpinned_images() {
 }
 
 resolve_digest() { # $1=image → sha256:... (stdout) / 실패 시 빈 문자열
-  local img="$1" d=""
-  if command -v docker >/dev/null 2>&1; then
-    d="$(docker buildx imagetools inspect "$img" 2>/dev/null | awk '/[Dd]igest:/{print $2; exit}')" || true
-  fi
-  if [ -z "$d" ] && command -v crane >/dev/null 2>&1; then
-    d="$(crane digest "$img" 2>/dev/null)" || true
-  fi
-  if [ -z "$d" ] && command -v skopeo >/dev/null 2>&1; then
-    d="$(skopeo inspect "docker://$img" 2>/dev/null | jq -r '.Digest // empty')" || true
-  fi
-  printf '%s' "$d"
+	local img="$1" d=""
+	if command -v docker >/dev/null 2>&1; then
+		d="$(docker buildx imagetools inspect "$img" 2>/dev/null | awk '/[Dd]igest:/{print $2; exit}')" || true
+	fi
+	if [ -z "$d" ] && command -v crane >/dev/null 2>&1; then
+		d="$(crane digest "$img" 2>/dev/null)" || true
+	fi
+	if [ -z "$d" ] && command -v skopeo >/dev/null 2>&1; then
+		d="$(skopeo inspect "docker://$img" 2>/dev/null | jq -r '.Digest // empty')" || true
+	fi
+	printf '%s' "$d"
 }
 
 pin_images() {
-  local changed=0
-  for img in ${IMAGES[@]+"${IMAGES[@]}"}; do
-    if [ "$CHECK_ONLY" = "1" ]; then
-      echo "핀 필요: $img"
-      continue
-    fi
-    digest="$(resolve_digest "$img")"
-    if [ -z "$digest" ]; then
-      echo "⚠ $img digest 해석 실패 (docker/crane/skopeo 필요·온라인 필요) — 건너뜀" >&2
-      continue
-    fi
-    # servers.json 의 정확한 따옴표 문자열을 교체 (모든 등장 위치)
-    tmp="$(mktemp "${TMPDIR:-/tmp}/servers-XXXXXX")"
-    jq --arg img "$img" --arg new "${img}@${digest}" '
+	local changed=0
+	for img in ${IMAGES[@]+"${IMAGES[@]}"}; do
+		if [ "$CHECK_ONLY" = "1" ]; then
+			echo "핀 필요: $img"
+			continue
+		fi
+		digest="$(resolve_digest "$img")"
+		if [ -z "$digest" ]; then
+			echo "⚠ $img digest 해석 실패 (docker/crane/skopeo 필요·온라인 필요) — 건너뜀" >&2
+			continue
+		fi
+		# servers.json 의 정확한 따옴표 문자열을 교체 (모든 등장 위치)
+		tmp="$(mktemp "${TMPDIR:-/tmp}/servers-XXXXXX")"
+		jq --arg img "$img" --arg new "${img}@${digest}" '
       .servers |= map_values(
         .args |= if type == "array" then map(if type == "string" and . == $img then $new else . end) else . end
       )
-    ' "$FILE" > "$tmp"
-    if jq -e . "$tmp" >/dev/null 2>&1; then
-      mv "$tmp" "$FILE"
-      echo "✓ 핀: $img → @${digest:0:19}…"
-      changed=$((changed + 1))
-    else
-      rm -f "$tmp"
-      echo "⚠ $img 치환 후 JSON 파손 — 롤백" >&2
-    fi
-  done
+    ' "$FILE" >"$tmp"
+		if jq -e . "$tmp" >/dev/null 2>&1; then
+			mv "$tmp" "$FILE"
+			echo "✓ 핀: $img → @${digest:0:19}…"
+			changed=$((changed + 1))
+		else
+			rm -f "$tmp"
+			echo "⚠ $img 치환 후 JSON 파손 — 롤백" >&2
+		fi
+	done
 
-  if [ "$CHECK_ONLY" = "1" ]; then
-    exit 0
-  fi
-  echo ""
-  echo "완료: ${changed}개 이미지 digest 고정. 변경을 검토 후 커밋하세요."
+	if [ "$CHECK_ONLY" = "1" ]; then
+		exit 0
+	fi
+	echo ""
+	echo "완료: ${changed}개 이미지 digest 고정. 변경을 검토 후 커밋하세요."
 }
 
 main() {
-  ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-  FILE="$ROOT/system/mcp-shared/servers.json"
+	ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+	FILE="$ROOT/system/mcp-shared/servers.json"
 
-  parse_arguments "$@"
-  check_dependencies
-  find_unpinned_images
+	parse_arguments "$@"
+	check_dependencies
+	find_unpinned_images
 
-  if [ "${#IMAGES[@]}" -eq 0 ]; then
-    echo "핀이 필요한 이미지 없음 (모두 digest 고정됨)."
-    exit 0
-  fi
+	if [ "${#IMAGES[@]}" -eq 0 ]; then
+		echo "핀이 필요한 이미지 없음 (모두 digest 고정됨)."
+		exit 0
+	fi
 
-  pin_images
+	pin_images
 }
 
 main "$@"

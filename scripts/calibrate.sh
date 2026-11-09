@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/calibrate.sh
-# 
+#
 # 프로젝트 환경을 자동 인식하여 scale.tier를 동적 주입하고(Feature 1.2),
 # MCP 도구를 자동 발견하며(Feature 1.3),
 # 핵심 컨텍스트를 증류하여 압축합니다(Feature 1.4).
@@ -17,36 +17,51 @@ source "$COCKPIT_ROOT/scripts/lib/common.sh"
 source "$COCKPIT_ROOT/scripts/lib/tui.sh"
 
 parse_arguments() {
-  PROJECT_ROOT="${1:-$PWD}"
-  CLAUDE_DIR="$PROJECT_ROOT/.claude"
+	case "${1:-}" in
+	-h | --help)
+		cat <<EOF
+Usage: $0 [project_root]
+
+프로젝트 환경을 자동 인식해 <project>/.claude/ 를 보정합니다.
+  · scale.tier 동적 주입 (LOC·k8s 매니페스트 휴리스틱)
+  · MCP 도구 자동 발견
+  · 핵심 컨텍스트 증류·압축
+
+project_root 생략 시 현재 디렉토리를 사용합니다.
+EOF
+		exit 0
+		;;
+	esac
+	PROJECT_ROOT="${1:-$PWD}"
+	CLAUDE_DIR="$PROJECT_ROOT/.claude"
 }
 
 run_auto_calibration() {
-  log_step "Auto-Calibration (scale.tier 감지)"
+	log_step "Auto-Calibration (scale.tier 감지)"
 
-  # 간단한 휴리스틱으로 프로젝트 규모 판단
-  local LOC
-  LOC=$(find "$PROJECT_ROOT" -type f -not -path '*/\.*' -not -path '*/node_modules/*' -not -path '*/venv/*' -exec cat {} + 2>/dev/null | wc -l | awk '{print $1}')
-  LOC=${LOC:-0}
+	# 간단한 휴리스틱으로 프로젝트 규모 판단
+	local LOC
+	LOC=$(find "$PROJECT_ROOT" -type f -not -path '*/\.*' -not -path '*/node_modules/*' -not -path '*/venv/*' -exec cat {} + 2>/dev/null | wc -l | awk '{print $1}')
+	LOC=${LOC:-0}
 
-  local HAS_K8S=0
-  if find "$PROJECT_ROOT" -type f \( -name "deployment.yaml" -o -name "kustomization.yaml" -o -name "Chart.yaml" \) | grep -q .; then
-    HAS_K8S=1
-  fi
+	local HAS_K8S=0
+	if find "$PROJECT_ROOT" -type f \( -name "deployment.yaml" -o -name "kustomization.yaml" -o -name "Chart.yaml" \) | grep -q .; then
+		HAS_K8S=1
+	fi
 
-  TIER="prototype"
-  if [ "$HAS_K8S" -eq 1 ] || [ "$LOC" -gt 50000 ]; then
-    TIER="hyperscale"
-  elif [ "$LOC" -gt 5000 ]; then
-    TIER="production"
-  fi
+	TIER="prototype"
+	if [ "$HAS_K8S" -eq 1 ] || [ "$LOC" -gt 50000 ]; then
+		TIER="hyperscale"
+	elif [ "$LOC" -gt 5000 ]; then
+		TIER="production"
+	fi
 
-  log_info "  LOC 감지: ~$LOC lines"
-  log_info "  K8s 매니페스트 감지: $HAS_K8S"
-  log_ok "  결정된 scale.tier: $TIER"
+	log_info "  LOC 감지: ~$LOC lines"
+	log_info "  K8s 매니페스트 감지: $HAS_K8S"
+	log_ok "  결정된 scale.tier: $TIER"
 
-  # .claude/rules/scale.md 에 주입
-  cat <<EOF > "$CLAUDE_DIR/rules/scale.md"
+	# .claude/rules/scale.md 에 주입
+	cat <<EOF >"$CLAUDE_DIR/rules/scale.md"
 ---
 paths: ["**/*"]
 ---
@@ -55,40 +70,39 @@ paths: ["**/*"]
 ## Project Auto-Calibrated Delta
 - scale.tier: $TIER
 EOF
-  log_info "  $CLAUDE_DIR/rules/scale.md 생성 완료"
+	log_info "  $CLAUDE_DIR/rules/scale.md 생성 완료"
 }
 
 discover_mcp_tools() {
-  log_step "MCP Auto-Discovery"
+	log_step "MCP Auto-Discovery"
 
+	local -a FOUND_TOOLS=()
 
-  local -a FOUND_TOOLS=()
+	if [ -d "$PROJECT_ROOT/.git" ]; then
+		log_ok "  Git 저장소 감지됨 → github MCP 추천"
+		FOUND_TOOLS+=("github")
+	fi
 
-  if [ -d "$PROJECT_ROOT/.git" ]; then
-    log_ok "  Git 저장소 감지됨 → github MCP 추천"
-    FOUND_TOOLS+=("github")
-  fi
+	if [ -f "$PROJECT_ROOT/package.json" ]; then
+		log_ok "  package.json 감지됨 → playwright/linter MCP 추천"
+		FOUND_TOOLS+=("playwright")
+	fi
 
-  if [ -f "$PROJECT_ROOT/package.json" ]; then
-    log_ok "  package.json 감지됨 → playwright/linter MCP 추천"
-    FOUND_TOOLS+=("playwright")
-  fi
+	if [ -f "$PROJECT_ROOT/JIRA.md" ] || grep -qi "jira" "$PROJECT_ROOT/README.md" 2>/dev/null || true; then
+		# JIRA는 식별이 어렵지만, 힌트가 있다면
+		:
+	fi
 
-  if [ -f "$PROJECT_ROOT/JIRA.md" ] || grep -qi "jira" "$PROJECT_ROOT/README.md" 2>/dev/null || true; then
-    # JIRA는 식별이 어렵지만, 힌트가 있다면
-    :
-  fi
-
-  # 나중에 이 정보를 바탕으로 mcp/setup.sh 가 선택적으로 서버를 활성화할 수 있도록 힌트 파일 생성
-  echo "${FOUND_TOOLS[@]:-}" > "$CLAUDE_DIR/mcp_hints.txt"
+	# 나중에 이 정보를 바탕으로 mcp/setup.sh 가 선택적으로 서버를 활성화할 수 있도록 힌트 파일 생성
+	echo "${FOUND_TOOLS[@]:-}" >"$CLAUDE_DIR/mcp_hints.txt"
 }
 
 generate_context_distillation() {
-  log_step "Context Distillation (핵심 룰 압축)"
+	log_step "Context Distillation (핵심 룰 압축)"
 
-  local PAYLOAD="$CLAUDE_DIR/context_payload.md"
+	local PAYLOAD="$CLAUDE_DIR/context_payload.md"
 
-  cat <<EOF > "$PAYLOAD"
+	cat <<EOF >"$PAYLOAD"
 # 🧠 Claude Cockpit - Distilled Context Payload
 
 이 문서는 프로젝트의 수많은 기준(Brain) 중 핵심을 압축한 것입니다. 항상 이 규칙을 우선시하세요.
@@ -106,27 +120,27 @@ generate_context_distillation() {
 - 현재 프로젝트는 $TIER 수준의 엄격도를 요구합니다.
 EOF
 
-  if [ "$TIER" = "hyperscale" ]; then
-    cat <<EOF >> "$PAYLOAD"
+	if [ "$TIER" = "hyperscale" ]; then
+		cat <<EOF >>"$PAYLOAD"
 - [Hyperscale] 모든 외부 호출에는 Timeouts, Retries (with Backoff), Circuit Breakers가 필수입니다.
 - [Hyperscale] 단일 장애점(SPOF)을 제거하고, 상태(State)는 무상태(Stateless)로 관리하십시오.
 EOF
-  fi
+	fi
 
-  log_ok "  $PAYLOAD 생성 완료"
+	log_ok "  $PAYLOAD 생성 완료"
 }
 
 main() {
-  parse_arguments "$@"
-  tui_banner "Claude Cockpit · Zero-Config Calibration" "Project: $PROJECT_ROOT"
-  mkdir -p "$CLAUDE_DIR/rules"
+	parse_arguments "$@"
+	tui_banner "Claude Cockpit · Zero-Config Calibration" "Project: $PROJECT_ROOT"
+	mkdir -p "$CLAUDE_DIR/rules"
 
-  run_auto_calibration
-  discover_mcp_tools
-  generate_context_distillation
+	run_auto_calibration
+	discover_mcp_tools
+	generate_context_distillation
 
-  printf '\n'
-  log_ok "Calibration 완료! (Zero-Config Intelligence 탑재 성공)"
+	printf '\n'
+	log_ok "Calibration 완료! (Zero-Config Intelligence 탑재 성공)"
 }
 
 main "$@"

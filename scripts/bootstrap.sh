@@ -45,6 +45,24 @@ parse_arguments() {
 			OPT_NO_MCP=1
 			shift
 			;;
+		-h | --help)
+			cat <<EOF
+Usage: $0 [options]
+
+새 장비에서 cockpit 환경을 1줄로 설치하거나, 설치된 링크를 1줄로 제거합니다.
+멱등 — 재실행 안전. cockpit 레포는 절대 자동 삭제하지 않습니다.
+
+  --clean     제거 모드 (global-uninstall.sh 위임). 기본은 설치 모드
+  --all       --clean 과 함께 — MCP·메모리까지 전부 제거
+  --no-mcp    설치 시 MCP 셋업 건너뜀
+
+환경변수:
+  COCKPIT_HOME  클론 위치 (기본: \$HOME/Work/claude-cockpit)
+  COCKPIT_REPO  원격 URL
+  COCKPIT_REF   브랜치/태그 (기본: main)
+EOF
+			exit 0
+			;;
 		*) shift ;;
 		esac
 	done

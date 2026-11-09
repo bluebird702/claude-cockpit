@@ -13,45 +13,69 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-init_globals() {
-  ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-  cd "$ROOT"
+# shellcheck source=scripts/lib/common.sh
+. "$ROOT/scripts/lib/common.sh"
 
-  REQUIRED=(name description type category follows-brain enforcement)
-  fail=0
-  warn=0
+parse_arguments() {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-h | --help)
+			cat <<EOF
+Usage: $0
+
+skills/**/*.md 의 정합성을 린트합니다 (CI·로컬 공용, 결정적).
+  1) frontmatter 필수 6필드 (name·description·type·category·follows-brain·enforcement)
+  2) follows-brain 경로가 brain/ 아래 실제 존재하는지
+  3) 본문 @brain/@docs 참조의 dangling 여부 (경고)
+
+종료코드: 0 통과 / 1 실패
+EOF
+			exit 0
+			;;
+		*) die "알 수 없는 옵션: $1" ;;
+		esac
+	done
+}
+
+init_globals() {
+	ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+	cd "$ROOT"
+
+	REQUIRED=(name description type category follows-brain enforcement)
+	fail=0
+	warn=0
 }
 
 lint_frontmatter_presence() {
-  local f="$1"
-  fm="$(awk 'BEGIN{n=0} /^---$/{n++; next} n==1{print} n>=2{exit}' "$f")"
-  if [ -z "$fm" ]; then
-    echo "✘ $f: frontmatter 없음"
-    fail=$((fail + 1))
-    return 1
-  fi
-  return 0
+	local f="$1"
+	fm="$(awk 'BEGIN{n=0} /^---$/{n++; next} n==1{print} n>=2{exit}' "$f")"
+	if [ -z "$fm" ]; then
+		echo "✘ $f: frontmatter 없음"
+		fail=$((fail + 1))
+		return 1
+	fi
+	return 0
 }
 
 lint_frontmatter_fields() {
-  local f="$1"
-  for key in "${REQUIRED[@]}"; do
-    printf '%s\n' "$fm" | grep -qE "^${key}:" || {
-      echo "✘ $f: 필수 frontmatter 필드 누락 '$key'"
-      fail=$((fail + 1))
-    }
-  done
+	local f="$1"
+	for key in "${REQUIRED[@]}"; do
+		printf '%s\n' "$fm" | grep -qE "^${key}:" || {
+			echo "✘ $f: 필수 frontmatter 필드 누락 '$key'"
+			fail=$((fail + 1))
+		}
+	done
 }
 
 lint_follows_brain_paths() {
-  local f="$1"
-  while IFS= read -r sp; do
-    [ -n "$sp" ] || continue
-    [ -f "$sp" ] || {
-      echo "✘ $f: follows-brain 경로 없음 → $sp"
-      fail=$((fail + 1))
-    }
-  done < <(printf '%s\n' "$fm" | awk '
+	local f="$1"
+	while IFS= read -r sp; do
+		[ -n "$sp" ] || continue
+		[ -f "$sp" ] || {
+			echo "✘ $f: follows-brain 경로 없음 → $sp"
+			fail=$((fail + 1))
+		}
+	done < <(printf '%s\n' "$fm" | awk '
     /^follows-brain:/ {g=1; next}
     g && /^[[:space:]]*-[[:space:]]/ {gsub(/^[[:space:]]*-[[:space:]]*/,""); print; next}
     g && /^[^[:space:]-]/ {g=0}
@@ -59,50 +83,51 @@ lint_follows_brain_paths() {
 }
 
 lint_dangling_references() {
-  local f="$1"
-  while IFS= read -r ref; do
-    [ -n "$ref" ] || continue
-    case "$ref" in
-      @brain/*) tgt="${ref#@}" ;;
-      @docs/*) tgt="${ref#@}" ;;
-      *) continue ;;
-    esac
-    [ -f "$tgt" ] || {
-      echo "⚠ $f: dangling 참조 $ref (→ $tgt 없음)"
-      warn=$((warn + 1))
-    }
-  done < <(grep -oE '@(brain|docs)/[A-Za-z0-9/._-]+\.md' "$f" 2>/dev/null | sort -u)
+	local f="$1"
+	while IFS= read -r ref; do
+		[ -n "$ref" ] || continue
+		case "$ref" in
+		@brain/*) tgt="${ref#@}" ;;
+		@docs/*) tgt="${ref#@}" ;;
+		*) continue ;;
+		esac
+		[ -f "$tgt" ] || {
+			echo "⚠ $f: dangling 참조 $ref (→ $tgt 없음)"
+			warn=$((warn + 1))
+		}
+	done < <(grep -oE '@(brain|docs)/[A-Za-z0-9/._-]+\.md' "$f" 2>/dev/null | sort -u)
 }
 
 lint_all_skills() {
-  for f in skills/*/*.md; do
-    [ -f "$f" ] || continue
+	for f in skills/*/*.md; do
+		[ -f "$f" ] || continue
 
-    if ! lint_frontmatter_presence "$f"; then
-      continue
-    fi
+		if ! lint_frontmatter_presence "$f"; then
+			continue
+		fi
 
-    lint_frontmatter_fields "$f"
-    lint_follows_brain_paths "$f"
-    lint_dangling_references "$f"
-  done
+		lint_frontmatter_fields "$f"
+		lint_follows_brain_paths "$f"
+		lint_dangling_references "$f"
+	done
 }
 
 print_summary() {
-  echo ""
-  echo "lint-skills: 실패 $fail · 경고 $warn"
-  if [ "$fail" -eq 0 ]; then
-    exit 0
-  else
-    echo "린트 실패 — 위 ✘ 항목을 수정하세요."
-    exit 1
-  fi
+	echo ""
+	echo "lint-skills: 실패 $fail · 경고 $warn"
+	if [ "$fail" -eq 0 ]; then
+		exit 0
+	else
+		echo "린트 실패 — 위 ✘ 항목을 수정하세요."
+		exit 1
+	fi
 }
 
 main() {
-  init_globals
-  lint_all_skills
-  print_summary
+	parse_arguments "$@"
+	init_globals
+	lint_all_skills
+	print_summary
 }
 
 main "$@"

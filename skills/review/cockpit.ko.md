@@ -142,7 +142,9 @@ claude-cockpit/
 - [ ] **(A 한정)** 실행 권한(`chmod +x`) 부여됨 — 라이브러리(`scripts/lib/*.sh`) 는 `source` 전용이므로 실행권한 면제. 훅(`system/hooks/*.sh`) 은 Claude Code 가 직접 실행하므로 실행권한 필수
 - [ ] **(B 훅 한정)** `system/hooks/*.sh` 도 실행 권한 부여됨
 - [ ] (A+B) 전부 `bash -n` 통과
-- [ ] **(A 한정)** `scripts/lib/common.sh` 의 공통 함수 사용 (로그, 백업, `link_idempotent`) — 라이브러리 자신 및 `install.sh` (위임 래퍼, 자체 파일 조작 없음)는 제외
+- [ ] **(A 한정)** `scripts/lib/common.sh` 의 공통 함수 사용 (로그, 백업, `link_idempotent`) — 아래 2개는 제외
+  - `install.sh` — 위임 래퍼, 자체 파일 조작 없음
+  - `scripts/bootstrap.sh` — `curl | bash` 로 **레포가 존재하기 전에** 실행되므로 `lib/` 를 source 할 수 없음 (clone 이 이 스크립트의 첫 작업)
 - [ ] **(A 한정)** `--help` 옵션 제공
 - [ ] **(A 한정)** 링크 생성 스크립트(`global-install.sh`, `project-link.sh`)에서 `[ -L ]` 또는 `readlink` 기반 중복 방지 로직 사용
 
