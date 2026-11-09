@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# 테스트용 claude CLI 목업 — `claude mcp add-json|remove --scope user` 만 흉내냅니다.
+# 실패 규칙은 실제 CLI 와 동일하게 맞춥니다 (2026-11 실측):
+#   - add-json: 동명 서버가 있으면 exit 1 ("already exists in user config")
+#   - remove  : 없는 서버면 exit 1 ("No MCP server named ... in user scope")
+# 저장 위치도 실제와 같이 ${CLAUDE_CONFIG_DIR:-$HOME}/.claude.json 의 mcpServers 입니다.
+set -euo pipefail
+
+cfg="${CLAUDE_CONFIG_DIR:-$HOME}/.claude.json"
+[ -f "$cfg" ] || echo '{}' >"$cfg"
+
+[ "${1:-}" = "mcp" ] || {
+	echo "mock claude: 지원하지 않는 명령: $*" >&2
+	exit 64
+}
+sub="${2:-}"
+shift 2
+
+scope="local"
+args=()
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--scope | -s)
+		scope="$2"
+		shift 2
+		;;
+	--scope=*)
+		scope="${1#*=}"
+		shift
+		;;
+	*)
+		args+=("$1")
+		shift
+		;;
+	esac
+done
+[ "$scope" = "user" ] || {
+	echo "mock claude: --scope user 만 지원합니다" >&2
+	exit 64
+}
+
+name="${args[0]:-}"
+has() { jq -e --arg n "$name" '.mcpServers[$n]' "$cfg" >/dev/null 2>&1; }
+write() {
+	local tmp
+	tmp="$(mktemp)"
+	jq "$@" "$cfg" >"$tmp" && mv "$tmp" "$cfg"
+}
+
+case "$sub" in
+add-json)
+	if has; then
+		echo "MCP server $name already exists in user config" >&2
+		exit 1
+	fi
+	printf '%s' "${args[1]:-}" | jq empty 2>/dev/null || {
+		echo "Invalid JSON" >&2
+		exit 1
+	}
+	write --arg n "$name" --argjson s "${args[1]}" '.mcpServers[$n] = $s'
+	echo "Added MCP server $name to user config"
+	;;
+remove)
+	if ! has; then
+		echo "No MCP server named \"$name\" in user scope" >&2
+		exit 1
+	fi
+	write --arg n "$name" 'del(.mcpServers[$n])'
+	echo "Removed MCP server $name from user config"
+	;;
+*)
+	echo "mock claude: 지원하지 않는 하위 명령: $sub" >&2
+	exit 64
+	;;
+esac

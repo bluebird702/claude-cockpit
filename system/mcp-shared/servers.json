@@ -1,6 +1,6 @@
 {
   "$schema": "./servers.schema.json",
-  "_comment": "cockpit이 관리하는 MCP 서버 템플릿. setup.sh 가 이 파일의 inputs 를 읽어 Phase 2 에서 사용자 입력을 받고, env 에 채워 ~/.claude/settings.json 에 머지합니다. 모든 서버는 Colima 기반 Docker 로 실행됩니다. 공급망: npx 패키지는 버전 핀(@x.y.z), Docker 이미지는 태그 핀이다. 단 node:20-alpine 같은 롤링 태그는 완전 불변이 아니므로 최대 강도로는 digest(@sha256) 핀이 필요하다 — `scripts/pin-images.sh` 로 온라인에서 태그→digest 를 해석해 이 파일에 고정한다(오프라인 부트스트랩에선 태그 핀으로 동작).",
+  "_comment": "cockpit이 관리하는 MCP 서버 템플릿. setup.sh 가 이 파일의 inputs 를 읽어 Phase 2 에서 사용자 입력을 받고, env 에 채워 `claude mcp add-json --scope user` 로 Claude Code user 범위(~/.claude.json)에 등록합니다. 비밀값은 ${VAR} 참조로만 기록되고 실행 시점에 로더가 export 한 환경변수로 치환됩니다. 모든 서버는 Colima 기반 Docker 로 실행됩니다. 공급망: npx 패키지는 버전 핀(@x.y.z), Docker 이미지는 태그 핀이다. 단 node:20-alpine 같은 롤링 태그는 완전 불변이 아니므로 최대 강도로는 digest(@sha256) 핀이 필요하다 — `scripts/pin-images.sh` 로 온라인에서 태그→digest 를 해석해 이 파일에 고정한다(오프라인 부트스트랩에선 태그 핀으로 동작).",
   "servers": {
     "github": {
       "label": "GitHub",

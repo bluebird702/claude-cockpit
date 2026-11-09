@@ -21,9 +21,17 @@ cockpit이 관리하는 MCP 서버: **GitHub · Jira · Confluence · Playwright
 
 ## 동작 방식
 
-1. **Phase 1 · 사전 점검** — `node`, `npx`, `jq`, `~/.claude/settings.json` 존재 확인
+1. **Phase 1 · 사전 점검** — `jq`, `claude` CLI, Colima/Docker 런타임 확인
 2. **Phase 2 · 입력 수집** — 선택한 서버의 모든 필수 입력값을 **처음에 한 번에** 수집하고 유효성 검사
-3. **Phase 3 · 일괄 적용** — 사용자 확인 후 settings.json 백업 → jq 머지 → 검증
+3. **Phase 3 · 일괄 적용** — 사용자 확인 후 `~/.claude.json` 백업 → `claude mcp add-json --scope user` 로 등록
+
+### 등록 위치와 소유권
+
+- Claude Code 는 user 범위 MCP 서버를 **`~/.claude.json`** 에서 읽습니다. `~/.claude/settings.json` 의 `mcpServers` 는 읽지 않습니다.
+  - 구버전 cockpit 은 `settings.json` 에 기록했기 때문에 서버가 로드되지 않았습니다. `setup.sh`·`clean.sh` 를 실행하면 그 잔여 항목을 정리하고, `post-install-check.sh` 는 남아 있으면 경고합니다.
+- cockpit 이 등록한 서버 이름은 `~/.config/claude-cockpit/mcp-servers.list` 에 기록됩니다.
+  - 같은 이름의 서버를 사용자가 직접 추가해 두었다면 **덮어쓰지 않고 건너뜁니다**. 교체하려면 `--force` 를 씁니다.
+  - `clean.sh` 도 이 기록에 있는 서버만 제거합니다.
 
 ## 환경변수 저장 방식 (보안)
 
@@ -37,7 +45,7 @@ cockpit이 관리하는 MCP 서버: **GitHub · Jira · Confluence · Playwright
 
 ### 파일 구성
 
-- `~/.claude/settings.json` — `${GITHUB_TOKEN}` 형태의 **참조만** 기록, 값은 포함 안 됨
+- `~/.claude.json` — `${GITHUB_TOKEN}` 형태의 **참조만** 기록, 값은 포함 안 됨. Claude Code 가 서버를 띄울 때 환경변수로 치환하므로, 로더를 source 한 셸에서 `claude` 를 실행해야 합니다
 - `~/.config/claude-cockpit/mcp.public.env` — URL·이메일 등 **비밀 아닌 값**만 (chmod 600)
 - `~/.config/claude-cockpit/load-mcp-env.sh` — 자동 생성 로더. Keychain/libsecret에서 비밀을 읽어 `export`
 - `~/.zshrc` (또는 `~/.bashrc`)에 아래 한 줄 자동 추가:
@@ -63,8 +71,10 @@ COCKPIT_SECRETS_BACKEND=file ./mcp/setup.sh
 
 ## 백업과 롤백
 
-모든 변경 전 `~/.claude/backups/mcp-YYYYMMDD-HHMMSS/settings.json` 에 백업됩니다. 문제 발생 시:
+모든 변경 전 `~/.claude/backups/mcp-YYYYMMDD-HHMMSS/.claude.json` 에 백업됩니다. 문제 발생 시:
 
 ```bash
-cp ~/.claude/backups/mcp-<TIMESTAMP>/settings.json ~/.claude/settings.json
+cp ~/.claude/backups/mcp-<TIMESTAMP>/.claude.json ~/.claude.json
 ```
+
+등록 상태 확인: `claude mcp list` 또는 `claude mcp get <이름>`

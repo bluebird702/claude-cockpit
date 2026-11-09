@@ -15,8 +15,11 @@ source "$ROOT_DIR/scripts/lib/tui.sh"
 source "$ROOT_DIR/scripts/lib/jq_merge.sh"
 # shellcheck disable=SC1091
 source "$ROOT_DIR/scripts/lib/secrets.sh"
+# shellcheck disable=SC1091
+source "$ROOT_DIR/scripts/lib/claude_mcp.sh"
 
 SERVERS_JSON="$SCRIPT_DIR/servers.json"
+# 구버전이 MCP 를 기록하던 위치 — Claude Code 가 읽지 않으므로 등록 시 잔여 항목만 정리
 SETTINGS_JSON="$(claude_home)/settings.json"
 CONFIG_DIR="$HOME/.config/claude-cockpit"
 PUBLIC_ENV="$CONFIG_DIR/mcp.public.env"
@@ -42,6 +45,7 @@ OPT_ENV_FILE=""
 OPT_YES=0
 OPT_DRY_RUN=0
 OPT_EXPORT_RC=0
+OPT_FORCE=0
 
 parse_args() {
 	while [ $# -gt 0 ]; do
@@ -74,6 +78,10 @@ parse_args() {
 			OPT_EXPORT_RC=1
 			shift
 			;;
+		--force)
+			OPT_FORCE=1
+			shift
+			;;
 		-h | --help)
 			cat <<HELP
 Usage: $0 [options]
@@ -82,6 +90,9 @@ Usage: $0 [options]
   --yes             요약 확인 자동 승인
   --dry-run         실제 변경 없이 결과만 출력
   --export-rc       쉘 rc 에 로더 source 라인 추가 (기본 OFF, 보안상 비권장)
+  --force           cockpit 이 등록하지 않은 동명 user MCP 서버도 교체 (기본: 보존하고 건너뜀)
+
+등록 위치: Claude Code user 범위 (claude mcp add-json --scope user → ~/.claude.json)
 HELP
 			exit 0
 			;;
@@ -144,8 +155,14 @@ run_preflight_checks() {
 	DOCKER_CTX=$(docker context show 2>/dev/null || echo "unknown")
 	log_ok "docker $DOCKER_VER (context: $DOCKER_CTX)"
 
-	json_ensure_file "$SETTINGS_JSON"
-	log_ok "settings.json OK ($SETTINGS_JSON)"
+	if command -v claude >/dev/null 2>&1; then
+		log_ok "claude CLI $(claude --version 2>/dev/null | head -n 1)"
+	elif [ "$OPT_DRY_RUN" = "1" ]; then
+		log_warn "claude CLI 없음 — 실제 적용 시 필요합니다 (dry-run 은 계속)"
+	else
+		require_cmd claude
+	fi
+	log_ok "등록 위치: $(claude_user_config) (user 범위)"
 
 	[ -f "$SERVERS_JSON" ] || die "servers.json 이 없습니다: $SERVERS_JSON"
 
@@ -365,6 +382,7 @@ apply_mcp_configurations() {
 	log_step "Phase 3 · 일괄 적용"
 
 	BACKUP_DIR="$(make_backup_dir mcp)"
+	backup_path "$(claude_user_config)" "$BACKUP_DIR"
 	backup_path "$SETTINGS_JSON" "$BACKUP_DIR"
 	[ -f "$PUBLIC_ENV" ] && backup_path "$PUBLIC_ENV" "$BACKUP_DIR"
 	[ -f "$LOADER_SH" ] && backup_path "$LOADER_SH" "$BACKUP_DIR"
@@ -423,17 +441,22 @@ apply_mcp_configurations() {
 		log_dim "    토큰은 MCP 서버 프로세스에만 전달되며, 일반 쉘 환경에는 노출되지 않습니다."
 	fi
 
-	local i=0
+	local i=0 rc
 	local total=${#SELECTED_SERVERS[@]}
+	local -a skipped=()
 	for s in ${SELECTED_SERVERS[@]+"${SELECTED_SERVERS[@]}"}; do
 		i=$((i + 1))
-		tui_spinner_start "[$i/$total] $s · settings.json 머지 중..."
+		tui_spinner_start "[$i/$total] $s · Claude Code 에 등록 중..."
 		local server_type server_json
 		server_type=$(jq -r --arg n "$s" '.servers[$n].type // "command"' "$SERVERS_JSON")
+		# Claude Code 스키마: 원격은 type "http", 로컬 프로세스는 type "stdio"
 		if [ "$server_type" = "url" ]; then
-			server_json=$(jq --arg n "$s" '.servers[$n] | {type, url}' "$SERVERS_JSON")
+			server_json=$(jq -c --arg n "$s" '.servers[$n] | {type: "http", url}' "$SERVERS_JSON")
 		else
-			server_json=$(jq --arg n "$s" '.servers[$n] | {command, args, env}' "$SERVERS_JSON")
+			server_json=$(jq -c --arg n "$s" '.servers[$n]
+				| {type: "stdio", command}
+				+ (if .args then {args} else {} end)
+				+ (if .env then {env} else {} end)' "$SERVERS_JSON")
 		fi
 
 		for _sub_key in "${ALL_INPUT_KEYS[@]+"${ALL_INPUT_KEYS[@]}"}"; do
@@ -445,24 +468,39 @@ apply_mcp_configurations() {
 			fi
 		done
 
-		if json_merge_mcp_server "$SETTINGS_JSON" "$s" "$server_json"; then
+		rc=0
+		mcp_user_register "$s" "$server_json" "$OPT_FORCE" || rc=$?
+		case "$rc" in
+		0)
+			# 구버전이 settings.json 에 남긴 동명 항목은 로드되지 않는 잔여물이므로 정리
+			if mcp_legacy_has "$SETTINGS_JSON" "$s"; then
+				json_delete_mcp_server "$SETTINGS_JSON" "$s"
+			fi
 			tui_spinner_stop ok "[$i/$total] $s 완료"
-		else
+			;;
+		2)
+			tui_spinner_stop skip "[$i/$total] $s 건너뜀 — cockpit 이 등록하지 않은 동명 서버가 이미 있어 보존 (교체: --force)"
+			skipped+=("$s")
+			;;
+		*)
 			tui_spinner_stop fail "[$i/$total] $s 실패"
-			log_err "백업에서 복원: cp $BACKUP_DIR/settings.json $SETTINGS_JSON"
+			log_err "백업에서 복원: cp $BACKUP_DIR/.claude.json $(claude_user_config)"
 			exit 1
-		fi
+			;;
+		esac
 	done
 
-	jq empty "$SETTINGS_JSON" || die "최종 settings.json JSON 유효성 검사 실패"
-
 	printf '\n'
-	log_ok "MCP 설치 완료 ($total/$total)"
+	log_ok "MCP 설치 완료 ($((total - ${#skipped[@]}))/$total)"
+	if [ ${#skipped[@]} -gt 0 ]; then
+		log_warn "건너뜀: ${skipped[*]} (기존 설정 보존 — 'claude mcp get <이름>' 으로 확인)"
+	fi
 	log_dim "  백업:       $BACKUP_DIR"
 	log_dim "  비밀:       $SECRETS_BACKEND_LABEL"
 	log_dim "  공개 env:   $PUBLIC_ENV"
 	log_dim "  로더:       $LOADER_SH"
-	log_dim "  settings:   $SETTINGS_JSON"
+	log_dim "  등록 위치:  $(claude_user_config) (user 범위)"
+	log_dim "  소유 기록:  $COCKPIT_MCP_MANIFEST"
 	printf '\n  다음 단계: %s새 셸을 열거나%s %ssource %s%s, Claude Code 재시작 후 %s/mcp%s 로 확인하세요.\n\n' \
 		"$C_BOLD" "$C_RESET" "$C_CYAN" "$LOADER_SH" "$C_RESET" "$C_CYAN" "$C_RESET"
 }

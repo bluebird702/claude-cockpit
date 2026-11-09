@@ -171,11 +171,32 @@ verify_permissions_model() {
 
 verify_mcp_config() {
 	log_info "── MCP 설정 (있으면)"
-	mcp_count="$(jq '.mcpServers // {} | length' "$CLAUDE_DIR/settings.json" 2>/dev/null || echo 0)"
+	# shellcheck disable=SC1091
+	source "$ROOT/scripts/lib/claude_mcp.sh"
+
+	# cockpit 이 등록했고 실제로 Claude Code user 범위(~/.claude.json)에 있는 서버만 센다
+	local mcp_count=0 s
+	if [ -f "$COCKPIT_MCP_MANIFEST" ]; then
+		while IFS= read -r s; do
+			[ -n "$s" ] || continue
+			if mcp_user_has "$s"; then
+				mcp_count=$((mcp_count + 1))
+			else
+				log_warn "MCP '$s': 소유 기록에는 있으나 $(claude_user_config) 에 없음 — setup.sh 재실행 권장"
+			fi
+		done <"$COCKPIT_MCP_MANIFEST"
+	fi
 	if [ "$mcp_count" -gt 0 ]; then
-		log_ok "MCP 서버 ${mcp_count}개 등록"
+		log_ok "MCP 서버 ${mcp_count}개 등록 ($(claude_user_config))"
 	else
 		log_dim "  · MCP 미설치 (./install.sh 는 기본 포함, 건너뛰었다면 ./system/mcp-shared/setup.sh)"
+	fi
+
+	# 구버전은 settings.json 에 기록했지만 Claude Code 는 그 위치를 읽지 않는다
+	local legacy_count
+	legacy_count="$(jq '.mcpServers // {} | length' "$CLAUDE_DIR/settings.json" 2>/dev/null || echo 0)"
+	if [ "$legacy_count" -gt 0 ]; then
+		log_warn "settings.json 에 구버전 MCP 항목 ${legacy_count}개 — Claude Code 가 읽지 않는 위치입니다. ./system/mcp-shared/setup.sh 재실행으로 이전하세요"
 	fi
 }
 

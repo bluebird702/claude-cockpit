@@ -2,7 +2,9 @@
 # mcp/clean.sh - cockpit MCP 서버 설정 제거
 #
 # 동작:
-#   1) settings.json 에서 cockpit 관리 서버(mcp/servers.json 에 정의된 것) 제거
+#   1) Claude Code user 범위에서 cockpit 이 등록한 서버 제거 (claude mcp remove --scope user)
+#      — 소유 기록(mcp-servers.list)에 있는 것만. 사용자가 직접 추가한 동명 서버는 보존
+#      — 구버전이 settings.json mcpServers 에 남긴 잔여 항목도 함께 정리
 #   2) 비밀값을 Keychain/libsecret/파일폴백에서 삭제 (--purge-env 시)
 #   3) 공개 env, 로더 스크립트 삭제 (--purge-env 시)
 #   4) 쉘 rc 의 source 라인 제거 (--purge-env 시)
@@ -20,8 +22,10 @@ source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/scripts/lib/tui.sh"
 source "$ROOT_DIR/scripts/lib/jq_merge.sh"
 source "$ROOT_DIR/scripts/lib/secrets.sh"
+source "$ROOT_DIR/scripts/lib/claude_mcp.sh"
 
 SERVERS_JSON="$SCRIPT_DIR/servers.json"
+# 구버전이 MCP 를 기록하던 위치 — 잔여 항목 정리용
 SETTINGS_JSON="$(claude_home)/settings.json"
 CONFIG_DIR="$HOME/.config/claude-cockpit"
 PUBLIC_ENV="$CONFIG_DIR/mcp.public.env"
@@ -75,12 +79,7 @@ run_preflight_checks_and_select() {
 	require_cmd jq
 	[ -f "$SERVERS_JSON" ] || die "servers.json 이 없습니다: $SERVERS_JSON"
 	log_ok "servers.json OK"
-
-	if [ ! -f "$SETTINGS_JSON" ]; then
-		log_warn "settings.json 이 없습니다: $SETTINGS_JSON (제거할 것 없음)"
-	else
-		log_ok "settings.json OK"
-	fi
+	log_ok "등록 위치: $(claude_user_config) (user 범위)"
 
 	COCKPIT_SERVERS=()
 	while IFS= read -r name; do COCKPIT_SERVERS+=("$name"); done < <(jq -r '.servers | keys[]' "$SERVERS_JSON")
@@ -99,13 +98,21 @@ run_preflight_checks_and_select() {
 		TARGETS=(${COCKPIT_SERVERS[@]+"${COCKPIT_SERVERS[@]}"})
 	fi
 
-	INSTALLED=()
-	if [ -f "$SETTINGS_JSON" ]; then
-		for s in ${TARGETS[@]+"${TARGETS[@]}"}; do
-			if jq -e --arg n "$s" '.mcpServers[$n]' "$SETTINGS_JSON" >/dev/null 2>&1; then
-				INSTALLED+=("$s")
-			fi
-		done
+	INSTALLED=() # cockpit 이 등록한 서버 (소유 기록 기준)
+	LEGACY=()    # 구버전이 settings.json 에 남긴 잔여 항목
+	for s in ${TARGETS[@]+"${TARGETS[@]}"}; do
+		if mcp_manifest_has "$s"; then
+			INSTALLED+=("$s")
+		elif mcp_user_has "$s"; then
+			log_dim "  · $s: cockpit 이 등록하지 않은 서버 — 보존"
+		fi
+		if mcp_legacy_has "$SETTINGS_JSON" "$s"; then
+			LEGACY+=("$s")
+		fi
+	done
+
+	if [ ${#INSTALLED[@]} -gt 0 ]; then
+		require_cmd claude
 	fi
 }
 
@@ -117,6 +124,13 @@ show_removal_summary() {
 		printf '  %s제거할 서버:%s\n' "$C_BOLD" "$C_RESET"
 		for s in ${INSTALLED[@]+"${INSTALLED[@]}"}; do
 			printf '    - %s\n' "$s"
+		done
+	fi
+
+	if [ ${#LEGACY[@]} -gt 0 ]; then
+		printf '\n  %s구버전 잔여 항목 정리 (%s):%s\n' "$C_BOLD" "$SETTINGS_JSON" "$C_RESET"
+		for s in ${LEGACY[@]+"${LEGACY[@]}"}; do
+			printf '    - mcpServers.%s\n' "$s"
 		done
 	fi
 
@@ -137,7 +151,7 @@ show_removal_summary() {
 		fi
 	fi
 
-	if [ ${#INSTALLED[@]} -eq 0 ] && [ "$OPT_PURGE" = "0" ] && [ "$OPT_STOP_COLIMA" = "0" ]; then
+	if [ ${#INSTALLED[@]} -eq 0 ] && [ ${#LEGACY[@]} -eq 0 ] && [ "$OPT_PURGE" = "0" ] && [ "$OPT_STOP_COLIMA" = "0" ]; then
 		log_info "제거할 것이 없습니다. 종료."
 		exit 0
 	fi
@@ -154,14 +168,23 @@ execute_removal() {
 	tui_step 3 3 "적용"
 
 	BACKUP_DIR="$(make_backup_dir mcp-clean)"
+	backup_path "$(claude_user_config)" "$BACKUP_DIR"
 	[ -f "$SETTINGS_JSON" ] && backup_path "$SETTINGS_JSON" "$BACKUP_DIR"
 	[ -f "$PUBLIC_ENV" ] && backup_path "$PUBLIC_ENV" "$BACKUP_DIR"
 	[ -f "$LOADER_SH" ] && backup_path "$LOADER_SH" "$BACKUP_DIR"
 	log_ok "백업: $BACKUP_DIR"
 
 	for s in ${INSTALLED[@]+"${INSTALLED[@]}"}; do
+		if mcp_user_unregister "$s"; then
+			log_ok "  - $s 제거됨"
+		else
+			log_warn "  - $s 제거 실패 — 'claude mcp remove --scope user $s' 로 수동 확인"
+		fi
+	done
+
+	for s in ${LEGACY[@]+"${LEGACY[@]}"}; do
 		json_delete_mcp_server "$SETTINGS_JSON" "$s"
-		log_ok "  - $s 제거됨"
+		log_ok "  - settings.json 잔여 항목 mcpServers.$s 제거됨"
 	done
 
 	if [ "$OPT_PURGE" = "1" ]; then

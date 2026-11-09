@@ -71,6 +71,17 @@ sudo bash -c 'echo "exit 0" >> /usr/local/bin/docker'
 sudo bash -c 'echo "#!/bin/sh" > /usr/local/bin/colima'
 sudo bash -c 'echo "exit 0" >> /usr/local/bin/colima'
 sudo chmod +x /usr/local/bin/docker /usr/local/bin/colima
+# claude CLI 목업 — 실제 CLI 와 같은 규칙으로 ~/.claude.json 에 user 범위 등록
+sudo install -m 755 /home/testuser/cockpit/tests/mocks/claude /usr/local/bin/claude
+
+CLAUDE_USER_JSON=/home/testuser/.claude.json
+MCP_MANIFEST=/home/testuser/.config/claude-cockpit/mcp-servers.list
+
+# 구버전 잔여 항목 주입 — settings.json(심볼릭 링크) 의 mcpServers 는 Claude Code 가 읽지 않는 위치
+tmp_legacy="$(mktemp)"
+jq '.mcpServers.github = {"command":"legacy"}' /home/testuser/.claude/settings.json > "$tmp_legacy"
+cat "$tmp_legacy" > /home/testuser/.claude/settings.json
+rm -f "$tmp_legacy"
 
 # 더미 env 파일 생성
 echo "GITHUB_TOKEN=ghp_dummy_token_12345" > /home/testuser/mcp_test.env
@@ -83,18 +94,54 @@ if ! grep -q 'ghp_dummy_token_12345' /home/testuser/.config/claude-cockpit/secre
    echo "❌ MCP 비밀값이 secrets.env 파일에 정상적으로 저장되지 않았습니다!"
    exit 1
 fi
-echo "✅ MCP 비대화형 설치 및 Secret 저장 검증 성공"
+# Claude Code 가 실제로 읽는 위치(~/.claude.json)에 등록됐는지 검증
+if [ "$(jq -r '.mcpServers.github.type' "$CLAUDE_USER_JSON")" != "stdio" ]; then
+  echo "❌ MCP 서버(github)가 ~/.claude.json 에 등록되지 않았습니다!"
+  exit 1
+fi
+# 비밀값은 참조로만 기록되어야 한다
+if grep -q 'ghp_dummy_token_12345' "$CLAUDE_USER_JSON"; then
+  echo "❌ ~/.claude.json 에 비밀값 원문이 기록되었습니다!"
+  exit 1
+fi
+if [ "$(jq -r '.mcpServers.github.env.GITHUB_PERSONAL_ACCESS_TOKEN' "$CLAUDE_USER_JSON")" != '${GITHUB_TOKEN}' ]; then
+  echo "❌ 비밀값 참조(\${GITHUB_TOKEN})가 보존되지 않았습니다!"
+  exit 1
+fi
+grep -Fxq github "$MCP_MANIFEST" || { echo "❌ 소유 기록(mcp-servers.list)에 github 가 없습니다!"; exit 1; }
+# 구버전 잔여 항목 정리 검증
+if jq -e '.mcpServers.github' /home/testuser/.claude/settings.json >/dev/null 2>&1; then
+  echo "❌ settings.json 의 구버전 MCP 잔여 항목이 정리되지 않았습니다!"
+  exit 1
+fi
+echo "✅ MCP 비대화형 설치·Secret 저장·user 범위 등록·구버전 정리 검증 성공"
 
 echo '---------------------------------------------------'
 echo '▶ ./scripts/update.sh 실행 (MCP 설정 보존 검증)'
 echo '---------------------------------------------------'
 ./scripts/update.sh --no-pull
 
-if ! grep -q '"github"' /home/testuser/.claude/settings.json; then
-  echo "❌ update.sh 실행 후 MCP 설정(github)이 settings.json에서 삭제되었습니다!"
+if ! jq -e '.mcpServers.github' "$CLAUDE_USER_JSON" >/dev/null 2>&1; then
+  echo "❌ update.sh 실행 후 MCP 설정(github)이 ~/.claude.json 에서 삭제되었습니다!"
   exit 1
 fi
 echo "✅ update.sh 실행 후에도 MCP 설정이 안전하게 보존되었습니다."
+
+echo '---------------------------------------------------'
+echo '▶ MCP 소유권 보호 검증 (사용자가 직접 추가한 동명 서버)'
+echo '---------------------------------------------------'
+claude mcp add-json --scope user playwright '{"type":"http","url":"https://user.example/mcp"}' >/dev/null
+./system/mcp-shared/setup.sh --only playwright --yes >/dev/null
+if [ "$(jq -r '.mcpServers.playwright.url' "$CLAUDE_USER_JSON")" != "https://user.example/mcp" ]; then
+  echo "❌ setup.sh 가 사용자가 직접 추가한 동명 서버를 덮어썼습니다!"
+  exit 1
+fi
+./system/mcp-shared/clean.sh --only playwright --yes >/dev/null
+if [ "$(jq -r '.mcpServers.playwright.url' "$CLAUDE_USER_JSON")" != "https://user.example/mcp" ]; then
+  echo "❌ clean.sh 가 사용자가 직접 추가한 동명 서버를 삭제했습니다!"
+  exit 1
+fi
+echo "✅ 사용자 소유 MCP 서버는 setup/clean 모두 보존되었습니다."
 
 echo '---------------------------------------------------'
 echo '▶ 극한 엣지 케이스 통합 테스트 (Extreme Edge Cases)'
@@ -140,6 +187,18 @@ sudo su - testuser -c '/home/testuser/check_evil.sh' || {
   echo "❌ 비밀값 내 쉘 메타문자(따옴표, 백틱, 달러)가 평가되거나 손상되었습니다!"
   exit 1
 }
+
+# 3.5) cockpit 소유 서버 제거 — 재등록(갱신) 이후에도 clean.sh 가 정확히 제거하는지
+echo "  [Edge 3.5] cockpit 소유 MCP 서버 제거 (clean.sh)"
+/home/testuser/cockpit/system/mcp-shared/clean.sh --only github --yes >/dev/null
+if jq -e '.mcpServers.github' /home/testuser/.claude.json >/dev/null 2>&1; then
+  echo "❌ clean.sh 가 cockpit 소유 서버(github)를 ~/.claude.json 에서 제거하지 않았습니다!"
+  exit 1
+fi
+if grep -Fxq github /home/testuser/.config/claude-cockpit/mcp-servers.list; then
+  echo "❌ clean.sh 후에도 소유 기록에 github 가 남아 있습니다!"
+  exit 1
+fi
 
 # 4) --lang=ko 및 --skip-configure 조합의 .cockpit-env 생성 테스트
 echo "  [Edge 4] --skip-configure 상태에서의 .cockpit-env 보존 테스트"
