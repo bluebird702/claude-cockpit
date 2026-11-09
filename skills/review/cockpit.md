@@ -119,6 +119,7 @@ claude-cockpit/
 - [ ] `system/mcp-shared/clean.sh` 가 `--purge-env` 옵션을 파싱하고 `security delete-generic-password` 또는 `secret-tool` 포함
 - [ ] `scripts/lib/secrets.sh` 에 `security`(macOS Keychain), `secret-tool`(libsecret), 파일 폴백 3가지 분기 모두 존재
 - [ ] `setup.sh` 와 `clean.sh` 모두 `bash -n` 통과
+- [ ] `setup.sh` 가 Claude Code 가 실제로 읽는 user 범위(`claude mcp add-json --scope user` → `~/.claude.json`)로 등록하고, `settings.json` 의 `mcpServers` 에는 쓰지 않음 (Claude Code 가 읽지 않는 위치)
 
 ### §6. Hooks (5점)
 
@@ -374,6 +375,14 @@ grep -qE 'secrets_delete|security delete-generic-password|secret-tool' system/mc
 grep -q 'security'    scripts/lib/secrets.sh || echo "secrets.sh: MISSING macOS Keychain (security)"
 grep -q 'secret-tool' scripts/lib/secrets.sh || echo "secrets.sh: MISSING libsecret (secret-tool)"
 grep -qE 'file|fallback' scripts/lib/secrets.sh || echo "secrets.sh: MISSING 파일 폴백"
+
+# setup.sh: 등록 위치 — Claude Code 는 settings.json 의 mcpServers 를 읽지 않는다
+grep -q 'mcp_user_register' system/mcp-shared/setup.sh \
+  || echo "setup.sh: MISSING user 범위 등록 (claude mcp add-json via mcp_user_register)"
+grep -q 'claude mcp add-json --scope user' scripts/lib/claude_mcp.sh \
+  || echo "claude_mcp.sh: MISSING 'claude mcp add-json --scope user'"
+grep -nE '\.mcpServers(\[[^]]*\])? *=[^=]' system/mcp-shared/setup.sh scripts/lib/*.sh \
+  && echo "WARN: settings.json mcpServers 에 직접 쓰는 코드가 있음 (Claude Code 가 읽지 않는 위치)"
 
 # ============================================================
 # 7) §4, §9b — 깨진 @ 참조 검증 (source:line 표시 포함)
