@@ -103,8 +103,13 @@ run_system_configure() {
 		log_warn "Phase 1 (configure) 건너뜀"
 	fi
 
+	# COCKPIT_LANG 은 교체(append 누적 방지) — configure 는 자기 키 외의 값을 보존하므로 중복이 쌓이지 않게
 	mkdir -p "$ROOT_DIR/.cockpit-local"
-	echo "export COCKPIT_LANG=\"$OPT_LANG\"" >>"$ROOT_DIR/.cockpit-local/.cockpit-env"
+	local env_file="$ROOT_DIR/.cockpit-local/.cockpit-env" env_tmp
+	env_tmp="$(mktemp)"
+	[ -f "$env_file" ] && { grep -v '^export COCKPIT_LANG=' "$env_file" >"$env_tmp" || true; }
+	echo "export COCKPIT_LANG=\"$OPT_LANG\"" >>"$env_tmp"
+	mv "$env_tmp" "$env_file"
 
 	# 설정된 환경 변수 로드
 	if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
@@ -183,9 +188,16 @@ create_global_links() {
 
 	# git 커밋 메시지 템플릿 (~/.gitmessage → system/git/gitmessage)
 	link_file "$ROOT_DIR/system/git/gitmessage" "$HOME/.gitmessage"
+	# 사용자가 이미 다른 템플릿을 쓰고 있으면 보존 (--force 일 때만 교체)
 	if command -v git >/dev/null 2>&1; then
-		git config --global commit.template "$HOME/.gitmessage"
-		log_ok "  + git config --global commit.template ~/.gitmessage"
+		local current_template
+		current_template="$(git config --global --get commit.template 2>/dev/null || true)"
+		if [ -z "$current_template" ] || [ "$current_template" = "$HOME/.gitmessage" ] || [ "$OPT_FORCE" = "1" ]; then
+			git config --global commit.template "$HOME/.gitmessage"
+			log_ok "  + git config --global commit.template ~/.gitmessage"
+		else
+			log_warn "  · 기존 git commit.template 보존: $current_template (cockpit 템플릿으로 바꾸려면 --force)"
+		fi
 	fi
 }
 

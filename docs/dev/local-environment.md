@@ -2,17 +2,31 @@
 
 > 대상: cockpit 을 쓰는 모든 프로젝트의 로컬 개발 머신 설정.
 
-## Docker 런타임: **Colima 사용**
+## Docker 런타임: **이미 쓰는 런타임을 그대로 사용**
 
-Docker Desktop 대신 **Colima** 를 사용합니다. 라이선스 제약이 없고, 리소스 사용량이 가볍습니다.
+cockpit 은 특정 Docker 런타임을 강제하지 않습니다. `docker` 명령이 동작하면 어떤 런타임이든 됩니다.
 
-### 설치 (macOS)
+| 환경 | 지원 런타임 예시 |
+|------|----------------|
+| macOS | Colima · Docker Desktop · OrbStack · Rancher Desktop |
+| Linux | 네이티브 Docker Engine (`docker.io`·`docker-ce`·`moby`) |
+| Windows | Docker Desktop (WSL2) |
+
+- `install.sh` 의 Phase 1(`scripts/configure.sh`)이 설치된 런타임을 감지해 `.cockpit-local/.cockpit-env` 의 `DOCKER_RUNTIME` 에 기록합니다. 세션 시작 컨텍스트에도 표시됩니다.
+- MCP 설치(`system/mcp-shared/setup.sh`)는 먼저 이미 동작 중인 런타임을 씁니다. 데몬이 꺼져 있고 Colima 가 설치돼 있으면 Colima 를 시작합니다.
+- 런타임이 하나도 없을 때만 설치를 **제안**합니다(사용자 확인 필요). macOS + Homebrew 에서는 Colima 를 권장합니다.
+
+### 런타임이 없을 때의 권장값 (macOS): Colima
+
+라이선스 제약이 없고 리소스 사용량이 가볍습니다.
 
 ```bash
 brew install colima docker docker-compose
 ```
 
-*(참고: Linux 환경에서는 호스트의 네이티브 `docker` 데몬을 그대로 사용하므로 Colima가 필요하지 않습니다.)*
+*(Linux 는 배포판의 Docker Engine 을 설치하세요. 설치 가이드: https://docs.docker.com/engine/install/)*
+
+## Colima 를 쓰는 경우
 
 ### 시작 / 종료
 
@@ -52,15 +66,15 @@ colima start --profile light --cpu 2 --memory 4
 docker context use colima-heavy
 ```
 
-## Docker Desktop 사용 금지
+## 다른 런타임을 쓰는 경우
 
-Docker Desktop 은 팀 기준에 맞지 않으므로 설치/사용하지 않습니다. 이미 설치되어 있다면:
+| 증상 | 확인 |
+|------|------|
+| `Cannot connect to the Docker daemon` (Docker Desktop·OrbStack 등) | 앱이 실행 중인지 확인 |
+| Linux 에서 `permission denied ... docker.sock` | `sudo systemctl start docker`, 사용자를 `docker` 그룹에 추가 후 재로그인 |
+| 여러 런타임이 설치되어 엉뚱한 쪽에 연결됨 | `docker context ls` 로 확인 후 `docker context use <이름>` |
 
-```bash
-# Desktop 종료 후
-brew uninstall --cask docker
-brew install colima docker docker-compose
-```
+> 팀·개인 선호로 특정 런타임만 쓰기로 정했다면 `system/CLAUDE.md` 의 "로컬 환경 표준" 항목을 포크에서 바꾸세요 (개인 선호 슬롯).
 
 ## 관련 문서
 

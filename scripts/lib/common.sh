@@ -58,6 +58,116 @@ require_cmd() {
 	done
 }
 
+# 특정 장비를 전제하지 않도록, 사용자 환경은 아래 함수로 감지해서 씁니다.
+
+# detect_package_manager — 이 OS 에서 실제로 쓸 수 있는 패키지 매니저 (없으면 빈 문자열)
+# Linux 는 배포판 기본 매니저를 Homebrew 보다 우선합니다.
+detect_package_manager() {
+	local pm candidates
+	case "$(uname -s)" in
+	Darwin) candidates="brew port" ;;
+	Linux) candidates="apt-get dnf yum pacman zypper apk brew" ;;
+	MINGW* | MSYS* | CYGWIN*) candidates="choco scoop" ;;
+	*) candidates="" ;;
+	esac
+	for pm in $candidates; do
+		if command -v "$pm" >/dev/null 2>&1; then
+			echo "$pm"
+			return 0
+		fi
+	done
+	echo ""
+}
+
+# as_root <cmd...> — root 면 그대로, 아니면 sudo 로 실행 (컨테이너처럼 sudo 가 없는 root 환경 대응)
+as_root() {
+	if [ "$(id -u)" = "0" ]; then
+		"$@"
+	elif command -v sudo >/dev/null 2>&1; then
+		sudo "$@"
+	else
+		log_err "root 권한이 필요하지만 sudo 가 없습니다: $*"
+		return 1
+	fi
+}
+
+# pkg_install <pkg...> — 감지된 패키지 매니저로 설치 (PKG_MANAGER 로 고정 가능). 미지원이면 1
+pkg_install() {
+	local pm="${PKG_MANAGER:-$(detect_package_manager)}"
+	case "$pm" in
+	brew) brew install "$@" ;;
+	port) as_root port install "$@" ;;
+	apt-get) as_root apt-get update && as_root apt-get install -y "$@" ;;
+	dnf) as_root dnf install -y "$@" ;;
+	yum) as_root yum install -y "$@" ;;
+	pacman) as_root pacman -S --noconfirm --needed "$@" ;;
+	zypper) as_root zypper --non-interactive install "$@" ;;
+	apk) as_root apk add --no-cache "$@" ;;
+	choco) choco install -y "$@" ;;
+	scoop) scoop install "$@" ;;
+	*) return 1 ;;
+	esac
+}
+
+# detect_docker_runtime — 이 장비가 쓰는 Docker 런타임 종류
+# 출력: colima | orbstack | docker-desktop | rancher-desktop | podman | native | other | none
+#   none = docker CLI 없음. 데몬 실행 여부와 무관하게 "무엇을 쓰는 장비인가" 만 판별
+#   (실행 여부는 docker_daemon_up). 특정 런타임을 강제하지 않기 위한 감지입니다.
+detect_docker_runtime() {
+	command -v docker >/dev/null 2>&1 || {
+		echo none
+		return 0
+	}
+	local ctx os_name
+	ctx="$(docker context show 2>/dev/null || true)"
+	case "$ctx" in
+	colima*)
+		echo colima
+		return 0
+		;;
+	orbstack)
+		echo orbstack
+		return 0
+		;;
+	desktop-linux | desktop-windows)
+		echo docker-desktop
+		return 0
+		;;
+	rancher-desktop)
+		echo rancher-desktop
+		return 0
+		;;
+	esac
+	os_name="$(docker info --format '{{.OperatingSystem}}' 2>/dev/null || true)"
+	case "$os_name" in
+	*"Docker Desktop"*) echo docker-desktop ;;
+	*OrbStack*) echo orbstack ;;
+	*Rancher*) echo rancher-desktop ;;
+	*podman* | *Podman*) echo podman ;;
+	*) if [ "$(uname -s)" = "Linux" ]; then echo native; else echo other; fi ;;
+	esac
+}
+
+docker_daemon_up() {
+	command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1
+}
+
+# user_shell_rc — 로그인 셸에 맞는 rc 파일 경로. bash/zsh 외(fish 등)는 빈 문자열
+# macOS 의 bash 는 로그인 셸로 뜨므로 .bashrc 가 아니라 .bash_profile 을 읽습니다.
+user_shell_rc() {
+	case "$(basename "${SHELL:-}")" in
+	zsh) echo "${ZDOTDIR:-$HOME}/.zshrc" ;;
+	bash)
+		if [ "$(uname -s)" = "Darwin" ]; then
+			echo "$HOME/.bash_profile"
+		else
+			echo "$HOME/.bashrc"
+		fi
+		;;
+	*) echo "" ;;
+	esac
+}
+
 # ─────────────────────────────────────────────
 # 경로
 # ─────────────────────────────────────────────

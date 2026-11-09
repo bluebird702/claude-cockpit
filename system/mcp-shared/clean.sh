@@ -228,8 +228,11 @@ execute_removal() {
 				log_ok "  - $rc 에서 source 라인 제거"
 			fi
 		}
-		remove_source_line "$HOME/.zshrc"
+		# setup.sh --export-rc 가 셸·OS 별로 고른 rc 후보 전부 (없는 파일은 건너뜀)
+		remove_source_line "${ZDOTDIR:-$HOME}/.zshrc"
+		[ "${ZDOTDIR:-$HOME}" != "$HOME" ] && remove_source_line "$HOME/.zshrc"
 		remove_source_line "$HOME/.bashrc"
+		remove_source_line "$HOME/.bash_profile"
 	fi
 
 	if [ "$OPT_STOP_COLIMA" = "1" ]; then

@@ -12,7 +12,7 @@
 ## 철학 vs 개인 선호 (포크 가이드)
 
 - **철학·표준** (가져다 쓰거나, `brain/philosophy.md` 하나만 교체): `brain/**` — 규칙 충돌 시 philosophy.md 가 최종 심판.
-- **개인 선호** (자유롭게 수정): 이 파일의 응답 언어·존댓말, Colima 같은 로컬 환경 항목.
+- **개인 선호** (자유롭게 수정): 이 파일의 응답 언어·존댓말, Docker 런타임 같은 로컬 환경 항목.
 
 ## 응답 규칙 (Response Rules)
 
@@ -28,7 +28,7 @@
 
 ## 로컬 환경 표준
 
-- **Docker 런타임은 Colima** 를 사용합니다. Docker Desktop 은 사용하지 않습니다. 상세: cockpit 레포 `docs/dev/local-environment.md`
+- **Docker 런타임은 이 장비에 설치된 것을 그대로 사용합니다** (Colima·Docker Desktop·OrbStack·Linux 네이티브 등). 세션 시작 컨텍스트의 `Docker 런타임` 값을 따르고, 사용자 확인 없이 다른 런타임을 설치·전환하지 않습니다. 런타임이 없을 때의 cockpit 권장값은 macOS 는 Colima 입니다. 상세: cockpit 레포 `docs/dev/local-environment.md`
 
 ## 코드 작성 규칙
 

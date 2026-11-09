@@ -101,46 +101,58 @@ HELP
 	done
 }
 
-ensure_colima_runtime() {
+# Docker 런타임 확보 — 사용자가 이미 쓰는 런타임을 우선하고, 특정 제품을 강제하지 않음
+#   1) docker 데몬이 이미 응답하면 그대로 사용 (Docker Desktop·OrbStack·Colima·Rancher·네이티브 등)
+#   2) 응답이 없고 Colima 가 설치돼 있으면 Colima 를 시작
+#   3) docker CLI 자체가 없는 macOS + Homebrew 면 Colima 설치를 제안 (사용자 확인)
+#   4) 그 외는 런타임 종류에 맞는 안내와 함께 중단
+ensure_docker_runtime() {
 	if [ -f "$ROOT_DIR/.cockpit-local/.cockpit-env" ]; then
 		# shellcheck disable=SC1091
 		source "$ROOT_DIR/.cockpit-local/.cockpit-env"
 	fi
 	local os="${OS_TYPE:-$(uname -s)}"
-	local pkg_mgr="${PKG_MANAGER:-brew}"
-	local needs_colima="${NEEDS_COLIMA:-false}"
+	local pkg_mgr="${PKG_MANAGER:-$(detect_package_manager)}"
+	local runtime
+	runtime="$(detect_docker_runtime)"
 
-	local need_install=()
-	if [ "$needs_colima" = "true" ] || [ "$os" = "Darwin" ]; then
-		command -v colima >/dev/null 2>&1 || need_install+=("colima")
-	fi
-	command -v docker >/dev/null 2>&1 || need_install+=("docker")
-
-	if [ ${#need_install[@]} -gt 0 ]; then
-		log_warn "미설치 도구: ${need_install[*]}"
-		if [ "$pkg_mgr" = "brew" ]; then
-			if [ "$OPT_YES" = "1" ] || tui_confirm "지금 설치하시겠습니까? ($pkg_mgr)"; then
-				brew install "${need_install[@]}" || die "설치 실패: ${need_install[*]}"
-				log_ok "설치 완료: ${need_install[*]}"
-			else
-				die "필수 툴 설치가 취소되었습니다."
-			fi
-		elif [ "$pkg_mgr" = "apt-get" ]; then
-			die "Linux 환경에서는 docker(apt-get install docker.io)를 사전에 직접 설치해야 합니다."
-		else
-			die "자동 설치를 지원하지 않는 환경입니다. 수동 설치 후 재실행하세요: ${need_install[*]}"
-		fi
+	if docker_daemon_up; then
+		log_ok "Docker 런타임: $runtime (실행 중)"
+		return 0
 	fi
 
-	if ! colima status >/dev/null 2>&1; then
-		log_warn "Colima 가 정지 상태입니다. 시작합니다 (수 분 소요 가능)..."
+	if command -v colima >/dev/null 2>&1; then
+		log_warn "Docker 데몬 응답 없음 — 설치된 Colima 를 시작합니다 (수 분 소요 가능)..."
 		colima start || die "colima start 실패 — 수동으로 'colima start' 확인 후 재실행"
-		log_ok "colima 시작됨"
+		docker_daemon_up || die "Colima 는 실행 중이나 docker 데몬에 연결할 수 없습니다. 'docker context use colima' 확인 필요."
+		log_ok "Docker 런타임: colima (시작됨)"
+		return 0
 	fi
 
-	if ! docker info >/dev/null 2>&1; then
-		die "Colima 는 실행 중이나 docker 데몬에 연결할 수 없습니다. 'docker context use colima' 확인 필요."
+	if [ "$runtime" = "none" ] && [ "$os" = "Darwin" ] && [ "$pkg_mgr" = "brew" ]; then
+		log_warn "Docker 런타임이 없습니다. MCP 서버는 Docker 컨테이너로 실행됩니다."
+		log_dim "  · 이미 쓰는 런타임(Docker Desktop·OrbStack 등)이 있다면 설치·실행 후 다시 실행하세요."
+		if [ "$OPT_YES" = "1" ] || tui_confirm "가벼운 오픈소스 런타임 Colima 를 설치할까요? (brew install colima docker)"; then
+			brew install colima docker || die "설치 실패: colima docker"
+			colima start || die "colima start 실패 — 수동으로 'colima start' 확인 후 재실행"
+			docker_daemon_up || die "docker 데몬에 연결할 수 없습니다. 'docker context use colima' 확인 필요."
+			log_ok "Docker 런타임: colima (설치·시작됨)"
+			return 0
+		fi
+		die "Docker 런타임 없이 MCP 서버를 설치할 수 없습니다."
 	fi
+
+	case "$runtime" in
+	none)
+		case "$os" in
+		Darwin) die "Docker 런타임이 없습니다. Colima(https://github.com/abiosoft/colima)·Docker Desktop·OrbStack 중 하나를 설치 후 재실행하세요." ;;
+		Linux) die "docker 가 없습니다. 배포판 패키지(docker.io·docker-ce·moby 등) 또는 https://docs.docker.com/engine/install/ 로 설치 후 재실행하세요." ;;
+		*) die "docker 가 없습니다. 이 OS 에 맞는 Docker 런타임을 설치 후 재실행하세요." ;;
+		esac
+		;;
+	native) die "docker 데몬이 실행 중이 아니거나 권한이 없습니다. 'sudo systemctl start docker' 또는 docker 그룹 권한(newgrp docker)을 확인하세요." ;;
+	*) die "Docker 런타임($runtime)이 실행 중이 아닙니다. 런타임을 실행한 뒤 다시 시도하세요." ;;
+	esac
 }
 
 # Phase 1
@@ -149,7 +161,7 @@ run_preflight_checks() {
 	require_cmd jq
 	log_ok "jq   $(jq --version)"
 
-	ensure_colima_runtime
+	ensure_docker_runtime
 
 	DOCKER_VER=$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo "unknown")
 	DOCKER_CTX=$(docker context show 2>/dev/null || echo "unknown")
@@ -431,11 +443,15 @@ apply_mcp_configurations() {
 	log_ok "로더 스크립트: $LOADER_SH"
 
 	if [ "${OPT_EXPORT_RC:-0}" = "1" ]; then
-		case "${SHELL:-}" in
-		*/zsh) append_source_line "$HOME/.zshrc" ;;
-		*/bash) append_source_line "$HOME/.bashrc" ;;
-		*) append_source_line "$HOME/.zshrc" ;;
-		esac
+		# 로그인 셸에 맞는 rc 에만 추가 — 로더는 bash/zsh 문법이라 fish 등은 수동 안내
+		local rc
+		rc="$(user_shell_rc)"
+		if [ -n "$rc" ]; then
+			append_source_line "$rc"
+		else
+			log_warn "  · 셸($(basename "${SHELL:-unknown}"))용 rc 자동 추가는 지원하지 않습니다. 셸 설정에 직접 추가하세요:"
+			log_dim "    bash -c 'source $LOADER_SH && exec claude'  (또는 셸에 맞는 방식으로 로더 환경변수 export)"
+		fi
 	else
 		log_dim "  · 쉘 rc 자동 추가 생략 (기본값). 필요하면 --export-rc 옵션."
 		log_dim "    토큰은 MCP 서버 프로세스에만 전달되며, 일반 쉘 환경에는 노출되지 않습니다."
@@ -507,7 +523,7 @@ apply_mcp_configurations() {
 
 main() {
 	parse_args "$@"
-	tui_banner "Claude Cockpit · MCP Setup" "Colima Docker 기반 — node:20-alpine · Playwright 브라우저"
+	tui_banner "Claude Cockpit · MCP Setup" "Docker 컨테이너 기반 (설치된 런타임 사용) — node:20-alpine · Playwright 브라우저"
 	run_preflight_checks
 	collect_user_inputs
 	apply_mcp_configurations

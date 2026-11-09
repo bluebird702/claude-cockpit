@@ -47,6 +47,13 @@ echo '▶ ./scripts/configure.sh 실행 (의존성 자동 설치 검증)'
 echo '---------------------------------------------------'
 ./scripts/configure.sh
 
+# 이 장비(ubuntu 컨테이너) 환경이 macOS 가정 없이 감지되는지 검증
+ENV_FILE=/home/testuser/cockpit/.cockpit-local/.cockpit-env
+grep -q 'export PKG_MANAGER="apt-get"' "$ENV_FILE" || { echo "❌ Linux 패키지 매니저(apt-get) 감지 실패"; exit 1; }
+grep -q 'export DOCKER_RUNTIME="none"' "$ENV_FILE" || { echo "❌ docker 없는 환경을 DOCKER_RUNTIME=none 으로 감지하지 못함"; exit 1; }
+grep -q 'export NEEDS_COLIMA="false"' "$ENV_FILE" || { echo "❌ Linux 에서 Colima 를 요구함 (macOS 전용 가정)"; exit 1; }
+echo "✅ 장비 환경 감지 검증 (apt-get · docker 없음 · Colima 불필요)"
+
 echo '---------------------------------------------------'
 echo '▶ ./install.sh --no-mcp 실행 (전역 파일 설치 검증)'
 echo '---------------------------------------------------'
@@ -65,12 +72,12 @@ echo '---------------------------------------------------'
 echo '---------------------------------------------------'
 echo '▶ MCP Setup 비대화형 통합 테스트 (Secrets 관리)'
 echo '---------------------------------------------------'
-# Docker, Colima 런타임 목업(Mocking)
+# Docker 런타임 목업 — Linux 네이티브 docker 처럼 동작. Colima 는 일부러 두지 않는다
+# (Linux 에서 Colima 없이 MCP 설치가 되는지 검증 — 예전 코드는 여기서 colima start 로 실패)
 sudo bash -c 'echo "#!/bin/sh" > /usr/local/bin/docker'
 sudo bash -c 'echo "exit 0" >> /usr/local/bin/docker'
-sudo bash -c 'echo "#!/bin/sh" > /usr/local/bin/colima'
-sudo bash -c 'echo "exit 0" >> /usr/local/bin/colima'
-sudo chmod +x /usr/local/bin/docker /usr/local/bin/colima
+sudo chmod +x /usr/local/bin/docker
+if command -v colima >/dev/null 2>&1; then echo "❌ 테스트 전제 위반: colima 가 설치되어 있음"; exit 1; fi
 # claude CLI 목업 — 실제 CLI 와 같은 규칙으로 ~/.claude.json 에 user 범위 등록
 sudo install -m 755 /home/testuser/cockpit/tests/mocks/claude /usr/local/bin/claude
 
@@ -200,6 +207,16 @@ if grep -Fxq github /home/testuser/.config/claude-cockpit/mcp-servers.list; then
   exit 1
 fi
 
+# 3.6) 사용자가 쓰던 git commit.template 은 덮어쓰지 않아야 한다
+echo "  [Edge 3.6] 사용자 git commit.template 보존"
+git config --global commit.template /home/testuser/.my-commit-template
+/home/testuser/cockpit/scripts/global-install.sh --skip-configure --no-plugins --lang=ko >/dev/null 2>&1 || { echo "❌ global-install 재실행 실패"; exit 1; }
+if [ "$(git config --global --get commit.template)" != "/home/testuser/.my-commit-template" ]; then
+  echo "❌ global-install.sh 가 사용자 commit.template 을 덮어썼습니다!"
+  exit 1
+fi
+git config --global commit.template /home/testuser/.gitmessage # 이후 제거 검증을 위해 cockpit 값으로 복원
+
 # 4) --lang=ko 및 --skip-configure 조합의 .cockpit-env 생성 테스트
 echo "  [Edge 4] --skip-configure 상태에서의 .cockpit-env 보존 테스트"
 if ! grep -q 'export COCKPIT_LANG="ko"' /home/testuser/cockpit/.cockpit-local/.cockpit-env; then
@@ -260,7 +277,10 @@ echo '---------------------------------------------------'
 for i in {1..3}; do
   /home/testuser/cockpit/install.sh --no-mcp >/dev/null 2>&1 || { echo "❌ 다중 실행 $i 번째에서 실패!"; exit 1; }
 done
-echo '✅ 연속 3회 설치 실행에도 크래시나 중복 파일 꼬임 없음'
+lang_lines="$(grep -c '^export COCKPIT_LANG=' /home/testuser/cockpit/.cockpit-local/.cockpit-env)"
+[ "$lang_lines" -eq 1 ] || { echo "❌ 반복 설치 후 .cockpit-env 에 COCKPIT_LANG 이 ${lang_lines}줄로 누적됨"; exit 1; }
+grep -q '^export DOCKER_RUNTIME=' /home/testuser/cockpit/.cockpit-local/.cockpit-env || { echo "❌ 반복 설치 후 감지 환경값이 사라짐"; exit 1; }
+echo '✅ 연속 3회 설치 실행에도 크래시나 중복 파일 꼬임 없음 (.cockpit-env 키 중복 없음)'
 
 echo '---------------------------------------------------'
 echo '▶ 8) 프로젝트 로컬 셋업 도구 검증 (project-link.sh / unlink.sh)'

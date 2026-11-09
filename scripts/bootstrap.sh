@@ -16,7 +16,7 @@
 #   - 두 경우 모두 멱등 (재실행 안전). cockpit 레포는 절대 자동 삭제하지 않음.
 #
 # 환경변수:
-#   COCKPIT_HOME — 클론 위치 (기본: $HOME/Work/claude-cockpit)
+#   COCKPIT_HOME — 클론 위치 (기본: $HOME/claude-cockpit · 예전 기본 $HOME/Work/claude-cockpit 에 클론이 있으면 그것)
 #   COCKPIT_REPO — 원격 URL (기본: https://github.com/bluebird702/claude-cockpit.git)
 #   COCKPIT_REF  — 브랜치/태그 (기본: main)
 #
@@ -57,7 +57,7 @@ Usage: $0 [options]
   --no-mcp    설치 시 MCP 셋업 건너뜀
 
 환경변수:
-  COCKPIT_HOME  클론 위치 (기본: \$HOME/Work/claude-cockpit)
+  COCKPIT_HOME  클론 위치 (기본: \$HOME/claude-cockpit, 예전 위치 \$HOME/Work/claude-cockpit 이 있으면 그것)
   COCKPIT_REPO  원격 URL
   COCKPIT_REF   브랜치/태그 (기본: main)
 EOF
@@ -73,7 +73,14 @@ setup_env() {
 		echo "Error: git 필요"
 		exit 1
 	}
-	COCKPIT_HOME="${COCKPIT_HOME:-$HOME/Work/claude-cockpit}"
+	# 특정 폴더 관례(~/Work 등)를 전제하지 않는 기본값. 예전 기본 위치에 이미 클론이 있으면 그대로 사용
+	if [ -z "${COCKPIT_HOME:-}" ]; then
+		if [ -d "$HOME/Work/claude-cockpit/.git" ]; then
+			COCKPIT_HOME="$HOME/Work/claude-cockpit"
+		else
+			COCKPIT_HOME="$HOME/claude-cockpit"
+		fi
+	fi
 	COCKPIT_REPO="${COCKPIT_REPO:-https://github.com/bluebird702/claude-cockpit.git}"
 }
 

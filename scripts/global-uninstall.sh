@@ -77,7 +77,7 @@ printf '\n  %s제거 대상:%s\n' "$C_BOLD" "$C_RESET"
 printf '    · ~/.claude/{CLAUDE.md, settings.json, keybindings.json} (cockpit 링크만)\n'
 printf '    · ~/.claude/commands/<skills 카테고리> (cockpit 링크만)\n'
 printf '    · ~/.claude/agents (cockpit 링크만)\n'
-[ "$OPT_WITH_MCP" = "1" ] && printf '    · MCP 서버 (settings.json)\n'
+[ "$OPT_WITH_MCP" = "1" ] && printf '    · cockpit 이 등록한 MCP 서버 (~/.claude.json user 범위 — 직접 추가한 서버는 보존)\n'
 [ "$OPT_PURGE_MCP" = "1" ] && printf '    · MCP 비밀·공개 env·로더·rc source 라인\n'
 [ "$OPT_STOP_COLIMA" = "1" ] && printf '    · Colima 데몬 정지\n'
 [ "$OPT_PURGE_MEMORY" = "1" ] && printf '    · ~/.claude/memory/ 시드 파일 (유저 신규 파일은 보존)\n'
@@ -87,7 +87,8 @@ printf '\n  %s보존:%s\n' "$C_BOLD" "$C_RESET"
 printf '    · ~/.claude/backups/ (복구 자산)\n'
 printf '    · ~/.claude/plugins/ (Claude Code 관리)\n'
 [ "$OPT_PURGE_MEMORY" = "0" ] && printf '    · ~/.claude/memory/ (대화 자산)\n'
-printf '    · Homebrew 로 설치된 colima/docker 바이너리\n'
+printf '    · 설치된 Docker 런타임·패키지 (Colima·Docker Desktop 등 — cockpit 은 삭제하지 않음)\n'
+printf '    · git commit.template 이 cockpit 템플릿(~/.gitmessage)이 아니면 그대로\n'
 
 if [ "$OPT_YES" = "0" ]; then
 	if ! tui_confirm "이대로 진행하시겠습니까?" N; then
