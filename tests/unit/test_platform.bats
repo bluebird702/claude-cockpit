@@ -8,16 +8,25 @@ setup() {
 	export TEST_TEMP_DIR="$(mktemp -d)"
 	STUB_BIN="$TEST_TEMP_DIR/bin"
 	mkdir -p "$STUB_BIN"
-	# 스텁 + 기본 유틸만 보이게 (호스트의 brew·docker 등이 결과에 섞이지 않도록)
-	export PATH="$STUB_BIN:/usr/bin:/bin"
+	# PATH 를 스텁 디렉토리로만 제한 — /usr/bin 을 넣으면 CI 러너의 실제 apt-get·docker 가
+	# 감지되어 결과가 호스트에 따라 달라진다. 함수가 쓰는 기본 유틸만 링크한다.
+	local tool
+	for tool in basename chmod rm; do
+		ln -s "$(command -v "$tool")" "$STUB_BIN/$tool"
+	done
+	ORIG_PATH="$PATH"
+	export PATH="$STUB_BIN"
 }
 
 teardown() {
+	# 스텁 디렉토리를 지우기 전에 PATH 복원 (bats 내부 정리 단계가 rm 등을 호출)
+	export PATH="$ORIG_PATH"
 	rm -rf "$TEST_TEMP_DIR"
 }
 
 stub() {
-	# stub <name> <script body>
+	# stub <name> <script body> — 기존 항목(링크 포함)은 지우고 새로 작성
+	rm -f "$STUB_BIN/$1"
 	printf '#!/bin/sh\n%s\n' "$2" >"$STUB_BIN/$1"
 	chmod +x "$STUB_BIN/$1"
 }
