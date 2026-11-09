@@ -4,7 +4,7 @@
   "servers": {
     "github": {
       "label": "GitHub",
-      "description": "GitHub Issues / PR / Code 검색",
+      "description": "GitHub 공식 MCP 서버 (github/github-mcp-server) — Issues / PR / Code 검색",
       "command": "docker",
       "args": [
         "run",
@@ -12,12 +12,7 @@
         "-i",
         "-e",
         "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "-v",
-        "mcp_npm_cache:/root/.npm",
-        "node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293",
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-github@2025.4.8"
+        "ghcr.io/github/github-mcp-server:v2.0.3@sha256:250bc6ce70788207608ef74cef4397230ff2e8481218da74d6093e4bd9101132"
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
