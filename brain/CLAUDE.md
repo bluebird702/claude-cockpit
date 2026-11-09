@@ -17,6 +17,7 @@
 - @hard-won-conventions.md — **실사고에서 배운 edge 관례. 일반 표준과 긴장하면 이쪽 우선.**
 - @coding/coding-guidelines.md — 언어별 스타일, Clean Architecture, 조건문 패턴
 - @engineering/reliability.md — **대규모(2000만↑) 전제의 신뢰성·확장성 기준** — 스케일 티어(prototype/production/hyperscale)·데이터 접근·회복탄력성·멱등성·관측성·launch-readiness
+- @engineering/architecture.md — 시스템 설계 기준 (정량적 QPS 산정·CAP 트레이드오프·FMEA) — `/design:system-design` 이 상속
 - @testing/testing-guidelines.md — 테스트 프레임워크, AAA/BDD, Mocking 전략
 - @api/api-design.md — REST API 설계 원칙, 보안, DDD 매핑
 - @writing/commit-message.md — 커밋 메시지 형식·type·AI 에이전트 커밋 규칙
@@ -28,6 +29,7 @@
 기능 스펙·요구사항 정리 작업 시 적용.
 
 - @planning/prd-guidelines.md — 1-페이지 PRD 형식, In/Out of Scope, 롤백 기준
+- @planning/product.md — 기획 판단 프레임 (JTBD·RICE 우선순위·Pre-mortem) — `/plan:ideation` 이 상속
 
 ## 🎯 프로덕트 (Product)
 
@@ -41,6 +43,7 @@
 
 - @management/security.md — 시크릿, 의존성, 로그, 사고 대응
 - @management/decision-log.md — ADR 프로세스 (언제/어떻게 쓰는가)
+- @management/incident.md — 장애 대응·포스트모템 SRE 기준 (Blameless·5 Whys·PDM) — `/prod:rca` 가 상속
 
 ## 🤖 AI (AI Collaboration)
 
@@ -53,7 +56,7 @@ AI 에이전트와 함께 일하는 모든 작업에 적용.
 
 ## 공통 정책
 
-- **응답 언어**: 모든 응답은 **한글** (코드 변수명/함수명은 영어)
+- **응답 언어**: 사용자 설정(`system/CLAUDE.md` § 응답 규칙)을 따릅니다 — brain 은 언어를 강제하지 않습니다(포크 시 교체 가능한 개인 선호 슬롯). 단 **코드 변수명·함수명·파일명은 언제나 영어**
 - **커버리지 임계값 조정 금지** → 테스트 추가로 해결
 - **Domain 모듈에 프레임워크 의존성 금지** → 순수 언어 코드만
 - **지표 없는 기능 런치 금지** → @product/metrics.md

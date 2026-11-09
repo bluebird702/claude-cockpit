@@ -16,6 +16,8 @@
 |------|------|
 | [hard-won-conventions.md](hard-won-conventions.md) | **실사고에서 배운 edge 관례(해자). 일반 표준보다 우선** |
 | [coding/coding-guidelines.md](coding/coding-guidelines.md) | 언어별 스타일, Clean Architecture, 조건문 패턴 |
+| [engineering/reliability.md](engineering/reliability.md) | 대규모 전제 신뢰성·확장성 기준 — 스케일 티어·회복탄력성·멱등성·관측성 |
+| [engineering/architecture.md](engineering/architecture.md) | 시스템 설계 기준 — 정량적 QPS 산정·CAP 트레이드오프·FMEA |
 | [testing/testing-guidelines.md](testing/testing-guidelines.md) | 테스트 프레임워크, AAA/BDD, Mocking |
 | [api/api-design.md](api/api-design.md) | REST API 설계 원칙, 보안, DDD 매핑 |
 | [writing/commit-message.md](writing/commit-message.md) | 커밋 메시지 형식·type·AI 에이전트 커밋 규칙 |
@@ -27,6 +29,7 @@
 | 문서 | 설명 |
 |------|------|
 | [planning/prd-guidelines.md](planning/prd-guidelines.md) | 1-페이지 PRD 형식, Out of Scope, 롤백 기준 |
+| [planning/product.md](planning/product.md) | 기획 판단 프레임 — JTBD·RICE 우선순위·Pre-mortem |
 
 ### 🎯 프로덕트 (Product)
 
@@ -42,6 +45,7 @@
 |------|------|
 | [management/security.md](management/security.md) | 시크릿, 의존성, 로그, 사고 대응 |
 | [management/decision-log.md](management/decision-log.md) | ADR 프로세스 |
+| [management/incident.md](management/incident.md) | 장애 대응·포스트모템 SRE 기준 — Blameless·5 Whys·PDM |
 
 ### 🤖 AI (AI Collaboration)
 
